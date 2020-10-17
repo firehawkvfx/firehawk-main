@@ -1,0 +1,3 @@
+[submodule "modules/terraform-aws-vpc-vpn"]
+	path = modules/terraform-aws-vpc-vpn
+	url = https://github.com/firehawkvfx/terraform-aws-vpc-vpn.git
