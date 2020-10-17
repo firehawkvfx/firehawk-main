@@ -34,7 +34,7 @@ module "vpc" {
 #   create_vpc = var.enable_vpc
 #   route_public_domain_name = var.route_public_domain_name
 #   private_domain = var.private_domain
-#   sleep              = var.sleep
+  sleep              = var.sleep
 #   enable_nat_gateway = var.enable_nat_gateway
 #   azs = var.azs
 
