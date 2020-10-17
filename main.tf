@@ -5,6 +5,10 @@ provider "aws" {
   version = "~> 3.3.0"
 }
 
+provider "null" {
+  version = "~> 3.0"
+}
+
 module "vpc" {
   source = "./modules/terraform-aws-vpc-vpn"
 
