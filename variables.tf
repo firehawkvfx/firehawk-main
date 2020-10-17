@@ -10,3 +10,9 @@ variable "sleep" {
   type        = bool
   default     = false
 }
+
+variable "enable_vault" {
+  description = "Deploy Hashicorp Vault into the VPC"
+  type = bool
+  default = true 
+}

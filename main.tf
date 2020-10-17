@@ -63,3 +63,14 @@ module "vpc" {
 #   vpc_name = local.name
   common_tags = local.common_tags
 }
+
+module "vault" {
+  source = "./modules/terraform-aws-vault"
+  
+  count = var.enable_vault ? 1 : 0
+  depends_on = [module.vpc]
+  
+  use_default_vpc = false
+  vpc_tags = local.common_tags #tags used to find the vpc to deploy into.
+  subnet_tags =  map("area", "private")
+}
