@@ -3,7 +3,8 @@
 
 # AWS_ACCESS_KEY_ID
 # AWS_SECRET_ACCESS_KEY
-# AWS_DEFAULT_REGION
+# AWS_DEFAULT_REGION # this cen be set with:
+# export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/'); echo $AWS_DEFAULT_REGION
 
 variable "sleep" {
   description = "Sleep will disable the nat gateway and shutdown instances to save cost during idle time."
