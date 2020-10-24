@@ -15,7 +15,7 @@ variable "sleep" {
 variable "enable_vault" {
   description = "Deploy Hashicorp Vault into the VPC"
   type = bool
-  default = false 
+  default = true 
 }
 
 variable "aws_private_key_path" {
