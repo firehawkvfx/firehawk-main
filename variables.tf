@@ -15,7 +15,13 @@ variable "sleep" {
 variable "enable_vault" {
   description = "Deploy Hashicorp Vault into the VPC"
   type = bool
-  default = true 
+  default = false 
+}
+
+variable "aws_private_key_path" {
+  description = "The private key path for the key used to ssh into the bastion for provisioning"
+  type = string
+  default = ""
 }
 
 variable "vault_public_key" {
@@ -27,5 +33,5 @@ variable "vault_public_key" {
 variable "remote_ip_cidr" {
   description = "The public IP of the host used to ssh to the bastion."
   type = string
-  default = ""
+  default = null
 }

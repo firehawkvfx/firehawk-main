@@ -60,12 +60,12 @@ module "vpc" {
 #   #vpn variables
 #   vpn_cidr = var.vpn_cidr
   remote_ip_cidr = var.remote_ip_cidr
-#   remote_subnet_cidr = var.remote_subnet_cidr
+  remote_subnet_cidr = var.remote_ip_cidr # this is a dummy address. normally for the vpn to function this should be the cidr range of your private subnet
 
 #   #a provided route 53 zone id will be modified to have a subdomain to access vpn.  you will need to manually setup a route 53 zone for a domain with an ssl certificate.
 
   aws_key_name           = module.key_pair.this_key_pair_key_name
-#   aws_private_key_path     = var.aws_private_key_path
+  aws_private_key_path     = var.aws_private_key_path
 #   route_zone_id      = var.route_zone_id
 #   public_domain_name = var.public_domain
 #   cert_arn           = var.cert_arn
