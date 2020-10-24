@@ -4,3 +4,6 @@
 [submodule "modules/terraform-aws-vault"]
 	path = modules/terraform-aws-vault
 	url = https://github.com/firehawkvfx/terraform-aws-vault.git
+[submodule "ansible"]
+	path = ansible
+	url = https://github.com/firehawkvfx/ansible.git
