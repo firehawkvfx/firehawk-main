@@ -26,6 +26,19 @@ locals {
   }
 }
 
+# resource "tls_private_key" "main" {
+#   algorithm = "RSA"
+# }
+
+module "key_pair" {
+  source = "terraform-aws-modules/key-pair/aws"
+
+  key_name   = "main-deployment"
+  # public_key = tls_private_key.main.public_key_openssh
+  public_key = var.vault_public_key
+  tags = local.common_tags
+}
+
 module "vpc" {
   source = "./modules/terraform-aws-vpc-vpn"
   # region = data.aws_region.current.name
@@ -35,6 +48,7 @@ module "vpc" {
 #   route_public_domain_name = var.route_public_domain_name
 #   private_domain = var.private_domain
   sleep              = var.sleep
+  create_bastion = true
 #   enable_nat_gateway = var.enable_nat_gateway
 #   azs = var.azs
 
@@ -50,7 +64,7 @@ module "vpc" {
 
 #   #a provided route 53 zone id will be modified to have a subdomain to access vpn.  you will need to manually setup a route 53 zone for a domain with an ssl certificate.
 
-#   aws_key_name           = var.aws_key_name
+  aws_key_name           = module.key_pair.this_key_pair_key_name
 #   aws_private_key_path     = var.aws_private_key_path
 #   route_zone_id      = var.route_zone_id
 #   public_domain_name = var.public_domain
@@ -73,4 +87,6 @@ module "vault" {
   use_default_vpc = false
   vpc_tags = local.common_tags #tags used to find the vpc to deploy into.
   subnet_tags =  map("area", "private")
+  
+  ssh_key_name = module.key_pair.this_key_pair_key_name
 }
