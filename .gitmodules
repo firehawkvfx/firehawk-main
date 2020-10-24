@@ -1,9 +1,9 @@
 [submodule "modules/terraform-aws-vpc-vpn"]
 	path = modules/terraform-aws-vpc-vpn
-	url = https://github.com/firehawkvfx/terraform-aws-vpc-vpn.git
+	url = ../terraform-aws-vpc-vpn.git
 [submodule "modules/terraform-aws-vault"]
 	path = modules/terraform-aws-vault
-	url = https://github.com/firehawkvfx/terraform-aws-vault.git
+	url = ../terraform-aws-vault.git
 [submodule "ansible"]
 	path = ansible
-	url = https://github.com/firehawkvfx/ansible.git
+	url = ../ansible.git
