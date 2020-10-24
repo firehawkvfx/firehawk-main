@@ -8,3 +8,5 @@ else
     export TF_VAR_vault_public_key=$(cat $public_key_path)
 fi
 export TF_VAR_vault_public_key=$(cat $public_key_path)
+
+export remote_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32"

@@ -23,3 +23,9 @@ variable "vault_public_key" {
   type = string
   default = ""
 }
+
+variable "remote_ip_cidr" {
+  description = "The public IP of the host used to ssh to the bastion."
+  type = string
+  default = ""
+}
