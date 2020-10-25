@@ -172,7 +172,7 @@ This will create a Cloud 9 instance with no inbound access.
 - Once connected, disable "AWS Managed Temporary Credentials" ( Select the Cloud9 Icon in the top left | AWS Settings )
 Your instance should now have permission to create and destroy any resource with Terraform.
 
-## Create a Hashicorp Vault deployment in a private VPC with Bastion host
+## Create the Hashicorp Vault deployment in a private VPC with Bastion host
 
 - Clone the repo, and install required binaries and packages.
 ```
@@ -180,4 +180,10 @@ git clone --recurse-submodules https://github.com/firehawkvfx/firehawk-main.git
 cd firehawk-main; ./install_packages.sh
 ```
 
-- terraform apply
+- Use `terraform apply` to spin up the resources.
+The bastion host will be configured to be used if you ssh into any private IP in the VPC:
+```
+ssh ubuntu@some_vault_instance_private_ip
+```
+
+- Note: Optionally, you can use this repository as a submodule in your own repository, but the parent repo should be private, or take care to note commit the secrets/ path produced outside of this repo.
