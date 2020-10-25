@@ -180,10 +180,18 @@ git clone --recurse-submodules https://github.com/firehawkvfx/firehawk-main.git
 cd firehawk-main; ./install_packages.sh
 ```
 
-- Use `terraform apply` to spin up the resources.
-The bastion host will be configured to be used if you ssh into any private IP in the VPC:
+- Initialise the environment variables and spin up the resources.
+```
+source ./update_vars.sh
+terraform apply
+```
+- The bastion host will be configured to be used if you ssh into any private IP in the VPC:
 ```
 ssh ubuntu@some_vault_instance_private_ip
+```
+- You can also ssh directly into the bastion with:
+```
+ssh bastion
 ```
 
 - Note: Optionally, you can use this repository as a submodule in your own repository, but the parent repo should be private, or take care to note commit the secrets/ path produced outside of this repo.
