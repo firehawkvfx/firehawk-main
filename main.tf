@@ -91,4 +91,6 @@ module "vault" {
   enable_auto_unseal = true
   
   ssh_key_name = module.key_pair.this_key_pair_key_name
+
+  ami_id = var.ami_id
 }
