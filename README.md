@@ -195,4 +195,4 @@ ssh ubuntu@some_vault_instance_private_ip
 ssh bastion
 ```
 
-- Note: Optionally, you can use this repository as a submodule in your own repository, but the parent repo should be private, or take care to note commit the secrets/ path produced outside of this repo.
+- Note: You can use this repository as a submodule in your own repository, but the parent repo should be private, or take care to never commit the secrets/ path produced in the parent folder outside of this repo.
