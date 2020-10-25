@@ -1,9 +1,17 @@
-# firehawk-main
-The Firehawk Main VPC contains shared resources for all Firehawk deployments.
+# Firehawk-Main
+The Firehawk Main VPC (WIP) deploys Hashicorp Vault into a private VPC with auto unsealing.
 
-This deployment uses Cloud 9 so simplify secrets management.  You will need to create a custom profile to allow the cloud 9 instance permission to create these resources with terraform.
+This deployment uses Cloud 9 to simplify management of AWS Secret Keys.  You will need to create a custom profile to allow the cloud 9 instance permission to create these resources with Terraform.  
+  
+## Policies for the Cloud 9 instance.
 
-In AWS | IAM | Policies: Create a new policy named: Cloud9SSMCustomInstanceProfile.
+WARNING: Do not use this in production without restricting these policies further.
+These policies are WIP, and are far too permissive for a production or persistant deployment.  
+
+- Ensure you have MFA enabled for the current user.
+
+- In AWS Management Console | IAM | Policies: Create a new policy named: Cloud9SSMCustomInstanceProfile.
+Use this JSON definition for the policy:
 ```
 {
     "Version": "2012-10-17",
@@ -22,9 +30,8 @@ In AWS | IAM | Policies: Create a new policy named: Cloud9SSMCustomInstanceProfi
     ]
 }
 ```
-In AWS | IAM | Policies: Create a new policy named: Cloud9CustomRole.
-
-Apply This JSON policy:
+- In AWS Management Console | IAM | Policies: Create a new policy named: Cloud9CustomRole.
+Use this JSON definition for the policy:
 ```
 {
     "Version": "2012-10-17",
@@ -117,7 +124,9 @@ Apply This JSON policy:
     ]
 }
 ```
-Edit Trust relationships and use this policy:
+- Create a new role called Cloud9CustomRole
+
+Edit trust relationships for this role and use this JSON definition:
 ```
 {
   "Version": "2012-10-17",
@@ -140,10 +149,35 @@ Edit Trust relationships and use this policy:
 }
 ```
 
+- Attach these policies to the role:
+```
+Cloud9SSMCustomInstanceProfile
+Cloud9CustomPolicy
+IAMFullAccess
+AdministratorAccess
+```
 
-In AWS | Cloud9: Create Environment
+## Creating The Cloud9 Environment
+
+- In AWS Management Console | Cloud9: Select Create Environment
 
 Ensure you have selected:
-Create a new no-ingress EC2 instance for environment (access via Systems Manager)
+`Create a new no-ingress EC2 instance for environment (access via Systems Manager)`
+This will create a Cloud 9 instance with no inbound access.
 
+- Once up, in AWS Management Console | EC2 : Select the instance, and change the instance profile to your `Cloud9CustomRole`
+
+- Ensure you can connect to the IDE through AWS Management Console | Cloud9.
+
+- Once connected, disable "AWS Managed Temporary Credentials" ( Select the Cloud9 Icon in the top left | AWS Settings )
+Your instance should now have permission to create and destroy any resource with Terraform.
+
+## Create a Hashicorp Vault deployment in a private VPC with Bastion host
+
+- Clone the repo, and install required binaries and packages.
+```
 git clone --recurse-submodules https://github.com/firehawkvfx/firehawk-main.git
+cd firehawk-main; ./install_packages.sh
+```
+
+- terraform apply
