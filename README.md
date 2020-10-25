@@ -183,6 +183,7 @@ cd firehawk-main; ./install_packages.sh
 - Initialise the environment variables and spin up the resources.
 ```
 source ./update_vars.sh
+terraform init
 terraform apply
 ```
 - The bastion host will be configured to be used if you ssh into any private IP in the VPC:
