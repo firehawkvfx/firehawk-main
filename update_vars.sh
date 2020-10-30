@@ -34,3 +34,4 @@ if [[ ! -f $TF_VAR_inventory/hosts ]] ; then
     echo "ansible_control ansible_connection=local" >> $TF_VAR_inventory/hosts
 fi
 
+export TF_VAR_bucket_extension='firehawkvfx.com'

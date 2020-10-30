@@ -92,5 +92,9 @@ module "vault" {
   
   ssh_key_name = module.key_pair.this_key_pair_key_name
 
+  # Persist vault data in an S3 bucket when all nodes are shut down.
+  enable_s3_backend = true
+  s3_bucket_name = "vault.${var.bucket_extension}"
+
   ami_id = var.ami_id
 }
