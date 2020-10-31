@@ -49,6 +49,7 @@ module "vpc" {
 #   private_domain = var.private_domain
   sleep              = var.sleep
   create_bastion = true
+  bastion_ami_id = var.bastion_ami_id
 #   enable_nat_gateway = var.enable_nat_gateway
 #   azs = var.azs
 
