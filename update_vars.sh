@@ -7,6 +7,11 @@ to_abs_path() {
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
 
+if [[ -f "modules/terraform-aws-vault/examples/bastion-ami/manifest.json" ]]; then
+    export PKR_VAR_bastion_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' modules/terraform-aws-vault/examples/bastion-ami/manifest.json | cut -d ":" -f2)"
+    echo "Found bastion_cento7_ami in manifest: PKR_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami"
+fi
+
 export TF_VAR_aws_private_key_path="$HOME/.ssh/id_rsa"
 
 export TF_VAR_general_use_ssh_key="$TF_VAR_aws_private_key_path" # TF_VAR_general_use_ssh_key is for onsite resources.  In some scenarios the ssh key for onsite may be different to the ssh key used for cloud resources.
