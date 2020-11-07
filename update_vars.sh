@@ -5,6 +5,7 @@ to_abs_path() {
 }
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
+export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
 
 export TF_VAR_aws_private_key_path="$HOME/.ssh/id_rsa"
 
