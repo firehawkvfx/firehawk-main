@@ -50,6 +50,8 @@ if [[ ! -f $TF_VAR_inventory/hosts ]] ; then
 fi
 export TF_VAR_bucket_extension='firehawkvfx.com'
 
+source ../secrets/secret_vars.sh
+
 echo "Ensure you specify your own ami id inline. eg: terraform apply -var 'ami_id=ami-12345678910'"
 echo "After deployment, ssh into the vault and init with: vault operator init -recovery-shares=1 -recovery-threshold=1"
 echo "Store the initial root token in a password manager (encrypted)."
