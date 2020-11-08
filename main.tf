@@ -97,5 +97,5 @@ module "vault" {
   enable_s3_backend = true
   s3_bucket_name = "vault.${var.bucket_extension}"
 
-  ami_id = var.ami_id
+  ami_id = var.vault_consul_ami_id
 }

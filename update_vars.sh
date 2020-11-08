@@ -14,11 +14,16 @@ if [[ -f "modules/terraform-aws-vault/examples/bastion-ami/manifest.json" ]]; th
     export TF_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami
     export TF_VAR_bastion_ami_id=$TF_VAR_bastion_centos7_ami
 fi
-if [[ -f "modules/terraform-aws-vault/examples/bastion-ami/manifest.json" ]]; then
+if [[ -f "modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json" ]]; then
     export PKR_VAR_bastion_centos7_nicedcv_nvidia_ami="$(jq -r '.builds[] | select(.name == "centos7-nicedcv-nvidia-ami") | .artifact_id' modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found bastion_centos7_nicedcv_nvidia_ami in manifest: PKR_VAR_bastion_centos7_nicedcv_nvidia_ami=$PKR_VAR_bastion_centos7_nicedcv_nvidia_ami"
     export TF_VAR_bastion_centos7_nicedcv_nvidia_ami=$PKR_VAR_bastion_centos7_nicedcv_nvidia_ami
     export TF_VAR_bastion_graphical_ami_id=$TF_VAR_bastion_centos7_nicedcv_nvidia_ami
+fi
+if [[ -f "modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
+    export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+    echo "Found vault_consul_ami in manifest: PKR_VAR_vault_consul_ami=$PKR_VAR_vault_consul_ami"
+    export TF_VAR_vault_consul_ami_id=$PKR_VAR_vault_consul_ami
 fi
 export PACKER_LOG=1
 export PACKER_LOG_PATH="packerlog.log"
