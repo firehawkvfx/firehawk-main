@@ -51,6 +51,7 @@ module "vpc" {
   create_bastion = true
   create_bastion_graphical = true
   bastion_ami_id = var.bastion_ami_id
+  bastion_graphical_ami_id = var.bastion_graphical_ami_id
 #   enable_nat_gateway = var.enable_nat_gateway
 #   azs = var.azs
 
