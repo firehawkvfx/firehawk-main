@@ -18,7 +18,8 @@ if [[ -f "modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json" ]]; t
     export PKR_VAR_bastion_centos7_nicedcv_nvidia_ami="$(jq -r '.builds[] | select(.name == "centos7-nicedcv-nvidia-ami") | .artifact_id' modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found bastion_centos7_nicedcv_nvidia_ami in manifest: PKR_VAR_bastion_centos7_nicedcv_nvidia_ami=$PKR_VAR_bastion_centos7_nicedcv_nvidia_ami"
     export TF_VAR_bastion_centos7_nicedcv_nvidia_ami=$PKR_VAR_bastion_centos7_nicedcv_nvidia_ami
-    export TF_VAR_bastion_graphical_ami_id=$TF_VAR_bastion_centos7_nicedcv_nvidia_ami
+    # export TF_VAR_bastion_graphical_ami_id=$TF_VAR_bastion_centos7_nicedcv_nvidia_ami
+    export TF_VAR_bastion_graphical_ami_id="ami-005e5d06689d9e25b" # Temporary test with amazon linux ami
 fi
 if [[ -f "modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
     export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
