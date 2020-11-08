@@ -47,7 +47,7 @@ module "vpc" {
 #   create_vpc = var.enable_vpc
 #   route_public_domain_name = var.route_public_domain_name
 #   private_domain = var.private_domain
-  sleep              = var.sleep
+  sleep          = var.sleep
   create_bastion = true
   bastion_ami_id = var.bastion_ami_id
 #   enable_nat_gateway = var.enable_nat_gateway
@@ -61,6 +61,7 @@ module "vpc" {
 #   #vpn variables
 #   vpn_cidr = var.vpn_cidr
   remote_ip_cidr = var.remote_ip_cidr
+  remote_ip_graphical_cidr = var.remote_ip_graphical_cidr
   remote_subnet_cidr = var.remote_ip_cidr # this is a dummy address. normally for the vpn to function this should be the cidr range of your private subnet
 
 #   #a provided route 53 zone id will be modified to have a subdomain to access vpn.  you will need to manually setup a route 53 zone for a domain with an ssl certificate.
