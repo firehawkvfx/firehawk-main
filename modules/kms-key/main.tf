@@ -24,6 +24,7 @@ resource "aws_ssm_parameter" "vault_kms_unseal" {
 }
 
 data "aws_ssm_parameter" "vault_kms_unseal" {
+  depends_on = [aws_ssm_parameter.vault_kms_unseal]
   name = "vault_kms_unseal_key_id"
 }
 
