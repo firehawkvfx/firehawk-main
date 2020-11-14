@@ -30,13 +30,13 @@ locals {
 #   algorithm = "RSA"
 # }
 
-module "key_pair" {
-  source = "terraform-aws-modules/key-pair/aws"
+# module "key_pair" {
+#   source = "terraform-aws-modules/key-pair/aws"
 
-  key_name   = "main-deployment" 
-  public_key = var.vault_public_key
-  tags = local.common_tags
-}
+#   key_name   = "main-deployment" 
+#   public_key = var.vault_public_key
+#   tags = local.common_tags
+# }
 
 # module "vpc" {
 #   source = "./modules/terraform-aws-vpc-vpn"
@@ -93,7 +93,7 @@ module "vault" {
 
   enable_auto_unseal = true
   
-  ssh_key_name = module.key_pair.this_key_pair_key_name
+  ssh_key_name = "main-deployment"
 
   # Persist vault data in an S3 bucket when all nodes are shut down.
   enable_s3_backend = true
