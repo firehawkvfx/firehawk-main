@@ -1,3 +1,9 @@
+provider "aws" {
+  #  if you haven't installed and configured the aws cli, you will need to provide your aws access key and secret key.
+  # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
+#   version = "~> 3.3.0"
+}
+
 resource "aws_kms_key" "vault" {
   description             = "Vault unseal key"
   deletion_window_in_days = 10
