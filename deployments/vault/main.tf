@@ -82,7 +82,7 @@ module "key_pair" {
 # }
 
 module "vault" {
-  source = "../modules/terraform-aws-vault"
+  source = "../../modules/terraform-aws-vault"
   
   count = var.enable_vault ? 1 : 0
   # depends_on = [module.vpc]
