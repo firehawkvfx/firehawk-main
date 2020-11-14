@@ -5,7 +5,7 @@ provider "null" {
 provider "aws" {
   #  if you haven't installed and configured the aws cli, you will need to provide your aws access key and secret key.
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
-  version = "~> 3.3.0"
+  version = "~> 3.15.0"
 }
 
 data "aws_region" "current" {}
@@ -33,8 +33,7 @@ locals {
 module "key_pair" {
   source = "terraform-aws-modules/key-pair/aws"
 
-  key_name   = "main-deployment"
-  # public_key = tls_private_key.main.public_key_openssh
+  key_name   = "main-deployment" 
   public_key = var.vault_public_key
   tags = local.common_tags
 }
@@ -82,23 +81,23 @@ module "vpc" {
   common_tags = local.common_tags
 }
 
-module "vault" {
-  source = "./modules/terraform-aws-vault"
+# module "vault" {
+#   source = "./modules/terraform-aws-vault"
   
-  count = var.enable_vault ? 1 : 0
-  depends_on = [module.vpc]
+#   count = var.enable_vault ? 1 : 0
+#   depends_on = [module.vpc]
   
-  use_default_vpc = false
-  vpc_tags = local.common_tags #tags used to find the vpc to deploy into.
-  subnet_tags =  map("area", "private")
+#   use_default_vpc = false
+#   vpc_tags = local.common_tags #tags used to find the vpc to deploy into.
+#   subnet_tags =  map("area", "private")
 
-  enable_auto_unseal = true
+#   enable_auto_unseal = true
   
-  ssh_key_name = module.key_pair.this_key_pair_key_name
+#   ssh_key_name = module.key_pair.this_key_pair_key_name
 
-  # Persist vault data in an S3 bucket when all nodes are shut down.
-  enable_s3_backend = true
-  s3_bucket_name = "vault.${var.bucket_extension}"
+#   # Persist vault data in an S3 bucket when all nodes are shut down.
+#   enable_s3_backend = true
+#   s3_bucket_name = "vault.${var.bucket_extension}"
 
-  ami_id = var.vault_consul_ami_id
-}
+#   ami_id = var.vault_consul_ami_id
+# }

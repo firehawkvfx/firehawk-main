@@ -196,3 +196,12 @@ ssh bastion
 ```
 
 - Note: You can use this repository as a submodule in your own repository, but the parent repo should be private, or take care to never commit the secrets/ path produced in the parent folder outside of this repo.
+
+- Initialise the vault:
+```
+ssh ubuntu@(Vault Private IP)
+vault operator init -recovery-shares=1 -recovery-threshold=1
+vault login (Root Token)
+```
+
+- Store all sensitive output in an encrypted password manager for later use.
