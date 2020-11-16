@@ -4,6 +4,8 @@ to_abs_path() {
   python -c "import os; print(os.path.abspath('$1'))"
 }
 
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 
 # Packer Vars
@@ -41,7 +43,7 @@ else
 fi
 export TF_VAR_vault_public_key=$(cat $public_key_path)
 export TF_VAR_remote_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32"
-export TF_VAR_inventory="$(to_abs_path ../secrets/inventory)"
+export TF_VAR_inventory="$(to_abs_path $SCRIPTDIR/../secrets/inventory)"
 mkdir -p $TF_VAR_inventory
 export TF_VAR_firehawk_path=$PWD
 export TF_VAR_log_dir="$PWD/tmp/log"
@@ -51,7 +53,7 @@ if [[ ! -f $TF_VAR_inventory/hosts ]] ; then
 fi
 export TF_VAR_bucket_extension='firehawkvfx.com'
 
-source ../secrets/secret_vars.sh
+source $SCRIPTDIR/../secrets/secret_vars.sh
 
 echo "After deployment, ssh into the vault and init with: vault operator init -recovery-shares=1 -recovery-threshold=1"
 echo "Store the initial root token in a password manager (encrypted)."
