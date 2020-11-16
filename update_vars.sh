@@ -10,21 +10,21 @@ export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/plac
 
 # Packer Vars
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
-if [[ -f "modules/terraform-aws-vault/examples/bastion-ami/manifest.json" ]]; then
-    export PKR_VAR_bastion_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' modules/terraform-aws-vault/examples/bastion-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/bastion-ami/manifest.json" ]]; then
+    export PKR_VAR_bastion_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/bastion-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found bastion_centos7_ami in manifest: PKR_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami"
     export TF_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami
     export TF_VAR_bastion_ami_id=$TF_VAR_bastion_centos7_ami
 fi
-if [[ -f "modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json" ]]; then
-    export PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami="$(jq -r '.builds[] | select(.name == "amazonlinux2-nicedcv-nvidia-ami") | .artifact_id' modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json" ]]; then
+    export PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami="$(jq -r '.builds[] | select(.name == "amazonlinux2-nicedcv-nvidia-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/nice-dcv-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found bastion_amazonlinux2_nicedcv_nvidia_ami in manifest: PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami=$PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami"
     export TF_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami=$PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami
     export TF_VAR_bastion_graphical_ami_id=$TF_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami
     # export TF_VAR_bastion_graphical_ami_id="ami-005e5d06689d9e25b" # Temporary test with amazon linux ami
 fi
-if [[ -f "modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
-    export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
+    export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found vault_consul_ami in manifest: PKR_VAR_vault_consul_ami=$PKR_VAR_vault_consul_ami"
     export TF_VAR_vault_consul_ami_id=$PKR_VAR_vault_consul_ami
 fi
