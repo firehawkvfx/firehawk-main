@@ -82,6 +82,7 @@ function run {
     local -r cert_file_path="$8"
     local -r build="$9"
 
+    rm -fr /tmp/terraform-aws-vault
     git clone --branch $vault_module_version https://github.com/hashicorp/terraform-aws-vault.git /tmp/terraform-aws-vault
 
     if test -n "$vault_download_url"; then
@@ -131,6 +132,7 @@ function run {
         fi
     }
 
+    rm -fr /tmp/terraform-aws-consul
     git clone --branch $consul_module_version https://github.com/hashicorp/terraform-aws-consul.git /tmp/terraform-aws-consul
 
     if test -n "$consul_download_url"; then
