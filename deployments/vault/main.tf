@@ -104,9 +104,18 @@ module "vault" {
 
 # Configure peering between the cloud 9 instance and the main vpc for vault to be configured by terraform.
 
+# output "vpc_id" {
+#   value = module.vault.vpc_id
+# }
+
 data "aws_vpc" "primary" {
-  id = module.vault.vpc_id
+  default = false
+  tags    = local.common_tags
 }
+
+# data "aws_vpc" "primary" {
+#   id = data.aws_vpc.primary.vpc_id
+# }
 
 data "aws_vpc" "secondary" {
   id = var.vpc_id_main_cloud9
