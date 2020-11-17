@@ -104,7 +104,7 @@ function run {
     sudo chown -R vault:vault /opt/vault/tls/
     sudo chmod -R 600 /opt/vault/tls
     sudo chmod 700 /opt/vault/tls
-    if [[ ! sudo test -f "/opt/vault/tls/ca.crt.pem" ]]; then
+    if ! sudo test -f "/opt/vault/tls/ca.crt.pem"; then # Check if file is missing with sudo
         log_error "/opt/vault/tls/ca.crt.pem does not exist"
         exit 1
     fi
