@@ -69,3 +69,8 @@ variable "bastion_graphical_ami_id" {
   type = string
   default = null
 }
+
+variable "vpc_id_main_cloud9" {
+  description = "The VPC ID containing the cloud9 seed instance in your main account.  This will be used to establish VPC peering with vault."
+  type = string
+}

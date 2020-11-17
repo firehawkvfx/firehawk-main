@@ -101,3 +101,52 @@ module "vault" {
 
   ami_id = var.vault_consul_ami_id
 }
+
+# Configure peering between the cloud 9 instance and the main vpc for vault to be configured by terraform.
+
+data "aws_vpc" "primary" {
+  id = module.vault.vpc_id
+}
+
+data "aws_vpc" "secondary" {
+  id = var.vpc_id_main_cloud9
+}
+
+resource "aws_vpc_peering_connection" "primary2secondary" {
+  # Main VPC ID.
+  vpc_id = data.aws_vpc.primary.id
+
+  # # AWS Account ID. This can be dynamically queried using the
+  # # aws_caller_identity data resource.
+  # # https://www.terraform.io/docs/providers/aws/d/caller_identity.html
+  # peer_owner_id = "${data.aws_caller_identity.current.account_id}"
+
+  # Secondary VPC ID.
+  peer_vpc_id = data.aws_vpc.secondary.id
+
+  # Flags that the peering connection should be automatically confirmed. This
+  # only works if both VPCs are owned by the same account.
+  auto_accept = true
+}
+
+resource "aws_route" "primary2secondary" {
+  # ID of VPC 1 main route table.
+  route_table_id = data.aws_vpc.primary.main_route_table_id
+
+  # CIDR block / IP range for VPC 2.
+  destination_cidr_block = data.aws_vpc.secondary.cidr_block
+
+  # ID of VPC peering connection.
+  vpc_peering_connection_id = aws_vpc_peering_connection.primary2secondary.id
+}
+
+resource "aws_route" "secondary2primary" {
+  # ID of VPC 2 main route table.
+  route_table_id = data.aws_vpc.secondary.main_route_table_id
+
+  # CIDR block / IP range for VPC 2.
+  destination_cidr_block = data.aws_vpc.primary.cidr_block
+
+  # ID of VPC peering connection.
+  vpc_peering_connection_id = aws_vpc_peering_connection.primary2secondary.id
+}

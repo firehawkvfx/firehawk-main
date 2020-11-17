@@ -52,6 +52,8 @@ if [[ ! -f $TF_VAR_inventory/hosts ]] ; then
     echo "ansible_control ansible_connection=local" >> $TF_VAR_inventory/hosts
 fi
 export TF_VAR_bucket_extension='firehawkvfx.com'
+macid=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/)
+export TF_VAR_vpc_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${macid}/vpc-id)
 
 source $SCRIPTDIR/../secrets/secret_vars.sh
 
