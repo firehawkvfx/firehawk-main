@@ -155,6 +155,6 @@ data "aws_instance" "instance" {
 #   network_interface_id = data.aws_instance.instance.network_interface_id
 # }
 
-output "security_group_id_consul_cluster" {
-  value = module.vault.security_group_id_consul_cluster
+output "aws_region" {
+  value = module.vault.aws_region
 }
