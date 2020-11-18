@@ -151,10 +151,24 @@ data "aws_instance" "instance" {
 resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
   # depends_on = [module.vault]
   # security_group_id    = data.aws_security_group.consul_cluster.id
-  security_group_id    = module.vault.security_group_id_consul_cluster
+  security_group_id    = aws_security_group.cloud9_to_vault.id
   network_interface_id = data.aws_instance.instance.network_interface_id
 }
 
 output "security_group_id_consul_cluster" {
   value = module.vault.security_group_id_consul_cluster
+}
+
+resource "aws_security_group" "cloud9_to_vault" {
+  name        = "cloud9_to_vault"
+  description = "Security group for Cloud 9 access to Consul and Vault"
+  vpc_id      = data.aws_vpc.secondary.id
+}
+
+module "security_group_rules" {
+  source = "git::git@github.com:hashicorp/terraform-aws-consul.git//modules/consul-client-security-group-rules?ref=v0.0.2"
+
+  security_group_id = aws_security_group.cloud9_to_vault.id
+  
+  # ... (other params omitted) ...
 }
