@@ -12,12 +12,6 @@ variable "sleep" {
   default     = false
 }
 
-variable "enable_vault" {
-  description = "Deploy Hashicorp Vault into the VPC"
-  type = bool
-  default = true 
-}
-
 variable "bucket_extension" {
   description = "# The extension for cloud storage used to label your S3 storage buckets. This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html"
   type = string
@@ -44,7 +38,7 @@ variable "remote_ip_cidr" {
 variable "create_bastion_graphical" {
   description = "Creates a graphical bastion host for vault configuration."
   type = bool
-  default = false
+  default = true
 }
 
 variable "remote_ip_graphical_cidr" {
