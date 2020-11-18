@@ -147,9 +147,14 @@ data "aws_instance" "instance" {
 # data "aws_security_group" "consul_cluster" {
 #   id = module.vault.security_group_id_consul_cluster
 # }
-resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
-  depends_on = [module.vault]
-  # security_group_id    = data.aws_security_group.consul_cluster.id
-  security_group_id    = module.vault.security_group_id_consul_cluster
-  network_interface_id = data.aws_instance.instance.network_interface_id
+
+# resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
+#   depends_on = [module.vault]
+#   # security_group_id    = data.aws_security_group.consul_cluster.id
+#   security_group_id    = module.vault.security_group_id_consul_cluster
+#   network_interface_id = data.aws_instance.instance.network_interface_id
+# }
+
+output "security_group_id_consul_cluster" {
+  value = module.vault.security_group_id_consul_cluster
 }
