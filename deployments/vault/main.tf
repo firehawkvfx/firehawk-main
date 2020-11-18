@@ -102,8 +102,7 @@ module "vault" {
   ami_id = var.vault_consul_ami_id
 }
 
-# Configure peering between the cloud 9 instance and the main vpc for vault to be configured by terraform.
-
+### Configure peering between the cloud 9 instance and the main vpc for vault to be configured by terraform. ###
 
 data "aws_vpc" "primary" {
   default = false
@@ -135,4 +134,17 @@ resource "aws_route" "secondary2primary" {
   route_table_id = data.aws_vpc.secondary.main_route_table_id # ID of VPC 2 main route table.
   destination_cidr_block = data.aws_vpc.primary.cidr_block # CIDR block / IP range for VPC 2.
   vpc_peering_connection_id = aws_vpc_peering_connection.primary2secondary.id # ID of VPC peering connection.
+}
+
+### Configure the current cloud9 instance to connect to the vault ###
+
+# security_group_id_consul_cluster
+
+data "aws_instance" "instance" {
+  instance_id = var.instance_id_main_cloud9
+}
+
+resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
+  security_group_id    = module.vault.security_group_id_consul_cluster
+  network_interface_id = data.aws_instance.instance.network_interface_id
 }
