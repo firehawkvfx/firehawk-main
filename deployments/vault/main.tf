@@ -84,7 +84,7 @@ locals {
 module "vault" {
   source = "../../modules/terraform-aws-vault"
   
-  count = var.enable_vault ? 1 : 0
+  # count = var.enable_vault ? 1 : 0
   # depends_on = [module.vpc]
   
   use_default_vpc = false
@@ -155,6 +155,6 @@ data "aws_instance" "instance" {
 #   network_interface_id = data.aws_instance.instance.network_interface_id
 # }
 
-output "aws_region" {
-  value = module.vault.aws_region
+output "security_group_id_consul_cluster" {
+  value = module.vault.security_group_id_consul_cluster
 }
