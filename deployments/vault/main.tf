@@ -144,7 +144,10 @@ data "aws_instance" "instance" {
   instance_id = var.instance_id_main_cloud9
 }
 
+data "aws_security_group" "consul_cluster" {
+  id = module.vault.security_group_id_consul_cluster
+}
 resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
-  security_group_id    = module.vault.security_group_id_consul_cluster
+  security_group_id    = data.aws_security_group.consul_cluster.id
   network_interface_id = data.aws_instance.instance.network_interface_id
 }
