@@ -46,12 +46,12 @@ module "vault" {
 
 ### Configure peering between the cloud 9 instance and the main vpc for vault to be configured by terraform. ###
 
-data "aws_vpc" "primary" {
+data "aws_vpc" "primary" { # The primary is the VPC containing vault
   default = false
   tags    = local.common_tags
 }
 
-data "aws_vpc" "secondary" {
+data "aws_vpc" "secondary" { # The secondary is the VPC containing the cloud 9 instance. 
   id = var.vpc_id_main_cloud9
 }
 
@@ -82,23 +82,8 @@ resource "aws_route" "secondary2primary" {
 
 # security_group_id_consul_cluster
 
-data "aws_instance" "instance" {
+data "aws_instance" "main_cloud9" {
   instance_id = var.instance_id_main_cloud9
-}
-
-# data "aws_security_group" "consul_cluster" {
-#   id = module.vault.security_group_id_consul_cluster
-# }
-
-resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
-  # depends_on = [module.vault]
-  # security_group_id    = data.aws_security_group.consul_cluster.id
-  security_group_id    = aws_security_group.cloud9_to_vault.id
-  network_interface_id = data.aws_instance.instance.network_interface_id
-}
-
-output "security_group_id_consul_cluster" {
-  value = module.vault.security_group_id_consul_cluster
 }
 
 resource "aws_security_group" "cloud9_to_vault" {
@@ -109,8 +94,17 @@ resource "aws_security_group" "cloud9_to_vault" {
 
 module "security_group_rules" {
   source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-client-security-group-rules?ref=v0.8.0"
-
   security_group_id = aws_security_group.cloud9_to_vault.id
-  
-  # ... (other params omitted) ...
+  allowed_inbound_security_group_ids = [module.vault.security_group_id_consul_cluster]
+  allowed_inbound_security_group_count = 1
+  allowed_inbound_cidr_blocks = [ data.aws_vpc.primary.cidr_block_associations.cidr_block ] # TODO test if its possible only inbound sg or cidr block is required.
+  # TODO define var.allowed_inbound_security_group_ids, allowed_inbound_security_group_count and var.allowed_inbound_cidr_blocks
 }
+
+resource "aws_network_interface_sg_attachment" "sg_attachment_consul_cluster" {
+  security_group_id    = aws_security_group.cloud9_to_vault.id
+  network_interface_id = data.aws_instance.main_cloud9.network_interface_id
+}
+
+# need to compare this sg group with DCV instance.
+# 
