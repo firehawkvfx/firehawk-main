@@ -97,7 +97,7 @@ module "security_group_rules" {
   security_group_id = aws_security_group.cloud9_to_vault.id
   allowed_inbound_security_group_ids = [module.vault.security_group_id_consul_cluster]
   allowed_inbound_security_group_count = 1
-  allowed_inbound_cidr_blocks = [ data.aws_vpc.primary.cidr_block_associations.cidr_block ] # TODO test if its possible only inbound sg or cidr block is required.
+  allowed_inbound_cidr_blocks = [ data.aws_vpc.primary.cidr_block ] # TODO test if its possible only inbound sg or cidr block is required.
   # TODO define var.allowed_inbound_security_group_ids, allowed_inbound_security_group_count and var.allowed_inbound_cidr_blocks
 }
 
