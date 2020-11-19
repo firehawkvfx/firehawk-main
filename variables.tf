@@ -44,7 +44,7 @@ variable "remote_ip_cidr" {
 variable "create_bastion_graphical" {
   description = "Creates a graphical bastion host for vault configuration."
   type = bool
-  default = false
+  default = true
 }
 
 variable "remote_ip_graphical_cidr" {
