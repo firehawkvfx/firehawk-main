@@ -66,10 +66,16 @@ resource "aws_vpc_peering_connection" "primary2secondary" {
   # peer_owner_id = "${data.aws_caller_identity.current.account_id}"
 }
 
+data "aws_route_table" "main_private" {
+  tags = {
+    "conflictkey": local.common_tags["conflictkey"],
+    "pipelineid": local.common_tags["pipelineid"],
+    "area": "private",
+  }
+}
+
 resource "aws_route" "primary2secondary" {
-  # for_each = module.vault.private_route_table_ids
-  count = length( module.vault.private_route_table_ids )
-  route_table_id = element( module.vault.private_route_table_ids, count.index )
+  route_table_id = aws_route_table.main_private.id
   # route_table_id = data.aws_vpc.primary.main_route_table_id # ID of VPC 1 main route table.
   destination_cidr_block = data.aws_vpc.secondary.cidr_block # CIDR block / IP range for VPC 2.
   vpc_peering_connection_id = aws_vpc_peering_connection.primary2secondary.id # ID of VPC peering connection.
