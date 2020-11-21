@@ -4,5 +4,11 @@ set -e
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
 source $SCRIPTDIR/update_vars.sh
-terraform destroy --auto-approve $SCRIPTDIR/deployments/vault # Destroy vault instances. Data is persisted to S3.
-terraform apply -var "sleep=true" --auto-approve # Stop bastion hosts.
+
+cd $SCRIPTDIR/deployments/vault
+terraform destroy --auto-approve -input=false $SCRIPTDIR/deployments/vault # Destroy vault instances. Data is persisted to S3.
+
+cd $SCRIPTDIR
+terraform init -input=false
+terraform plan -out=tfplan -input=false -var "sleep=true"
+terraform apply -input=false tfplan --auto-approve # Stop bastion hosts.
