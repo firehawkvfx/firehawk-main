@@ -62,7 +62,7 @@ locals {
   secret_tier = "dev"
   deadline_version_system_default = { # New defaults
     description = "The version of the deadline installer."
-    default = "10.1.9.2"
+    default = "10.1.9.0"
     example_1 = "10.1.9.2"
   }
   deadline_version_value = {
