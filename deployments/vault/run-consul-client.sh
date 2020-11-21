@@ -47,10 +47,10 @@ function retry {
   exit $exit_status
 }
 
-echo "Running consul client with as sudo with --cluster-tag-key \"${consul_cluster_tag_key}\" --cluster-tag-value \"${consul_cluster_tag_value}\""
+echo "Running consul client with with --cluster-tag-key \"${consul_cluster_tag_key}\" --cluster-tag-value \"${consul_cluster_tag_value}\""
 
 # These variables are passed in via Terraform template interpolation
-sudo /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
+/opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
 
 # # Start the Vault agent

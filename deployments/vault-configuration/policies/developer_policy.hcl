@@ -1,6 +1,6 @@
 path "developers/*"
 {
-  capabilities = ["list"]
+  capabilities = ["list", "read", "update"]
 }
 
 path "developers/data/user"

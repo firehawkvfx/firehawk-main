@@ -54,13 +54,59 @@ resource "vault_mount" "operations" {
   description = "KV2 Secrets Engine for Operations."
 }
 
-resource "vault_generic_secret" "developer_sample_data" {
-  path = "${vault_mount.developers.path}/test_account"
+locals {
+  secret_tier = "dev"
+}
+
+resource "vault_generic_secret" "deadline_version" {
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
 
   data_json = <<EOT
 {
-  "username": "foo",
-  "password": "bar"
+  "description": "The version of the deadline installer.",
+  "default": "10.1.9.2",
+  "example_1": "10.1.9.2",
+  "value": "10.1.9.2"
+}
+EOT
+}
+
+resource "vault_generic_secret" "selected_ansible_version" {
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/selected_ansible_version"
+
+  data_json = <<EOT
+{
+  "description": "The version to use for ansible.  Can be 'latest', or a specific version.  due to a bug with pip and ansible we can have pip permissions and authentication issues when not using latest. This is because pip installs the version instead of apt-get when using a specific version instead of latest.  Resolution by using virtualenv will be required to resolve.",
+  "default": "latest",
+  "example_1": "latest",
+  "example_2": "2.9.2",
+  "value": "latest"
+}
+EOT
+}
+
+resource "vault_generic_secret" "syscontrol_gid" {
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/syscontrol_gid"
+
+  data_json = <<EOT
+{
+  "description": "The group gid for the syscontrol group",
+  "default": "9003",
+  "example_1": "9003",
+  "value": "9003"
+}
+EOT
+}
+
+resource "vault_generic_secret" "deployuser_uid" {
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deployuser_uid"
+
+  data_json = <<EOT
+{
+  "description": "The UID of the deployuser for all hosts.  Ansible uses this user connect to provision with.",
+  "default": "9004",
+  "example_1": "9004",
+  "value": "9004"
 }
 EOT
 }
