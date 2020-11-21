@@ -59,14 +59,23 @@ locals {
 }
 
 resource "vault_generic_secret" "deadline_version" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version/value"
+
+  data_json = <<EOT
+{
+  "value": "10.1.9.2"
+}
+EOT
+}
+
+resource "vault_generic_secret" "deadline_version_metadata" {
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version/metadata"
 
   data_json = <<EOT
 {
   "description": "The version of the deadline installer.",
   "default": "10.1.9.2",
-  "example_1": "10.1.9.2",
-  "value": "10.1.9.2"
+  "example_1": "10.1.9.2"
 }
 EOT
 }
