@@ -54,30 +54,28 @@ resource "vault_mount" "operations" {
   description = "KV2 Secrets Engine for Operations."
 }
 
+data "vault_generic_secret" "deadline_version" {
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
+}
+
 locals {
   secret_tier = "dev"
+  deadline_version_system_default = { # New defaults
+    description = "The version of the deadline installer."
+    default = "10.1.9.2"
+    example_1 = "10.1.9.2"
+  }
+  deadline_version_value = {
+    value = contains( keys(data.vault_generic_secret.deadline_version.data), "value" ) && contains( keys(data.vault_generic_secret.deadline_version.data), "default" ) && data.vault_generic_secret.deadline_version.data["value"] != data.vault_generic_secret.deadline_version.data["default"] ? data.vault_generic_secret.deadline_version.data["value"] : local.deadline_version_system_default["default"] 
+  }
+  
+  deadline_version_result = merge( local.deadline_version_system_default, local.deadline_version_value )
 }
 
 resource "vault_generic_secret" "deadline_version" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version/value"
+  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
 
-  data_json = <<EOT
-{
-  "value": "10.1.9.2"
-}
-EOT
-}
-
-resource "vault_generic_secret" "deadline_version_metadata" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version/metadata"
-
-  data_json = <<EOT
-{
-  "description": "The version of the deadline installer.",
-  "default": "10.1.9.2",
-  "example_1": "10.1.9.2"
-}
-EOT
+  data = local.deadline_version_result
 }
 
 resource "vault_generic_secret" "selected_ansible_version" {
