@@ -20,7 +20,7 @@ locals {
     terraform    = "true"
     role = "terraform remote state"
   }
-  bucket_extension = "firehawkvfx.com"
+  bucket_extension = var.bucket_extension
 }
 
 resource "vault_auth_backend" "example" {
