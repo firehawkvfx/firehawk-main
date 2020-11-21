@@ -51,7 +51,6 @@ locals {
 
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "terraform-up-and-running-state"
-  region = data.aws_region.current.name
   acl    = "private"
   # Enable versioning so we can see the full revision history of our
   # state files
