@@ -59,5 +59,8 @@ export VAULT_ADDR=https://vault.service.consul:8200 # verify dns before login wi
 
 source $SCRIPTDIR/../secrets/secret_vars.sh
 
+export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs should be defined in secrets
+export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
+
 echo "After deployment, ssh into the vault and init with: vault operator init -recovery-shares=1 -recovery-threshold=1"
 echo "Store the initial root token in a password manager (encrypted)."
