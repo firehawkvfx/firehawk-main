@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+
+source $SCRIPTDIR/update_vars.sh
+terraform apply --auto-approve $SCRIPTDIR/deployments/vault # Start vault instances
+terraform apply --auto-approve # Start bastion hosts.

@@ -56,6 +56,8 @@ macid=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/)
 export TF_VAR_vpc_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${macid}/vpc-id)
 export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 
+export VAULT_ADDR=https://vault.service.consul:8200 # verify dns before login with: dig vault.service.consul
+
 source $SCRIPTDIR/../secrets/secret_vars.sh
 
 echo "After deployment, ssh into the vault and init with: vault operator init -recovery-shares=1 -recovery-threshold=1"
