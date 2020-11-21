@@ -66,7 +66,7 @@ locals {
     example_1 = "10.1.9.2"
   }
   deadline_version_value = {
-    value = contains( keys(data.vault_generic_secret.deadline_version.data), "value" ) && contains( keys(data.vault_generic_secret.deadline_version.data), "default" ) && data.vault_generic_secret.deadline_version.data["value"] != data.vault_generic_secret.deadline_version.data["default"] ? data.vault_generic_secret.deadline_version.data["value"] : local.deadline_version_system_default["default"] 
+    value = contains( keys(data.vault_generic_secret.deadline_version.data), "value" ) && contains( keys(data.vault_generic_secret.deadline_version.data), "default" ) && lookup( data.vault_generic_secret.deadline_version.data, "value", "" ) != lookup( data.vault_generic_secret.deadline_version.data, "default", "") ? lookup( data.vault_generic_secret.deadline_version.data, "value", "") : local.deadline_version_system_default["default"] 
   }
   
   deadline_version_result = merge( local.deadline_version_system_default, local.deadline_version_value )
