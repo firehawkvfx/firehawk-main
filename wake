@@ -8,9 +8,9 @@ source $SCRIPTDIR/update_vars.sh
 cd $SCRIPTDIR/deployments/vault
 terraform init -input=false
 terraform plan -out=tfplan -input=false
-terraform apply -input=false tfplan --auto-approve # Start vault instances
+terraform apply -input=false tfplan # Start vault instances
 
 cd $SCRIPTDIR
 terraform init -input=false
 terraform plan -out=tfplan -input=false
-terraform apply -input=false tfplan --auto-approve # Start bastion hosts.
+terraform apply -input=false tfplan # Start bastion hosts.
