@@ -75,7 +75,7 @@ locals {
 resource "vault_generic_secret" "deadline_version" {
   path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
 
-  data = local.deadline_version_result
+  data_json = jsonencode( local.deadline_version_result )
 }
 
 resource "vault_generic_secret" "selected_ansible_version" {
