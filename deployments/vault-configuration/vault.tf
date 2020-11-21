@@ -26,11 +26,11 @@ locals {
 terraform {
   backend "s3" {
     # Replace this with your bucket name!
-    bucket         = "terraform-up-and-running-state"
+    bucket         = "state.terraform.${var.bucket_extension}"
     key            = "main/vault-configuration/terraform.tfstate"
     region = data.aws_region.current.name
     # Replace this with your DynamoDB table name!
-    dynamodb_table = "terraform-up-and-running-locks"
+    dynamodb_table = "locks.state.terraform.${var.bucket_extension}"
     encrypt        = true
   }
 }
