@@ -50,6 +50,7 @@ function retry {
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
+
 # # Start the Vault agent
 # /opt/vault/bin/run-vault --agent --agent-auth-type iam --agent-auth-role "${example_role_name}"
 
