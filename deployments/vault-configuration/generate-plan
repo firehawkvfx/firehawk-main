@@ -24,3 +24,6 @@ if [[ -z "$TF_VAR_bucket_extension" ]]; then
 fi
 
 envsubst < $SCRIPTDIR/template/s3-backend.tf > $SCRIPTDIR/s3-backend.tf
+
+terraform init -input=false
+terraform plan -out=tfplan -input=false
