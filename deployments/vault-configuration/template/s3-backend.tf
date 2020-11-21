@@ -4,7 +4,7 @@ terraform {
     # Replace this with your bucket name!
     bucket         = "state.terraform.$TF_VAR_bucket_extension"
     key            = "main/vault-configuration/terraform.tfstate"
-    region = data.aws_region.current.name
+    region = "$AWS_DEFAULT_REGION"
     # Replace this with your DynamoDB table name!
     dynamodb_table = "locks.state.terraform.$TF_VAR_bucket_extension"
     encrypt        = true
