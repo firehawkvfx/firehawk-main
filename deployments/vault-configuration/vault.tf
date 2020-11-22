@@ -62,7 +62,7 @@ locals {
   defaults = tomap( {
     "deadline_version" = {
       description = "The version of the deadline installer.",
-      default = "10.1.9.0",
+      default = "10.1.9.2",
       example_1 = "10.1.9.2",
     },
     "selected_ansible_version" = {
