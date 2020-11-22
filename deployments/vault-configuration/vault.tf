@@ -60,12 +60,12 @@ resource "vault_mount" "operations" {
 
 locals {
   defaults = {
-    deadline_version = {
+    "deadline_version" = {
       description = "The version of the deadline installer.",
       default = "10.1.9.0",
       example_1 = "10.1.9.2",
     },
-    selected_ansible_version = {
+    "selected_ansible_version" = {
       description = "The version to use for ansible.  Can be 'latest', or a specific version.  due to a bug with pip and ansible we can have pip permissions and authentication issues when not using latest. This is because pip installs the version instead of apt-get when using a specific version instead of latest.  Resolution by using virtualenv will be required to resolve.",
       default = "latest",
       example_1 = "latest",
