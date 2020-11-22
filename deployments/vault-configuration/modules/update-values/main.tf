@@ -9,7 +9,7 @@ resource "null_resource" "init_secret" {
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command = <<EOT
-      vault kv put -cas=0 "${local.path}" value=""
+      vault kv put -cas=0 "${local.path}" value="" || echo "Value is already initialised / non-zero exit code"
 EOT
   }
 }
