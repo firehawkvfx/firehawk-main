@@ -16,7 +16,7 @@ EOT
 
 data "vault_generic_secret" "vault_map" { # Get the map of data at the path
   depends_on = [null_resource.init_secret]
-  path = "${local.path}"
+  path = local.path
 }
 
 locals {
@@ -28,7 +28,7 @@ locals {
 }
 
 resource "vault_generic_secret" "vault_map_output" {
-  path = "${local.path}"
+  path = local.path
 
   data_json = jsonencode( local.result_map )
 }
