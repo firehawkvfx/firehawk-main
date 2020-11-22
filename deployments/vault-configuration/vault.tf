@@ -37,8 +37,9 @@ resource "vault_mount" "operations" {
 
 module "update-values" {
   source = "./modules/update-values"
-  mount_path = vault_mount.developers.path
-  secret_tier = "dev"
+  envtier = var.envtier
+  resourcetier = var.resourcetier
+  mount_path = var.envtier == "dev" ? vault_mount.developers.path : vault_mount.operations.path
   for_each = local.defaults
   secret_name = each.key
   system_default = each.value

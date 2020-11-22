@@ -1,6 +1,13 @@
-variable "secret_tier" {
-  description = "The namespace to update / init data (eg dev,prod)"
-  type        = string
+variable "envtier" {
+  description = "The environment tier eg: dev, prod"
+  type = string
+  default = "dev"
+}
+
+variable "resourcetier" {
+  description = "The resource tier eg: green, blue, grey"
+  type = string
+  default = "grey"
 }
 
 variable "secret_name" {

@@ -3,6 +3,18 @@ variable "bucket_extension" {
   type = string
 }
 
+variable "envtier" {
+  description = "The environment tier eg: dev, prod"
+  type = string
+  default = "dev"
+}
+
+variable "resourcetier" {
+  description = "The resource tier is an group of resources in dev or prod by colour. eg: green, blue, grey"
+  type = string
+  default = "grey"
+}
+
 variable "restore_defaults" {
   description = "If true, will reset all values to system defaults"
   type        = bool
