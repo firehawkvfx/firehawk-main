@@ -18,4 +18,4 @@ terraform apply -input=false tfplan # Start Vault / Consul instances, and config
 cd $SCRIPTDIR
 terraform init -input=false
 terraform plan -out=tfplan -input=false
-terraform apply -input=false tfplan # Start bastion hosts in Main VPC
+terraform apply -input=false tfplan # Start bastion hosts in Main VPC after the servers for immedite connection to consul service discovery
