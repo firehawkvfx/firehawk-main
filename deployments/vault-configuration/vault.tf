@@ -96,6 +96,7 @@ locals {
 
 module "update-values" {
   source = "./modules/update-values"
+  mount_path = vault_mount.developers.path
   secret_tier = "dev"
   for_each = local.defaults
   secret_name = each.key

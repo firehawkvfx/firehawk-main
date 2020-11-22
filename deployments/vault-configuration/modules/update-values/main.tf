@@ -2,7 +2,7 @@
 # This allows us to know if a user has configured to a non default value, and if so, leave it in place.
 
 data "vault_generic_secret" "vault_map" { # Get the map of data at the path
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/${var.secret_name}"
+  path = "${var.mount_path}/${local.secret_tier}/config/${var.secret_name}"
 }
 
 locals {
@@ -15,7 +15,7 @@ locals {
 }
 
 resource "vault_generic_secret" "vault_map_output" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/${var.secret_name}"
+  path = "${var.mount_path}/${local.secret_tier}/config/${var.secret_name}"
 
   data_json = jsonencode( local.result_map )
 }
