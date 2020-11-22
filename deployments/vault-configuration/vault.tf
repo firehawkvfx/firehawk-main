@@ -59,7 +59,7 @@ resource "vault_mount" "operations" {
 # }
 
 locals {
-  defaults = {
+  defaults = tomap( {
     "deadline_version" = {
       description = "The version of the deadline installer.",
       default = "10.1.9.0",
@@ -71,7 +71,7 @@ locals {
       example_1 = "latest",
       example_2 = "2.9.2"
     }
-  }
+  } )
 }
 
 # locals {

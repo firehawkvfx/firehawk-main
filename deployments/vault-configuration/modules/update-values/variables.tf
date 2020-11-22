@@ -10,7 +10,7 @@ variable "secret_name" {
 
 variable "system_default" {
     description = "The map defining the system defaults for the secret"
-    type = string
+    type = map(string)
 }
 
 variable "mount_path" {
