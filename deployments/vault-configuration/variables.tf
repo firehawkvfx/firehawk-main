@@ -20,3 +20,9 @@ variable "restore_defaults" {
   type        = bool
   default     = false
 }
+
+variable "init" {
+  description = "If true, will only ensure paths exist."
+  type        = bool
+  default     = false
+}

@@ -13,9 +13,11 @@ resource "null_resource" "init_secret" { # init a secret if empty
 EOT
   }
 }
+
 data "vault_generic_secret" "vault_map" { # Get the map of data at the path
-  count = var.restore_defaults ? 0 : 1
   depends_on = [null_resource.init_secret]
+  
+  count = var.restore_defaults || var.init ? 0 : 1
   path = local.path
 }
 
@@ -30,6 +32,7 @@ locals {
 }
 
 resource "vault_generic_secret" "vault_map_output" {
+  count = var.init ? 0 : 1
   path = local.path
   data_json = jsonencode( local.result_map )
 }

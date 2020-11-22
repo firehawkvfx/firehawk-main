@@ -26,4 +26,8 @@ fi
 envsubst < $SCRIPTDIR/template/s3-backend.tf > $SCRIPTDIR/s3-backend.tf
 
 terraform init -input=false
-terraform plan -out=tfplan -input=false
+terraform plan -out=tfplan -input=false -var "init=true" # ensure paths exist
+terraform apply "tfplan" -input=false
+
+terraform plan -out=tfplan -input=false # propogate data into the paths
+terraform apply "tfplan" -input=false 

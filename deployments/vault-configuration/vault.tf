@@ -37,6 +37,7 @@ resource "vault_mount" "prod" {
 
 module "update-values" {
   source = "./modules/update-values"
+  init = var.init
   envtier = var.envtier
   resourcetier = var.resourcetier
   mount_path = var.envtier == "dev" ? vault_mount.dev.path : vault_mount.prod.path
