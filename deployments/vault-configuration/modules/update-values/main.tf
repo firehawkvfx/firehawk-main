@@ -10,7 +10,8 @@ locals {
   system_default = var.system_default # The system default map will define the value if value is not present, or value matches a preexisting default.
    # If a present value is different to a present default, retain the vault value.  Else use the system default.
   secret_value = contains( keys(data.vault_generic_secret.vault_map.data), "value" ) && contains( keys(data.vault_generic_secret.vault_map.data), "default" ) && lookup( data.vault_generic_secret.vault_map.data, "value", "" ) != lookup( data.vault_generic_secret.vault_map.data, "default", "") ? lookup( data.vault_generic_secret.vault_map.data, "value", "") : local.system_default["default"] 
-  result_map = merge( local.system_default, tomap( {"value" = local.secret_value } ) )
+  secret_map = var.restore_defaults ? tomap( {"value" = local.system_default["default"] } ) : tomap( {"value" = local.secret_value } )
+  result_map = merge( local.system_default, local.secret_map )
 }
 
 resource "vault_generic_secret" "vault_map_output" {

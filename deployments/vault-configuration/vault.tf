@@ -101,6 +101,7 @@ module "update-values" {
   for_each = local.defaults
   secret_name = each.key
   system_default = each.value
+  restore_defaults = var.restore_defaults # defaults will always be updated if the value is already at a default, but if this condition is true, any present user values will be reset always.
 }
 
 # resource "vault_generic_secret" "selected_ansible_version" {
