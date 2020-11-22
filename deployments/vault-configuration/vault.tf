@@ -54,43 +54,67 @@ resource "vault_mount" "operations" {
   description = "KV2 Secrets Engine for Operations."
 }
 
-data "vault_generic_secret" "deadline_version" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
-}
+# data "vault_generic_secret" "deadline_version" {
+#   path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
+# }
 
 locals {
-  secret_tier = "dev"
-  deadline_version_system_default = { # New defaults
-    description = "The version of the deadline installer."
-    default = "10.1.9.0"
-    example_1 = "10.1.9.2"
+  defaults = {
+    deadline_version = {
+      description = "The version of the deadline installer.",
+      default = "10.1.9.0",
+      example_1 = "10.1.9.2",
+    },
+    selected_ansible_version = {
+      description = "The version to use for ansible.  Can be 'latest', or a specific version.  due to a bug with pip and ansible we can have pip permissions and authentication issues when not using latest. This is because pip installs the version instead of apt-get when using a specific version instead of latest.  Resolution by using virtualenv will be required to resolve.",
+      default = "latest",
+      example_1 = "latest",
+      example_2 = "2.9.2"
+    }
   }
-  deadline_version_value = {
-    value = contains( keys(data.vault_generic_secret.deadline_version.data), "value" ) && contains( keys(data.vault_generic_secret.deadline_version.data), "default" ) && lookup( data.vault_generic_secret.deadline_version.data, "value", "" ) != lookup( data.vault_generic_secret.deadline_version.data, "default", "") ? lookup( data.vault_generic_secret.deadline_version.data, "value", "") : local.deadline_version_system_default["default"] 
-  }
+}
+
+# locals {
+#   secret_tier = "dev"
+#   deadline_version_system_default = { # New defaults
+#     description = "The version of the deadline installer."
+#     default = "10.1.9.0"
+#     example_1 = "10.1.9.2"
+#   }
+#   deadline_version_value = { # If a present value is different to a present default, use the value.  Else use the system default.
+#     value = contains( keys(data.vault_generic_secret.deadline_version.data), "value" ) && contains( keys(data.vault_generic_secret.deadline_version.data), "default" ) && lookup( data.vault_generic_secret.deadline_version.data, "value", "" ) != lookup( data.vault_generic_secret.deadline_version.data, "default", "") ? lookup( data.vault_generic_secret.deadline_version.data, "value", "") : local.deadline_version_system_default["default"] 
+#   }
   
-  deadline_version_result = merge( local.deadline_version_system_default, local.deadline_version_value )
+#   deadline_version_result = merge( local.deadline_version_system_default, local.deadline_version_value )
+# }
+
+# resource "vault_generic_secret" "deadline_version" {
+#   path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
+
+#   data_json = jsonencode( local.deadline_version_result )
+# }
+
+module "update-values" {
+  path = "modules/update-values"
+  secret_tier = "dev"
+  for_each = local.defaults
+  secret_name = each.key
+  system_default = each.value
 }
 
-resource "vault_generic_secret" "deadline_version" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deadline_version"
+# resource "vault_generic_secret" "selected_ansible_version" {
+#   path = "${vault_mount.developers.path}/${local.secret_tier}/config/selected_ansible_version"
 
-  data_json = jsonencode( local.deadline_version_result )
-}
-
-resource "vault_generic_secret" "selected_ansible_version" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/selected_ansible_version"
-
-  data_json = <<EOT
-{
-  "description": "The version to use for ansible.  Can be 'latest', or a specific version.  due to a bug with pip and ansible we can have pip permissions and authentication issues when not using latest. This is because pip installs the version instead of apt-get when using a specific version instead of latest.  Resolution by using virtualenv will be required to resolve.",
-  "default": "latest",
-  "example_1": "latest",
-  "example_2": "2.9.2",
-  "value": "latest"
-}
-EOT
-}
+#   data_json = <<EOT
+# {
+#   "description": "The version to use for ansible.  Can be 'latest', or a specific version.  due to a bug with pip and ansible we can have pip permissions and authentication issues when not using latest. This is because pip installs the version instead of apt-get when using a specific version instead of latest.  Resolution by using virtualenv will be required to resolve.",
+#   "default": "latest",
+#   "example_1": "latest",
+#   "example_2": "2.9.2",
+#   "value": "latest"
+# }
+# EOT
+# }
 
 resource "vault_generic_secret" "syscontrol_gid" {
   path = "${vault_mount.developers.path}/${local.secret_tier}/config/syscontrol_gid"
