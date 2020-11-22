@@ -13,33 +13,33 @@ resource "vault_policy" "admin_policy" {
   policy = file("policies/admin_policy.hcl")
 }
 
-resource "vault_policy" "developer_policy" {
-  name   = "developers"
-  policy = file("policies/developer_policy.hcl")
+resource "vault_policy" "dev_policy" {
+  name   = "dev"
+  policy = file("policies/dev_policy.hcl")
 }
 
-resource "vault_policy" "operations_policy" {
-  name   = "operations"
-  policy = file("policies/operation_policy.hcl")
+resource "vault_policy" "prod_policy" {
+  name   = "prod"
+  policy = file("policies/prod_policy.hcl")
 }
 
-resource "vault_mount" "developers" {
-  path        = "developers"
+resource "vault_mount" "dev" {
+  path        = "dev"
   type        = "kv-v2"
-  description = "KV2 Secrets Engine for Developers."
+  description = "KV2 Secrets Engine for dev."
 }
 
-resource "vault_mount" "operations" {
-  path        = "operations"
+resource "vault_mount" "prod" {
+  path        = "prod"
   type        = "kv-v2"
-  description = "KV2 Secrets Engine for Operations."
+  description = "KV2 Secrets Engine for prod."
 }
 
 module "update-values" {
   source = "./modules/update-values"
   envtier = var.envtier
   resourcetier = var.resourcetier
-  mount_path = var.envtier == "dev" ? vault_mount.developers.path : vault_mount.operations.path
+  mount_path = var.envtier == "dev" ? vault_mount.dev.path : vault_mount.prod.path
   for_each = local.defaults
   secret_name = each.key
   system_default = each.value

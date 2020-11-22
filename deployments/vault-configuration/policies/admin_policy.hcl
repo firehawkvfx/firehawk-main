@@ -52,12 +52,12 @@ path "sys/health"
   capabilities = ["read", "sudo"]
 }
 
-path "operations/*"
+path "prod/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "developers/*"
+path "dev/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
