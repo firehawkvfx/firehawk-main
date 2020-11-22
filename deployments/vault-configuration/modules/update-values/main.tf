@@ -5,7 +5,7 @@ locals {
   path = "${var.mount_path}/${var.resourcetier}/${var.secret_name}"
 }
 
-resource "null_resource" "init_secret" {
+resource "null_resource" "init_secret" { # init a secret if empty
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command = <<EOT
@@ -13,8 +13,8 @@ resource "null_resource" "init_secret" {
 EOT
   }
 }
-
 data "vault_generic_secret" "vault_map" { # Get the map of data at the path
+  count = var.restore_defaults ? 0 : 1
   depends_on = [null_resource.init_secret]
   path = local.path
 }
@@ -23,7 +23,8 @@ locals {
   system_default = var.system_default # The system default map will define the value if value is not present, or value matches a preexisting default.
    # If a present value is different to a present default, retain the vault value.  Else use the system default.
    # We could use the kv put -patch option with a write, but this could increment versions unnecersarily.
-  secret_value = contains( keys(data.vault_generic_secret.vault_map.data), "value" ) && contains( keys(data.vault_generic_secret.vault_map.data), "default" ) && lookup( data.vault_generic_secret.vault_map.data, "value", "" ) != lookup( data.vault_generic_secret.vault_map.data, "default", "") ? lookup( data.vault_generic_secret.vault_map.data, "value", "") : local.system_default["default"] 
+  vault_map = element( concat( data.vault_generic_secret.vault_map.*.data, list({}) ), 0 )
+  secret_value = contains( keys(local.vault_map), "value" ) && contains( keys(local.vault_map), "default" ) && lookup( local.vault_map, "value", "" ) != lookup( local.vault_map, "default", "") ? lookup( local.vault_map, "value", "") : local.system_default["default"] 
   secret_map = var.restore_defaults ? tomap( {"value" = local.system_default["default"] } ) : tomap( {"value" = local.secret_value } )
   result_map = merge( local.system_default, local.secret_map )
 }
