@@ -95,7 +95,7 @@ locals {
 # }
 
 module "update-values" {
-  source = "modules/update-values"
+  source = "./modules/update-values"
   secret_tier = "dev"
   for_each = local.defaults
   secret_name = each.key
