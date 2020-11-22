@@ -116,28 +116,28 @@ module "update-values" {
 # EOT
 # }
 
-resource "vault_generic_secret" "syscontrol_gid" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/syscontrol_gid"
+# resource "vault_generic_secret" "syscontrol_gid" {
+#   path = "${vault_mount.developers.path}/${local.secret_tier}/config/syscontrol_gid"
 
-  data_json = <<EOT
-{
-  "description": "The group gid for the syscontrol group",
-  "default": "9003",
-  "example_1": "9003",
-  "value": "9003"
-}
-EOT
-}
+#   data_json = <<EOT
+# {
+#   "description": "The group gid for the syscontrol group",
+#   "default": "9003",
+#   "example_1": "9003",
+#   "value": "9003"
+# }
+# EOT
+# }
 
-resource "vault_generic_secret" "deployuser_uid" {
-  path = "${vault_mount.developers.path}/${local.secret_tier}/config/deployuser_uid"
+# resource "vault_generic_secret" "deployuser_uid" {
+#   path = "${vault_mount.developers.path}/${local.secret_tier}/config/deployuser_uid"
 
-  data_json = <<EOT
-{
-  "description": "The UID of the deployuser for all hosts.  Ansible uses this user connect to provision with.",
-  "default": "9004",
-  "example_1": "9004",
-  "value": "9004"
-}
-EOT
-}
+#   data_json = <<EOT
+# {
+#   "description": "The UID of the deployuser for all hosts.  Ansible uses this user connect to provision with.",
+#   "default": "9004",
+#   "example_1": "9004",
+#   "value": "9004"
+# }
+# EOT
+# }
