@@ -223,8 +223,10 @@ build {
     extra_arguments = [
       "--extra-vars", "user_deadlineuser_name=ubuntu"
     ]
-    collections_path = "${local.template_dir}/../../ansible/"
-    roles_path = "${local.template_dir}/../../ansible/roles"
+    # collections_path = "${local.template_dir}/../../ansible/"
+    # roles_path = "${local.template_dir}/../../ansible/roles"
+    collections_path = "./../../ansible/"
+    roles_path = "./../../ansible/roles"
   }
 
   post-processor "manifest" {
