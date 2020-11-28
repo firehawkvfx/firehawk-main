@@ -16,7 +16,7 @@
     - firehawkvfx.core
 
   roles:
-    # - role: firehawkvfx.core.s3_bucket_shared
-    - role: s3_bucket_shared
+    - role: firehawkvfx.core.s3_bucket_shared
+    # - role: s3_bucket_shared
     - {role: deadlinedb, tags: 'deadlinedb'}
     
