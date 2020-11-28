@@ -12,11 +12,10 @@
     houdini_major_version: 18.0
     ubl: true
 
-  collections:
-    - firehawkvfx.core
+  # collections:
+  #   - firehawkvfx.core
 
   roles:
     - role: firehawkvfx.core.s3_bucket_shared
-    # - role: s3_bucket_shared
     - {role: deadlinedb, tags: 'deadlinedb'}
     
