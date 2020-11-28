@@ -1,5 +1,5 @@
-# This module will initlise vault values to a default if not present or if already matching an existing default
-# This allows us to know if a user has configured to a non default value, and if so, leave it in place.
+# This module will initialise vault values to a default if not already present.  If the value already mathes an existing default, and the new default changes, it will also be updated.
+# This allows us to know if a user has configured to a non default value, and if so, preserve the users value.
 
 locals {
   path = "${var.mount_path}/${var.resourcetier}/${var.secret_name}"
