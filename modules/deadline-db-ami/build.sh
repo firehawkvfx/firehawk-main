@@ -16,4 +16,4 @@ export PACKER_LOG_PATH="$SCRIPTDIR/packerlog.log"
 
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
 rm -f $PKR_VAR_manifest_path
-packer build $SCRIPTDIR/deadline-db.pkr.hcl -only amazon-ebs.ubuntu18-ami
+packer build -only amazon-ebs.ubuntu18-ami $SCRIPTDIR/deadline-db.pkr.hcl
