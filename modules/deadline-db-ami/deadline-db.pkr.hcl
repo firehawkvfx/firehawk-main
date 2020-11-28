@@ -35,72 +35,6 @@ locals {
   template_dir = path.root
 }
 
-# source blocks are generated from your builders; a source can be referenced in
-# build blocks. A build block runs provisioner and post-processors on a
-# source. Read the documentation for source blocks here:
-# https://www.packer.io/docs/from-1.5/blocks/source
-#could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
-# source "amazon-ebs" "amazon-linux-2-ami" {
-#   ami_description = "An Amazon Linux 2 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-amazon-linux-2-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       architecture                       = "x86_64"
-#       "block-device-mapping.volume-type" = "gp2"
-#       name                               = "*amzn2-ami-hvm-*"
-#       root-device-type                   = "ebs"
-#       virtualization-type                = "hvm"
-#     }
-#     most_recent = true
-#     owners      = ["amazon"]
-#   }
-#   ssh_username = "ec2-user"
-# }
-
-# #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
-# source "amazon-ebs" "centos7-ami" {
-#   ami_description = "A Cent OS 7 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-centos7-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       name         = "CentOS Linux 7 x86_64 HVM EBS *"
-#       product-code = "aw0evgkw8e5c1q413zgy5pjce"
-#     }
-#     most_recent = true
-#     owners      = ["679593333241"]
-#   }
-#   ssh_username = "centos"
-# }
-
-# #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
-# source "amazon-ebs" "ubuntu16-ami" {
-#   ami_description = "An Ubuntu 16.04 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-ubuntu16-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       architecture                       = "x86_64"
-#       "block-device-mapping.volume-type" = "gp2"
-#       name                               = "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"
-#       root-device-type                   = "ebs"
-#       virtualization-type                = "hvm"
-#     }
-#     most_recent = true
-#     owners      = ["099720109477"]
-#   }
-#   ssh_username = "ubuntu"
-# }
-
-#could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
 source "amazon-ebs" "ubuntu18-ami" {
   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
@@ -115,118 +49,18 @@ source "amazon-ebs" "ubuntu18-ami" {
   # }
 }
 
-# source "amazon-ebs" "ubuntu18-ami" {
-#   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       architecture                       = "x86_64"
-#       "block-device-mapping.volume-type" = "gp2"
-#       name                               = "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
-#       root-device-type                   = "ebs"
-#       virtualization-type                = "hvm"
-#     }
-#     most_recent = true
-#     owners      = ["099720109477"]
-#   }
-#   ssh_username = "ubuntu"
-# }
-
-# a build block invokes sources and runs provisioning steps on them. The
-# documentation for build blocks can be found here:
-# https://www.packer.io/docs/from-1.5/blocks/build
 build {
   sources = [
-    # "source.amazon-ebs.amazon-linux-2-ami", 
-    # "source.amazon-ebs.centos7-ami", 
-    # "source.amazon-ebs.ubuntu16-ami", 
     "source.amazon-ebs.ubuntu18-ami"
     ]
 
-  # provisioner "shell" {
-  #   inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
-  # }
-
-  # #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
-  # provisioner "file" {
-  #   destination = "/tmp/terraform-aws-vault/modules"
-  #   source      = "${local.template_dir}/../../modules/"
-  # }
-
-  # #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
-  # provisioner "file" {
-  #   destination = "/tmp/sign-request.py"
-  #   source      = "${local.template_dir}/auth/sign-request.py"
-  # }
-  # provisioner "file" {
-  #   destination = "/tmp/ca.crt.pem"
-  #   source      = "${var.ca_public_key_path}"
-  # }
-  # provisioner "shell" {
-  #   inline         = [
-  #     "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
-  #     "sudo mkdir -p /opt/vault/scripts/",
-  #     "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
-  #     "else",
-  #     "sudo rm /tmp/sign-request.py", 
-  #     "fi",
-  #     "sudo mkdir -p /opt/vault/tls/", 
-  #     "sudo mv /tmp/ca.crt.pem /opt/vault/tls/", 
-  #     # "echo 'TrustedUserCAKeys /opt/vault/tls/ca.crt.pem' | sudo tee -a /etc/ssh/sshd_config", 
-  #     # "echo \"@cert-authority * $(sudo cat /opt/vault/tls/ca.crt.pem)\" | sudo tee -a /etc/ssh/ssh_known_hosts", 
-  #     "sudo chmod -R 600 /opt/vault/tls", 
-  #     "sudo chmod 700 /opt/vault/tls", 
-  #     "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
-  #   ]
-  #   inline_shebang = "/bin/bash -e"
-  # }
-  # provisioner "shell" {
-  #   inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
-  #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.ubuntu18-ami"]
-  # }
-  # provisioner "shell" {
-  #   inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
-  #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
-  # }
-  # provisioner "shell" {
-  #   inline         = [
-  #     # "sudo apt-get -y install python3.7",
-  #     # "sudo dpkg --get-selections | grep hold",
-  #     "sudo apt update -y",
-  #     "sudo apt upgrade -y",
-  #     "sudo apt install -y python3-pip",
-  #     "python3 -m pip install --upgrade pip",
-  #     "python3 -m pip install boto3",
-  #     "python3 -m pip --version"
-  #     ]
-  #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.ubuntu18-ami"]
-  # }
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo yum update -y",
-  #     "sleep 5",
-  #     "sudo yum install -y git",
-  #     "sudo yum install -y python python3.7 python3-pip",
-  #     "python3 -m pip install --user --upgrade pip",
-  #     "python3 -m pip install --user boto3"
-  #     ]
-  #   only   = ["amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
-  # }
-
   provisioner "ansible" {
-    playbook_file = "${local.template_dir}/../../ansible/deadline-db-install.yaml"
+    playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
       "--extra-vars", "user_deadlineuser_name=ubuntu"
     ]
-    # collections_path = "${local.template_dir}/../../ansible/"
-    # roles_path = "${local.template_dir}/../../ansible/roles"
-    collections_path = "./../../ansible/"
-    roles_path = "./../../ansible/roles"
+    collections_path = "./ansible/"
+    roles_path = "./ansible/roles"
   }
 
   post-processor "manifest" {
@@ -237,11 +71,3 @@ build {
       }
   }
 }
-
-
-
-# Example query for the output ami:
-# #!/bin/bash
-
-# AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
-# echo $AMI_ID
