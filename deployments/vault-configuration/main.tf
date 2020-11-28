@@ -65,7 +65,7 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 module "vault_client_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
-  source = "../../modules/vault-client-iam-profile"
+  source = "../../modules/vault-client-iam"
   role_name = "ProvisionerRole"
 }
 
