@@ -6,7 +6,7 @@ resource "aws_iam_instance_profile" "vault_client_profile" {
 }
 
 resource "aws_iam_role" "vault_client_role" {
-  name        = var.name
+  name        = var.role_name
   # assume_role_policy = data.aws_iam_policy_document.example_instance_role.json
 }
 
