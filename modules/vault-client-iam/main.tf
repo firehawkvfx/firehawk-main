@@ -7,26 +7,26 @@ resource "aws_iam_instance_profile" "vault_client_profile" {
 
 resource "aws_iam_role" "vault_client_role" {
   name        = var.role_name
-  # assume_role_policy = data.aws_iam_policy_document.example_instance_role.json
+  assume_role_policy = data.aws_iam_policy_document.vault_client_assume_role.json
 }
 
-# resource "aws_iam_role_policy" "example_instance_role_policy" {
+# resource "aws_iam_role_policy" "vault_client_assume_role_policy" {
 #   name   = "auto-discover-cluster"
-#   role   = aws_iam_role.example_instance_role.id
-#   policy = data.aws_iam_policy_document.example_instance_role.json
+#   role   = aws_iam_role.vault_client_assume_role.id
+#   policy = data.aws_iam_policy_document.vault_client_assume_role.json
 # }
 
-# data "aws_iam_policy_document" "example_instance_role" {
-#   statement {
-#     effect  = "Allow"
-#     actions = ["sts:AssumeRole"]
+data "aws_iam_policy_document" "vault_client_assume_role" { # Determines the services able to assume the role.  Any entity assuming this role will be able to authenticate to vault.
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-#     principals {
-#       type        = "Service"
-#       identifiers = ["ec2.amazonaws.com"]
-#     }
-#   }
-# }
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
 
 # Adds policies necessary for running consul
 module "consul_iam_policies_for_client" {
