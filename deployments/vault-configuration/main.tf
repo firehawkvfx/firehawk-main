@@ -91,3 +91,11 @@ resource "vault_aws_auth_backend_client" "provisioner" {
   backend    = vault_auth_backend.aws.path
   iam_server_id_header_value = "vault.service.consul"
 }
+
+output "vault_client_role_arn" {
+  value = module.vault_client_iam.vault_client_role_arn
+}
+
+output "vault_client_profile_arn" {
+  value = module.vault_client_iam.vault_client_profile_arn
+}
