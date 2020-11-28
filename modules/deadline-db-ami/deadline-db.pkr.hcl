@@ -59,9 +59,9 @@ build {
     extra_arguments = [
       "--extra-vars", "user_deadlineuser_name=ubuntu"
     ]
-    collections_path = "./ansible/ansible_collections"
+    collections_path = "./ansible/"
     roles_path = "./ansible/roles"
-    galaxy_file = "./requirements.yml"
+    # galaxy_file = "./requirements.yml"
   }
 
   post-processor "manifest" {
