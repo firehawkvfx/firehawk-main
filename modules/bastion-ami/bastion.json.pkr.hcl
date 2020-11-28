@@ -129,7 +129,7 @@ build {
   #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
   provisioner "file" {
     destination = "/tmp/terraform-aws-vault/modules"
-    source      = "${local.template_dir}/../../modules/"
+    source      = "${local.template_dir}/../modules/"
   }
 
   #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
