@@ -215,8 +215,7 @@ build {
   # }
 
   provisioner "ansible" {
-    playbook_file = "./playbook.yml"
-    playbook_file = "../../ansible/deadline-db-install.yaml"
+    playbook_file = "${local.template_dir}/../../ansible/deadline-db-install.yaml"
     extra_arguments = [
       "--extra-vars", "user_deadlineuser_name=ubuntu"
     ]
