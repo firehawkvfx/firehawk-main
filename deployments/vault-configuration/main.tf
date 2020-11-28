@@ -69,8 +69,8 @@ module "vault_client_iam" { # the arn of a role will turn into an id when it is 
   role_name = "ProvisionerRole"
 }
 
-# Once vault is configured below with the test-role, it is possible for any instance with the correct IAM profile to authenticate.
-# vault login -address=https://vault.service.consul:8200 -method=aws header_value=vault.service.consul role=test-role
+# Once vault is configured below with the provisioner-vault-role, it is possible for any instance with the correct IAM profile to authenticate.
+# vault login -address=https://vault.service.consul:8200 -method=aws header_value=vault.service.consul role=provisioner-vault-role
 
 resource "vault_aws_auth_backend_role" "provisioner" {
   backend                         = vault_auth_backend.aws.path
