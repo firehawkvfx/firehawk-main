@@ -16,6 +16,10 @@ variable "aws_region" {
   default = null
 }
 
+variable "bastion_ubuntu18_ami" {
+  type = string
+}
+
 variable "ca_public_key_path" {
   type    = string
   default = "/home/ec2-user/.ssh/tls/ca.crt.pem"
