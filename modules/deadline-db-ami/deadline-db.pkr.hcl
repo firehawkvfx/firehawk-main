@@ -61,6 +61,7 @@ build {
     ]
     collections_path = "./ansible/"
     roles_path = "./ansible/roles"
+    galaxy_file = "./requirements.yml"
   }
 
   post-processor "manifest" {
