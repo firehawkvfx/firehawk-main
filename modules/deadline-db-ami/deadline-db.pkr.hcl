@@ -58,7 +58,7 @@ build {
     playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
       "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default"
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"

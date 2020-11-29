@@ -13,11 +13,7 @@
     ubl: true
 
   collections:
-    - name: https://github.com/firehawkvfx/ansible_collection_core.git
-      type: git
-      
-  # collections:
-  #   - firehawkvfx.core
+    - firehawkvfx.core
 
   roles:
     - role: firehawkvfx.core.s3_bucket_shared
