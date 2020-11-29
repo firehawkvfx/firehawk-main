@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Remote state files are not allowed to be dynamic.  If this script is run it will substitute env vars into the template and write the template to the current working dir.
+# Remote state files are not allowed to be dynamic.  Copy this folder into your terraform folder requiring remote state.  If this script is run it will substitute env vars into the template and write the template to the current script dir's parent folder.
 
 # Copy this folder into your terraform templatem and set this var to a unique identifier for the state file.
-export NAMESPACE="my-unique-path-to-state-file"
+export NAMESPACE="vault-configuration"
 
 set -e
 
@@ -28,4 +28,4 @@ if [[ -z "$TF_VAR_bucket_extension" ]]; then
     exit_if_error 1 "TF_VAR_bucket_extension not defined.  Ensure you have run 'source update_vars.sh' from the repository root folder."
 fi
 
-envsubst < $SCRIPTDIR/s3-backend-template.tf > $pwd/s3-backend.tf
+envsubst < $SCRIPTDIR/s3-backend-template.tf > $SCRIPTDIR/../s3-backend.tf

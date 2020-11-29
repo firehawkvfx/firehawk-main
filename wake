@@ -11,7 +11,7 @@ terraform init -input=false
 terraform plan -out=tfplan -input=false -var "sleep=true"
 terraform apply -input=false tfplan # Ensure Main VPC exists
 
-cd $SCRIPTDIR/deployments/vault
+cd $SCRIPTDIR/modules/vault
 ./generate-plan
 terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.
 

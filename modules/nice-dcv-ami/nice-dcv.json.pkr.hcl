@@ -91,7 +91,7 @@ build {
 
   provisioner "file" {
     destination = "/tmp/terraform-aws-vault/modules"
-    source      = "${local.template_dir}/../../modules/"
+    source      = "${local.template_dir}/../terraform-aws-vault/modules/"
   }
 
   ### This block will install Consul and Vault Agent
