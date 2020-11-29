@@ -5,7 +5,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 
 source $SCRIPTDIR/update_vars.sh
 
-cd $SCRIPTDIR
+cd $SCRIPTDIR/modules/vpc
 terraform init -input=false
 terraform plan -out=tfplan -input=false -var "sleep=true"
 terraform apply -input=false tfplan # Ensure Main VPC exists
@@ -14,7 +14,7 @@ cd $SCRIPTDIR/deployments/vault
 ./generate-plan
 terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.
 
-cd $SCRIPTDIR
+cd $SCRIPTDIR/modules/vpc
 terraform init -input=false
 terraform plan -out=tfplan -input=false
 terraform apply -input=false tfplan # Start bastion hosts in Main VPC after the servers for immedite connection to consul service discovery
