@@ -27,8 +27,8 @@ if [[ -f "$SCRIPTDIR/modules/nice-dcv-ami/manifest.json" ]]; then
     export TF_VAR_bastion_graphical_ami_id=$TF_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami
     # export TF_VAR_bastion_graphical_ami_id="ami-005e5d06689d9e25b" # Temporary test with amazon linux ami
 fi
-if [[ -f "$SCRIPTDIR/modules/vault-consul-ami/manifest.json" ]]; then
-    export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
+    export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found vault_consul_ami in manifest: PKR_VAR_vault_consul_ami=$PKR_VAR_vault_consul_ami"
     export TF_VAR_vault_consul_ami_id=$PKR_VAR_vault_consul_ami
 fi
