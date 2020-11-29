@@ -49,8 +49,8 @@ export TF_VAR_vault_public_key=$(cat $public_key_path)
 export TF_VAR_remote_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32"
 export TF_VAR_inventory="$(to_abs_path $SCRIPTDIR/../secrets/inventory)"
 mkdir -p $TF_VAR_inventory
-export TF_VAR_firehawk_path=$PWD
-export TF_VAR_log_dir="$PWD/tmp/log"
+
+export TF_VAR_log_dir="$SCRIPTDIR/tmp/log"
 mkdir -p $TF_VAR_log_dir
 if [[ ! -f $TF_VAR_inventory/hosts ]] ; then
     echo "ansible_control ansible_connection=local" >> $TF_VAR_inventory/hosts
