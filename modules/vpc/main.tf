@@ -26,11 +26,20 @@ locals {
   }
 }
 
-module "key_pair" {
-  source = "terraform-aws-modules/key-pair/aws"
+# module "key_pair" {
+#   source = "terraform-aws-modules/key-pair/aws"
 
-  key_name   = "main-deployment" 
-  public_key = var.vault_public_key
+#   key_name   = "main-deployment" 
+#   public_key = var.vault_public_key
+#   tags = local.common_tags
+# }
+
+resource "aws_key_pair" "this" {
+  count = var.create_key_pair ? 1 : 0
+
+  key_name        = "main-deployment" 
+  public_key      = var.vault_public_key
+
   tags = local.common_tags
 }
 

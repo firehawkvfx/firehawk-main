@@ -68,3 +68,9 @@ variable "bastion_graphical_ami_id" {
   type = string
   default = null
 }
+
+variable "create_key_pair" {
+  description = "Controls if key pair should be created"
+  type        = bool
+  default     = true
+}
