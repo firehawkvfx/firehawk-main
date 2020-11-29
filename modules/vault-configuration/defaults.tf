@@ -26,8 +26,8 @@ locals {
       "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THE DEV BUCKET EXTENSION. This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
       "default": "",
       "example_1": "dev.example.com",
-      "example_1": "prod.example.com",
-      "example_2": "dev-myemail-gmail-com"
+      "example_2": "prod.example.com",
+      "example_3": "dev-myemail-gmail-com"
     }
   } )
 }
