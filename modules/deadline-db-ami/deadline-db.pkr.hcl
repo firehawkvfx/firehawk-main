@@ -59,7 +59,7 @@ build {
     extra_arguments = [
       "--extra-vars", "user_deadlineuser_name=ubuntu"
     ]
-    collections_path = "./ansible/collections"
+    collections_path = "./ansible/collections/"
     roles_path = "./ansible/roles"
     galaxy_file = "./requirements.yml"
   }
