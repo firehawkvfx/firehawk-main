@@ -3,7 +3,7 @@
 # Remote state files are not allowed to be dynamic.  Copy this folder into your terraform folder requiring remote state.  If this script is run it will substitute env vars into the template and write the template to the current script dir's parent folder.
 
 # Copy this folder into your terraform templatem and set this var to a unique identifier for the state file.
-export NAMESPACE="my-unique-path-to-state-file"
+export NAMESPACE="vpc"
 
 set -e
 
