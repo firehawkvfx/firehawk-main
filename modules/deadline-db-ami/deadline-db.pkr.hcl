@@ -41,7 +41,7 @@ variable "resourcetier" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  bucket_extension = vault( "/${var.envtier}/${var.resourcetier}/aws/bucket_extension" "bucket_extension" )
+  bucket_extension = vault( "/${var.envtier}/${var.resourcetier}/aws/bucket_extension", "bucket_extension" )
 }
 
 source "amazon-ebs" "ubuntu18-ami" {
