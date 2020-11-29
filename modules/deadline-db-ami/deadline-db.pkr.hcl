@@ -57,7 +57,8 @@ build {
   provisioner "ansible" {
     playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
-      "--extra-vars", "user_deadlineuser_name=ubuntu"
+      "--extra-vars",
+      "user_deadlineuser_name=ubuntu variable_host=default"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"

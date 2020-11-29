@@ -12,6 +12,10 @@
     houdini_major_version: 18.0
     ubl: true
 
+  collections:
+    - name: https://github.com/firehawkvfx/ansible_collection_core.git
+      type: git
+      
   # collections:
   #   - firehawkvfx.core
 
