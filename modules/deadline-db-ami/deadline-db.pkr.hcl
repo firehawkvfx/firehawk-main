@@ -30,9 +30,18 @@ variable "install_auth_signing_script" {
   default = "true"
 }
 
+variable "envtier" {
+  type    = string
+}
+
+variable "resourcetier" {
+  type    = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
+  bucket_extension = vault( "/${var.envtier}/${var.resourcetier}/aws/bucket_extension" "bucket_extension" )
 }
 
 source "amazon-ebs" "ubuntu18-ami" {
@@ -58,7 +67,7 @@ build {
     playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
       "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=software.${local.bucket_extension}"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"

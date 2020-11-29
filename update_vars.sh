@@ -5,6 +5,8 @@ to_abs_path() {
 }
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+PKR_VAR_resourcetier="grey"
+PKR_VAR_envtier="dev"
 
 export TF_VAR_firehawk_path=$SCRIPTDIR
 
