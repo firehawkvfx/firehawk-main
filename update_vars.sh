@@ -61,8 +61,7 @@ export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-
 
 export VAULT_ADDR=https://vault.service.consul:8200 # verify dns before login with: dig vault.service.consul
 
-source $SCRIPTDIR/../secrets/secret_vars.sh
-
+source $SCRIPTDIR/../secrets/secret_vars.sh # cluster info is stored in secrets.
 export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs should be defined in secrets
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 
