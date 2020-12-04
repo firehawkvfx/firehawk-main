@@ -13,6 +13,10 @@
     ubl: true
     delegate_host: ansible_control
 
+  pre_tasks:
+  - name: what is my ip
+    command: "echo connected; ip a"
+    delegate_to: "{{ delegate_host }}"
   # collections:
   #   - firehawkvfx.core
 
