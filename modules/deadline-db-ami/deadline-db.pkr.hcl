@@ -41,7 +41,7 @@ variable "resourcetier" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  bucket_extension = vault( "/dev/grey/aws/bucket_extension", "value" )
+  bucket_extension = vault("/dev/data/grey/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
 }
 
 source "amazon-ebs" "ubuntu18-ami" {
