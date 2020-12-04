@@ -66,6 +66,7 @@ build {
   provisioner "ansible" {
     playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
+      "-vvvv",
       "--extra-vars",
       "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=software.${local.bucket_extension}"
     ]
