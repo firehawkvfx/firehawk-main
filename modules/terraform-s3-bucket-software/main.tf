@@ -24,14 +24,13 @@ locals {
     role = "shared bucket"
     region = data.aws_region.current.name
   }
-  bucket_name = "${var.bucket_prefix}.${var.bucket_extension}"
   share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
 }
 
 # See https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa for the origin of some of this code.
 
 resource "aws_s3_bucket" "shared_bucket" {
-  bucket = "state.terraform.${var.bucket_extension}"
+  bucket = "${var.bucket_prefix}.${var.bucket_extension}"
   acl    = "private"
 
   versioning {
