@@ -19,7 +19,6 @@
   - /deployuser/tmp/DeadlineDatabase10/mongo/backup/
   when: reinstallation
       
-
 - name: Find backups if present - DeadlineDatabase10
   find: paths=/opt/Thinkbox/DeadlineDatabase10/mongo/backup/ file_type=directory patterns="*"
   register: backup_paths
