@@ -41,6 +41,7 @@ locals {
   deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
   syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
   deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
+  deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
   installers_bucket = vault("/main/data/aws/installers_bucket", "value")
 }
 
@@ -69,6 +70,18 @@ build {
       "-v",
       "--extra-vars",
       "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/newuser_deadlineuser.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
