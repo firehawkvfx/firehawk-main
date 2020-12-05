@@ -20,7 +20,13 @@ locals {
       "description": "The user id (UID) for the deployuser utilised for provisioning",
       "default": "9004",
       "example_1": "9004",
-    }
+    },
+    "system/deadlineuser_uid" = {
+      "name" = "deadlineuser_uid",
+      "description": "The user id (UID) for the deadlineuser utilised for provisioning",
+      "default": "9001",
+      "example_1": "9001",
+    },
     "system/syscontrol_gid" = {
       "name" = "syscontrol_gid",
       "description": "The group id (GID) for the syscontrol group",
