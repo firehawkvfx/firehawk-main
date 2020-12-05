@@ -34,7 +34,7 @@ locals {
 
 data "vault_generic_secret" "installers_bucket" { # The name of the bucket is defined in vault  
   count = var.use_vault ? 1 : 0
-  path = "/main/aws/installers_bucket"
+  path = "main/aws/installers_bucket"
 }
 
 resource "aws_s3_bucket" "shared_bucket" {
