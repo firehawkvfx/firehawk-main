@@ -23,7 +23,7 @@ locals {
     },
     "system/deadlineuser_uid" = {
       "name" = "deadlineuser_uid",
-      "description": "The user id (UID) for the deadlineuser utilised for provisioning",
+      "description": "The user id (UID) for the deadlineuser utilised for rendering",
       "default": "9001",
       "example_1": "9001",
     },
