@@ -27,7 +27,7 @@ locals {
   share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
   
   vault_map = element( concat( data.vault_generic_secret.vault_map.*.data, list({}) ), 0 )
-  bucket_name = var.use_vault && keys(local.vault_map), "value" ) ? lookup( local.vault_map, "value", var.bucket_name) : var.bucket_name
+  bucket_name = var.use_vault && contains( keys(local.vault_map), "value" ) ? lookup( local.vault_map, "value", var.bucket_name) : var.bucket_name
 }
 
 # See https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa for the origin of some of this code.
