@@ -26,7 +26,7 @@ locals {
   }
   share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
   
-  vault_map = element( concat( data.vault_generic_secret.vault_map.*.data, list({}) ), 0 )
+  vault_map = element( concat( data.vault_generic_secret.installers_bucket.*.data, list({}) ), 0 )
   bucket_name = var.use_vault && contains( keys(local.vault_map), "value" ) ? lookup( local.vault_map, "value", var.bucket_name) : var.bucket_name
 }
 
