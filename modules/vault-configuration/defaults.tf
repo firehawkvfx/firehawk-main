@@ -15,6 +15,12 @@ locals {
       "example_1" = "latest",
       "example_2" = "2.9.2"
     },
+    "system/deployuser_uid" = {
+      "name" = "deployuser_uid",
+      "description": "The user id (UID) for the deployuser utilised for provisioning",
+      "default": "9004",
+      "example_1": "9004",
+    }
     "system/syscontrol_gid" = {
       "name" = "syscontrol_gid",
       "description": "The group id (GID) for the syscontrol group",
