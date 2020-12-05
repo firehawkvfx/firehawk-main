@@ -6,6 +6,10 @@ locals {
 }
 
 resource "null_resource" "init_secret" { # init a secret if empty
+  triggers = {
+    always_run = "${timestamp()}" # Always run this.
+  }
+
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command = <<EOT
