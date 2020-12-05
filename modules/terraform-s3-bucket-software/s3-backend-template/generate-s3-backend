@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Remote state files are not allowed to be dynamic.  Copy this folder into your terraform folder requiring remote state.  If this script is run it will substitute env vars into the template and write the template to the current script dir's parent folder.
+# Remote state files are not allowed to be dynamic.  Copy this folder into your terraform folder requiring remote state, and set the var for NAMESPACE.  If this script is run it will substitute env vars into the template and write the template to the current script dir's parent folder.
 
 # Copy this folder into your terraform templatem and set this var to a unique identifier for the state file.
-export NAMESPACE="vpc"
+export NAMESPACE="terraform-s3-bucket-software"
 
 set -e
 
