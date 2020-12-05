@@ -40,7 +40,7 @@ locals {
   bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
   deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
   syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
-  deplyuser_uid = vault("/${var.resourcetier}/data/system/deplyuser_uid", "value")
+  deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
   installers_bucket = vault("/main/data/aws/installers_bucket", "value")
 }
 
