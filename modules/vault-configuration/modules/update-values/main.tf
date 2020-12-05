@@ -2,7 +2,7 @@
 # This allows us to know if a user has configured to a non default value, and if so, preserve the users value.
 
 locals {
-  path = "${var.mount_path}/${var.resourcetier}/${var.secret_name}"
+  path = "${var.mount_path}/${var.secret_name}"
 }
 
 resource "null_resource" "init_secret" { # init a secret if empty

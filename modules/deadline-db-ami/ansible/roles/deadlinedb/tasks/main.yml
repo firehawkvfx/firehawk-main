@@ -90,6 +90,13 @@
   become_user: "{{ user_deadlineuser_name }}"
   become: true
 
+
+# deadline can now be downloaded directly from s3.
+# https://downloads.thinkboxsoftware.com/version_info.json
+
+# aws s3api get-object --bucket thinkbox-installers --key Deadline/10.1.10.6/Windows/DeadlineClient-10.1.10.6-windows-installer.exe DeadlineClient-10.1.10.6-windows-installer.exe
+
+
 - name: "Test: Fail if not existing tar."
   fail:
     msg: "Bailing out: You need to place the installer in the download directory.  Installer not found - {{ deadline_linux_installers_tar }}"

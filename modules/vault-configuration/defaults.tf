@@ -20,14 +20,44 @@ locals {
       "description": "The group id (GID) for the syscontrol group",
       "default": "9003",
       "example_1": "9003",
-    },
+    }
+  } ),
+  dev = merge(local.defaults, tomap( {
     "aws/bucket_extension" = {
       "name" = "bucket_extension",
-      "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THE DEV BUCKET EXTENSION. This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
-      "default": "",
+      "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THIS RESOURCE TIER (DEV, GREEN, BLUE). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
+      "default": "dev.${var.global_bucket_extension}",
       "example_1": "dev.example.com",
-      "example_2": "prod.example.com",
+      "example_2": "green.example.com",
       "example_3": "dev-myemail-gmail-com"
     }
-  } )
+  } ) ),
+  green = merge(local.defaults, tomap( {
+    "aws/bucket_extension" = {
+      "name" = "bucket_extension",
+      "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THIS RESOURCE TIER (DEV, GREEN, BLUE). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
+      "default": "green.${var.global_bucket_extension}",
+      "example_1": "dev.example.com",
+      "example_2": "green.example.com",
+      "example_3": "dev-myemail-gmail-com"
+    }
+  } ) ),
+  blue = merge(local.defaults, tomap( {
+    "aws/bucket_extension" = {
+      "name" = "bucket_extension",
+      "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THIS RESOURCE TIER (DEV, GREEN, BLUE). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
+      "default": "blue.${var.global_bucket_extension}",
+      "example_1": "dev.example.com",
+      "example_2": "green.example.com",
+      "example_3": "dev-myemail-gmail-com"
+    }
+  } ) ),
+  main = tomap( {
+    "aws/installers_bucket" = {
+      "name" = "installers_bucket",
+      "description" = "The S3 bucket name in the main account to store installers and software for all your AWS accounts.  The name must be globally unique.",
+      "default" = "software.main.${var.global_bucket_extension}",
+      "example_1" = "software.main.example.com",
+      "example_3": "software-main-myemail-gmail-com"
+    } )
 }

@@ -48,14 +48,48 @@ resource "vault_mount" "prod" {
 module "update-values" { # Init defaults
   source = "./modules/update-values"
   init = var.init
-  envtier = var.envtier
-  resourcetier = var.resourcetier
-  mount_path = var.envtier == "dev" ? vault_mount.dev.path : vault_mount.prod.path
-  for_each = local.defaults
+  resourcetier = "dev" # dev, green, blue, or main
+  mount_path = "dev"
+  for_each = local.dev
   secret_name = each.key
   system_default = each.value
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }
+
+module "update-values" { # Init defaults
+  source = "./modules/update-values"
+  init = var.init
+  resourcetier = "green" # dev, green, blue, or main
+  mount_path = "green"
+  for_each = local.green
+  secret_name = each.key
+  system_default = each.value
+  restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
+}
+
+module "update-values" { # Init defaults
+  source = "./modules/update-values"
+  init = var.init
+  resourcetier = "blue" # dev, green, blue, or main
+  mount_path = "blue"
+  for_each = local.blue
+  secret_name = each.key
+  system_default = each.value
+  restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
+}
+
+
+module "update-values" { # Init defaults
+  source = "./modules/update-values"
+  init = var.init
+  resourcetier = "main" # dev, green, blue, or main
+  mount_path = "main"
+  for_each = local.main
+  secret_name = each.key
+  system_default = each.value
+  restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
+}
+
 
 resource "vault_auth_backend" "aws" {
   type = "aws"

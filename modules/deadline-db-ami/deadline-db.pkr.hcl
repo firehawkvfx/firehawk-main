@@ -41,7 +41,9 @@ variable "resourcetier" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  bucket_extension = vault("/dev/data/grey/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
+  bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
+  deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
+  installers_bucket = vault("/main/data/aws/installers_bucket", "value")
 }
 
 source "amazon-ebs" "ubuntu18-ami" {
@@ -68,7 +70,7 @@ build {
     extra_arguments = [
       "-vvvv",
       "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=software.${local.bucket_extension}"
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=software.${local.bucket_extension} deadline_version=${deadline_version}"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
