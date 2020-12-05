@@ -23,9 +23,19 @@ resource "vault_policy" "dev_policy" {
   policy = file("policies/dev_policy.hcl")
 }
 
-resource "vault_policy" "prod_policy" {
-  name   = "prod"
-  policy = file("policies/prod_policy.hcl")
+resource "vault_policy" "green_policy" {
+  name   = "green"
+  policy = file("policies/green_policy.hcl")
+}
+
+resource "vault_policy" "blue_policy" {
+  name   = "blue"
+  policy = file("policies/blue_policy.hcl")
+}
+
+resource "vault_policy" "main_policy" {
+  name   = "main"
+  policy = file("policies/main_policy.hcl")
 }
 
 resource "vault_policy" "provisioner_policy" {
@@ -39,10 +49,22 @@ resource "vault_mount" "dev" {
   description = "KV2 Secrets Engine for dev."
 }
 
-resource "vault_mount" "prod" {
-  path        = "prod"
+resource "vault_mount" "green" {
+  path        = "green"
   type        = "kv-v2"
-  description = "KV2 Secrets Engine for prod."
+  description = "KV2 Secrets Engine for green."
+}
+
+resource "vault_mount" "blue" {
+  path        = "blue"
+  type        = "kv-v2"
+  description = "KV2 Secrets Engine for blue."
+}
+
+resource "vault_mount" "main" {
+  path        = "main"
+  type        = "kv-v2"
+  description = "KV2 Secrets Engine for main."
 }
 
 module "update-values-dev" { # Init defaults
@@ -78,7 +100,6 @@ module "update-values-blue" { # Init defaults
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }
 
-
 module "update-values-main" { # Init defaults
   source = "./modules/update-values"
   init = var.init
@@ -89,7 +110,6 @@ module "update-values-main" { # Init defaults
   system_default = each.value
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }
-
 
 resource "vault_auth_backend" "aws" {
   type = "aws"

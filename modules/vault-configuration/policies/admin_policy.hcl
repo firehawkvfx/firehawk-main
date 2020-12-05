@@ -52,12 +52,22 @@ path "sys/health"
   capabilities = ["read", "sudo"]
 }
 
-path "prod/*"
+path "dev/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "dev/*"
+path "green/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
