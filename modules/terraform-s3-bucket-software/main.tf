@@ -133,7 +133,7 @@ data "aws_iam_policy_document" "multiple_account_assume_role_policy" {
 
     principals {
       type        = "AWS"
-      identifiers = var.share_with_arns
+      identifiers = local.share_with_arns
     }
 
     actions = ["sts:AssumeRole"]
@@ -191,9 +191,7 @@ resource "aws_iam_policy" "multiple_account_iam_policy_s3_bucket" {
 EOF
 }
 
-
-
-# If a user has restricted permissions the following IAM permissions are required to use the remote state
+# If a user has restricted permissions the following IAM permissions are required to use the bucket
 # {
 #   "Version": "2012-10-17",
 #   "Statement": [
@@ -205,7 +203,7 @@ EOF
 #     {
 #       "Effect": "Allow",
 #       "Action": ["s3:GetObject", "s3:PutObject"],
-#       "Resource": "arn:aws:s3:::mybucket/path/to/my/key"
+#       "Resource": "arn:aws:s3:::mybucket/path/to/something"
 #     }
 #   ]
 # 
