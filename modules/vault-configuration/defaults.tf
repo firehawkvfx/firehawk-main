@@ -21,7 +21,7 @@ locals {
       "default": "9003",
       "example_1": "9003",
     }
-  } ),
+  } )
   dev = merge(local.defaults, tomap( {
     "aws/bucket_extension" = {
       "name" = "bucket_extension",
@@ -31,7 +31,7 @@ locals {
       "example_2": "green.example.com",
       "example_3": "dev-myemail-gmail-com"
     }
-  } ) ),
+  } ) )
   green = merge(local.defaults, tomap( {
     "aws/bucket_extension" = {
       "name" = "bucket_extension",
@@ -41,7 +41,7 @@ locals {
       "example_2": "green.example.com",
       "example_3": "dev-myemail-gmail-com"
     }
-  } ) ),
+  } ) )
   blue = merge(local.defaults, tomap( {
     "aws/bucket_extension" = {
       "name" = "bucket_extension",
@@ -51,7 +51,7 @@ locals {
       "example_2": "green.example.com",
       "example_3": "dev-myemail-gmail-com"
     }
-  } ) ),
+  } ) )
   main = tomap( {
     "aws/installers_bucket" = {
       "name" = "installers_bucket",
@@ -59,5 +59,6 @@ locals {
       "default" = "software.main.${var.global_bucket_extension}",
       "example_1" = "software.main.example.com",
       "example_3": "software-main-myemail-gmail-com"
-    } )
+    } 
+  } )
 }

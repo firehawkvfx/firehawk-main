@@ -45,7 +45,7 @@ resource "vault_mount" "prod" {
   description = "KV2 Secrets Engine for prod."
 }
 
-module "update-values" { # Init defaults
+module "update-values-dev" { # Init defaults
   source = "./modules/update-values"
   init = var.init
   resourcetier = "dev" # dev, green, blue, or main
@@ -56,7 +56,7 @@ module "update-values" { # Init defaults
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }
 
-module "update-values" { # Init defaults
+module "update-values-green" { # Init defaults
   source = "./modules/update-values"
   init = var.init
   resourcetier = "green" # dev, green, blue, or main
@@ -67,7 +67,7 @@ module "update-values" { # Init defaults
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }
 
-module "update-values" { # Init defaults
+module "update-values-blue" { # Init defaults
   source = "./modules/update-values"
   init = var.init
   resourcetier = "blue" # dev, green, blue, or main
@@ -79,7 +79,7 @@ module "update-values" { # Init defaults
 }
 
 
-module "update-values" { # Init defaults
+module "update-values-main" { # Init defaults
   source = "./modules/update-values"
   init = var.init
   resourcetier = "main" # dev, green, blue, or main

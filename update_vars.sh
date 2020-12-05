@@ -65,6 +65,3 @@ source $SCRIPTDIR/../secrets/secret_vars.sh # cluster info is stored in secrets.
 export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs should be defined in secrets
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export TF_VAR_bucket_extension="dev.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
-
-echo "After deployment, ssh into the vault and init with: vault operator init -recovery-shares=1 -recovery-threshold=1"
-echo "Store the initial root token in a password manager (encrypted)."
