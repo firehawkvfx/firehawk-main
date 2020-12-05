@@ -26,8 +26,8 @@ locals {
 
 # See https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa for the origin of some of this code.
 
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "state.terraform.${var.bucket_extension}"
+resource "aws_s3_bucket" "vault_backend" {
+  bucket = "vault.${var.bucket_extension}"
   acl    = "private"
   # Enable versioning so we can see the full revision history of our
   # state files
@@ -49,37 +49,10 @@ resource "aws_s3_bucket" "terraform_state" {
 }
 
 resource "aws_s3_bucket_public_access_block" "backend" { # https://medium.com/dnx-labs/terraform-remote-states-in-s3-d74edd24a2c4
-  bucket = aws_s3_bucket.terraform_state.id
+  bucket = aws_s3_bucket.vault_backend.id
 
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-}
-
-# If a user has restricted permissions the following IAM permissions are required to use the remote state
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Action": "s3:ListBucket",
-#       "Resource": "arn:aws:s3:::mybucket"
-#     },
-#     {
-#       "Effect": "Allow",
-#       "Action": ["s3:GetObject", "s3:PutObject"],
-#       "Resource": "arn:aws:s3:::mybucket/path/to/my/key"
-#     }
-#   ]
-# }
-
-resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "locks.state.terraform.${var.bucket_extension}"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
 }
