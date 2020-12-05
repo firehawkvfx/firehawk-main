@@ -88,34 +88,17 @@ build {
     galaxy_file = "./requirements.yml"
   }
 
-# ansible-playbook -i "$TF_VAR_inventory" ansible/newuser_deadlineuser.yaml -v --extra-vars "variable_host=role_softnas variable_connect_as_user=$TF_VAR_softnas_ssh_user variable_user=deployuser variable_uid=$TF_VAR_deployuser_uid"; exit_test
-# ansible-playbook -i "$TF_VAR_inventory" ansible/newuser_deadlineuser.yaml -v --extra-vars "variable_host=role_softnas variable_connect_as_user=$TF_VAR_softnas_ssh_user variable_user=deadlineuser"; exit_test
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/add_user_to_group.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu delegate_host=localhost syscontrol_gid=${var.syscontrol_gid}"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-# ansible-playbook -i "$TF_VAR_inventory" ansible/add_user_to_group.yaml -v --extra-vars "variable_host=firehawkgateway variable_connect_as_user=deployuser variable_user=deployuser variable_uid=$TF_VAR_deployuser_uid"; exit_test
-  
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/deadline-db-install.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   galaxy_file = "./requirements.yml"
-  # }
+  provisioner "ansible" {
+    playbook_file = "./ansible/deadline-db-install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    galaxy_file = "./requirements.yml"
+  }
 
   post-processor "manifest" {
       output = "${local.template_dir}/manifest.json"
