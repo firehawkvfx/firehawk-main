@@ -70,7 +70,7 @@ build {
     extra_arguments = [
       "-vvvv",
       "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=software.${local.bucket_extension} deadline_version=${deadline_version}"
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version}"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"

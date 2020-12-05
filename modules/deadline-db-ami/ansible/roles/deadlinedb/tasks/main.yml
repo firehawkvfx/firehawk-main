@@ -70,6 +70,13 @@
   - /opt/Thinkbox
   - /opt/Thinkbox/certs
 
+- name: ensure installer is synced to local bucket from AWS.
+  shell:
+    aws s3 sync s3://thinkbox-installers/Deadline/{{ deadline_version }}/Linux/Deadline-{{ deadline_version }}-linux-installers.tar s3://{{ installers_bucket }}/Deadline-{{ deadline_version }}-linux-installers.tar
+  tags:
+  - install
+  - sync_installers
+  
 - name: s3-sync pull deadline installer
   import_role:
     name: firehawkvfx.core.s3_sync
@@ -96,6 +103,7 @@
 
 # aws s3api get-object --bucket thinkbox-installers --key Deadline/10.1.10.6/Windows/DeadlineClient-10.1.10.6-windows-installer.exe DeadlineClient-10.1.10.6-windows-installer.exe
 
+# s3://thinkbox-installers/Deadline/10.1.9.2/Linux/Deadline-10.1.9.2-linux-installers.tar
 
 - name: "Test: Fail if not existing tar."
   fail:
