@@ -17,6 +17,7 @@
   with_items:
   - /deployuser/tmp/DeadlineRepository10/backup
   - /deployuser/tmp/DeadlineDatabase10/mongo/backup/
+  when: reinstallation
       
 
 - name: Find backups if present - DeadlineDatabase10
@@ -24,10 +25,11 @@
   register: backup_paths
   become_user: "{{ user_deadlineuser_name }}"
   become: true
+  when: reinstallation
 
 - name: Move backups if present out of the vm to conserve space.
   shell: sudo rsync --inplace --no-perms --omit-dir-times --no-o --no-g /opt/Thinkbox/DeadlineDatabase10/mongo/backup/* /deployuser/tmp/DeadlineDatabase10/mongo/backup --remove-source-files
-  when: backup_paths.matched|int != 0
+  when: backup_paths.matched|int != 0 and reinstallation
   become_user: "{{ user_deadlineuser_name }}"
   become: true
 
@@ -36,10 +38,11 @@
   register: backup_paths_repo
   become_user: "{{ user_deadlineuser_name }}"
   become: true
+  when: reinstallation
 
 - name: Move backups if present out of the vm to conserve space.
   shell: sudo rsync --inplace --no-perms --omit-dir-times --no-o --no-g /opt/Thinkbox/DeadlineRepository10/backup/* /deployuser/tmp/DeadlineRepository10/backup --remove-source-files
-  when: backup_paths_repo.matched|int != 0
+  when: backup_paths_repo.matched|int != 0 and reinstallation
   become_user: "{{ user_deadlineuser_name }}"
   become: true
 
@@ -76,7 +79,7 @@
   tags:
   - install
   - sync_installers
-  
+
 - name: s3-sync pull deadline installer
   import_role:
     name: firehawkvfx.core.s3_sync
