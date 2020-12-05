@@ -96,7 +96,7 @@ resource "aws_s3_bucket_policy" "shared_bucket_policy" {
       ],
       "Principal": {
         "AWS": [
-          "${aws_iam_role.multiple_account_assume_role}"
+          "${aws_iam_role.multiple_account_assume_role.arn}"
         ]
       }
     },
@@ -104,7 +104,7 @@ resource "aws_s3_bucket_policy" "shared_bucket_policy" {
       "Effect": "Allow",
       "Principal": {
         "AWS": [
-          "${aws_iam_role.multiple_account_assume_role}"
+          "${aws_iam_role.multiple_account_assume_role.arn}"
         ]
       },
       "Action": [
