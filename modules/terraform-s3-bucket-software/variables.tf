@@ -12,7 +12,7 @@ variable "bucket_extension" {
 variable "bucket_prefix" {
   description = "The prefix for the bucket name"
   type = string
-  default = "downloads.software"
+  default = "software"
 }
 
 variable "role_name" {
