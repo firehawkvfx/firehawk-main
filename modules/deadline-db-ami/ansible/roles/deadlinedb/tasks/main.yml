@@ -17,18 +17,18 @@
   with_items:
   - /deployuser/tmp/DeadlineRepository10/backup
   - /deployuser/tmp/DeadlineDatabase10/mongo/backup/
-  when: reinstallation
+  when: reinstallation | bool
       
 - name: Find backups if present - DeadlineDatabase10
   find: paths=/opt/Thinkbox/DeadlineDatabase10/mongo/backup/ file_type=directory patterns="*"
   register: backup_paths
   become_user: "{{ user_deadlineuser_name }}"
   become: true
-  when: reinstallation
+  when: reinstallation | bool
 
 - name: Move backups if present out of the vm to conserve space.
   shell: sudo rsync --inplace --no-perms --omit-dir-times --no-o --no-g /opt/Thinkbox/DeadlineDatabase10/mongo/backup/* /deployuser/tmp/DeadlineDatabase10/mongo/backup --remove-source-files
-  when: backup_paths.matched|int != 0 and reinstallation
+  when: backup_paths.matched|int != 0 and reinstallation | bool
   become_user: "{{ user_deadlineuser_name }}"
   become: true
 
@@ -37,11 +37,11 @@
   register: backup_paths_repo
   become_user: "{{ user_deadlineuser_name }}"
   become: true
-  when: reinstallation
+  when: reinstallation | bool
 
 - name: Move backups if present out of the vm to conserve space.
   shell: sudo rsync --inplace --no-perms --omit-dir-times --no-o --no-g /opt/Thinkbox/DeadlineRepository10/backup/* /deployuser/tmp/DeadlineRepository10/backup --remove-source-files
-  when: backup_paths_repo.matched|int != 0 and reinstallation
+  when: backup_paths_repo.matched|int != 0 and reinstallation | bool
   become_user: "{{ user_deadlineuser_name }}"
   become: true
 
