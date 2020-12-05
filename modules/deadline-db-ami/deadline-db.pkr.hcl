@@ -30,10 +30,6 @@ variable "install_auth_signing_script" {
   default = "true"
 }
 
-variable "envtier" {
-  type    = string
-}
-
 variable "resourcetier" {
   type    = string
 }

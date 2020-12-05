@@ -5,8 +5,9 @@ to_abs_path() {
 }
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
-export PKR_VAR_resourcetier="grey"
-export PKR_VAR_envtier="dev"
+export TF_VAR_resourcetier="dev"
+export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
+# export PKR_VAR_envtier="dev"
 
 export TF_VAR_firehawk_path=$SCRIPTDIR
 
@@ -64,4 +65,4 @@ export VAULT_ADDR=https://vault.service.consul:8200 # verify dns before login wi
 source $SCRIPTDIR/../secrets/secret_vars.sh # cluster info is stored in secrets.
 export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs should be defined in secrets
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
-export TF_VAR_bucket_extension="dev.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
+export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
