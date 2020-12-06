@@ -72,26 +72,44 @@
   - /opt/Thinkbox
   - /opt/Thinkbox/certs
 
-- name: ensure installer is synced to local bucket from AWS.
-  shell:
-    aws s3 sync s3://thinkbox-installers/Deadline/{{ deadline_version }}/Linux/Deadline-{{ deadline_version }}-linux-installers.tar s3://{{ installers_bucket }}/Deadline-{{ deadline_version }}-linux-installers.tar
-  delegate_to: "{{ delegate_host }}"
-  tags:
-  - install
-  - sync_installers
-
-- name: s3-sync pull deadline installer # need cli installed.
+- name: s3-sync pull deadline installer # pull installer if it exists
   import_role:
     name: firehawkvfx.core.s3_sync
   vars:
     mode: "pull"
     bucket: "{{ installers_bucket }}"
-    basedir: "{{ deadline_linux_installers_tar | dirname }}"
-    filename: "{{ deadline_linux_installers_tar | basename }}"
+    basedir: "/tmp"
+    filename: "Deadline-{{ deadline_version }}-linux-installers.tar"
     sync_user: "{{ user_deadlineuser_name }}"
   tags:
   - install
   - sync_installers
+
+  
+- name: If no file retrieved, ensure installer is pulled from AWS.
+  shell:
+    if [[ -f {{ deadline_linux_installers_tar }} ]]; then
+      echo "File already exists"
+    else
+      aws s3api get-object --bucket thinkbox-installers --key Deadline/{{ deadline_version }}/Linux/{{ deadline_linux_installers_tar | basename }} {{ deadline_linux_installers_tar }}
+    fi
+  # delegate_to: "{{ delegate_host }}"
+  tags:
+  - install
+  - sync_installers
+
+# - name: s3-sync pull deadline installer # need cli installed.
+#   import_role:
+#     name: firehawkvfx.core.s3_sync
+#   vars:
+#     mode: "pull"
+#     bucket: "{{ installers_bucket }}"
+#     basedir: "{{ deadline_linux_installers_tar | dirname }}"
+#     filename: "{{ deadline_linux_installers_tar | basename }}"
+#     sync_user: "{{ user_deadlineuser_name }}"
+#   tags:
+#   - install
+#   - sync_installers
 
 - name: "Ensures tar exists {{ deadline_linux_installers_tar }}"
   stat:
@@ -99,7 +117,6 @@
   register: deadline_linux_installers_tar_stat
   become_user: "{{ user_deadlineuser_name }}"
   become: true
-
 
 # deadline can now be downloaded directly from s3.
 # https://downloads.thinkboxsoftware.com/version_info.json
