@@ -75,11 +75,12 @@
 - name: ensure installer is synced to local bucket from AWS.
   shell:
     aws s3 sync s3://thinkbox-installers/Deadline/{{ deadline_version }}/Linux/Deadline-{{ deadline_version }}-linux-installers.tar s3://{{ installers_bucket }}/Deadline-{{ deadline_version }}-linux-installers.tar
+  delegate_to: "{{ delegate_host }}"
   tags:
   - install
   - sync_installers
 
-- name: s3-sync pull deadline installer
+- name: s3-sync pull deadline installer # need cli installed.
   import_role:
     name: firehawkvfx.core.s3_sync
   vars:
