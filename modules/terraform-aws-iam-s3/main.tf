@@ -85,5 +85,4 @@ EOF
 resource "aws_iam_instance_profile" "provisioner_instance_profile" {
   name = aws_iam_role.provisioner_instance_role.name
   role = aws_iam_role.provisioner_instance_role.name
-  tags = local.common_tags
 }
