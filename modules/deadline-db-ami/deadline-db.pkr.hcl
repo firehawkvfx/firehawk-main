@@ -89,7 +89,7 @@ build {
   }
 
   provisioner "ansible" {
-    playbook_file = "./ansible/aws-cli-ec2-install.yaml"
+    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
     extra_arguments = [
       "-v",
       "--extra-vars",
