@@ -73,6 +73,20 @@ build {
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
+  provisioner "shell" {
+    inline         = [
+      # "sudo apt-get -y install python3.7",
+      # "sudo dpkg --get-selections | grep hold",
+      "sudo apt update -y",
+      "sudo apt upgrade -y",
+      "sudo apt install -y python3-pip",
+      "python3 -m pip install --upgrade pip",
+      "python3 -m pip install boto3",
+      "python3 -m pip --version"
+      ]
+    inline_shebang = "/bin/bash -e"
+    only           = ["amazon-ebs.ubuntu18-ami"]
+  }
   provisioner "ansible" {
     playbook_file = "./ansible/newuser_deadlineuser.yaml"
     extra_arguments = [
