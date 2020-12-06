@@ -19,10 +19,10 @@
   vars:
     ansible_python_interpreter: "{{ package_python_interpreter }}"
 
-- name: ansible versions other than 'latest' are not supported until virtuelenv is integrated into the repo.
-  fail:
-    msg: "ansible version {{ ansible_version}} is other than 'latest' are not supported until virtuelenv is integrated into the repo."
-  when: selected_ansible_version != 'latest'
+# - name: ansible versions other than 'latest' are not supported until virtuelenv is integrated into the repo.
+#   fail:
+#     msg: "ansible version {{ ansible_version}} is other than 'latest' are not supported until virtuelenv is integrated into the repo."
+#   when: selected_ansible_version != 'latest'
 
 - name: install awscli, force upgrade - root
   pip: 
