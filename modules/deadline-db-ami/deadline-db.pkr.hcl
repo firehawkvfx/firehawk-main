@@ -116,6 +116,20 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
+      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
+      "--skip-tags",
+      "user_access"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
       "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
       "--skip-tags",
       "user_access"
@@ -128,17 +142,17 @@ build {
 # ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -v --extra-vars "variable_host=role_node_centos variable_user=centos variable_become_user=deadlineuser" --skip-tags "user_access"; exit_test
 # ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -vv --extra-vars "variable_host=workstation1 variable_user=deadlineuser aws_cli_root=true ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key"; exit_test
 
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/deadline-db-install.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   galaxy_file = "./requirements.yml"
-  # }
+  provisioner "ansible" {
+    playbook_file = "./ansible/deadline-db-install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    galaxy_file = "./requirements.yml"
+  }
 
   post-processor "manifest" {
       output = "${local.template_dir}/manifest.json"
