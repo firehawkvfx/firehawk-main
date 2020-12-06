@@ -5,7 +5,8 @@ to_abs_path() {
 }
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
-export TF_VAR_resourcetier="dev" # can be dev,green,blue,main
+export TF_VAR_resourcetier="dev" # Can be dev,green,blue,main
+export TF_VAR_pipelineid="0" # Uniquely name and tag the resources produced by a CI pipeline
 export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
 # export PKR_VAR_envtier="dev"
 

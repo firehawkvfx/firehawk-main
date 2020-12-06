@@ -72,19 +72,27 @@
   - /opt/Thinkbox
   - /opt/Thinkbox/certs
 
-- name: s3-sync pull deadline installer # pull installer if it exists
+- name: Get the current caller identity information
+  aws_caller_info:
+  register: caller_info
+  become_user: "{{ user_deadlineuser_name }}"
+
+- name: show aws caller info
+  debug:
+    var: caller_info
+
+- name: s3-sync pull deadline installer # need cli installed.
   import_role:
     name: firehawkvfx.core.s3_sync
   vars:
     mode: "pull"
     bucket: "{{ installers_bucket }}"
-    basedir: "/tmp"
-    filename: "Deadline-{{ deadline_version }}-linux-installers.tar"
+    basedir: "{{ deadline_linux_installers_tar | dirname }}"
+    filename: "{{ deadline_linux_installers_tar | basename }}"
     sync_user: "{{ user_deadlineuser_name }}"
   tags:
   - install
   - sync_installers
-
   
 - name: If no file retrieved, ensure installer is pulled from AWS.  This should be a sync operation if list permissions are provided.
   shell: |
@@ -128,15 +136,6 @@
   fail:
     msg: "Bailing out: You need to place the installer in the download directory.  Installer not found - {{ deadline_linux_installers_tar }}"
   when: deadline_linux_installers_tar_stat.stat.exists == false or deadline_linux_installers_tar_stat.stat.isdir == True
-
-- name: Get the current caller identity information
-  aws_caller_info:
-  register: caller_info
-  become_user: "{{ user_deadlineuser_name }}"
-
-- name: show aws caller info
-  debug:
-    var: caller_info
 
 - name: s3-sync push deadline installer
   import_role:
