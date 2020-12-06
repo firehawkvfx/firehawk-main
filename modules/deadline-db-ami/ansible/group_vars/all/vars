@@ -94,9 +94,9 @@ deadline_proxy_root_dir: "{{ lookup('env','TF_VAR_deadline_proxy_root_dir') }}"
 # deadline_linux_installers_tar: "/deployuser/downloads/Deadline-{{ deadline_version }}-linux-installers.tar"
 deadline_prefix: "/opt/Thinkbox/Deadline10"
 
-deadline_linux_no_extension: "{{ deadline_linux_installers_tar | splitext | first }}"
-deadline_linux_basename: "{{ deadline_linux_no_extension.split('/')[-1] }}"
-deadline_linux_filename: "{{ deadline_linux_installers_tar.split('/')[-1] }}"
+# deadline_linux_no_extension: "{{ deadline_linux_installers_tar | splitext | first }}"
+# deadline_linux_basename: "{{ deadline_linux_no_extension.split('/')[-1] }}"
+# deadline_linux_filename: "{{ deadline_linux_installers_tar.split('/')[-1] }}"
 
 ### Vault Variables ###
 
