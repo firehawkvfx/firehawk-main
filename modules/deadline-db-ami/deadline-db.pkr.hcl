@@ -63,7 +63,16 @@ build {
   sources = [
     "source.amazon-ebs.ubuntu18-ami"
     ]
-
+  provisioner "shell" {
+    inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.ubuntu18-ami"]
+  }
+  provisioner "shell" {
+    inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
+  }
   provisioner "ansible" {
     playbook_file = "./ansible/newuser_deadlineuser.yaml"
     extra_arguments = [
