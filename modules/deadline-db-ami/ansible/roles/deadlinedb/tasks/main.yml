@@ -86,14 +86,13 @@
   - sync_installers
 
   
-- name: If no file retrieved, ensure installer is pulled from AWS.
-  shell:
+- name: If no file retrieved, ensure installer is pulled from AWS.  This should be a sync operation if list permissions are provided.
+  shell: |
     if [[ -f {{ deadline_linux_installers_tar }} ]]; then
       echo "File already exists"
     else
       aws s3api get-object --bucket thinkbox-installers --key Deadline/{{ deadline_version }}/Linux/{{ deadline_linux_installers_tar | basename }} {{ deadline_linux_installers_tar }}
     fi
-  # delegate_to: "{{ delegate_host }}"
   tags:
   - install
   - sync_installers
