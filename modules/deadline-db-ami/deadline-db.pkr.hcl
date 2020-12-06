@@ -50,13 +50,14 @@ source "amazon-ebs" "ubuntu18-ami" {
   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
+  profile = "provisioner_instance_role_pipeid0"
   source_ami      = "${var.bastion_ubuntu18_ami}"
   ssh_username    = "ubuntu"
-  assume_role { # Since we need to read files from s3, we require a role with read access.
-      role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
-      session_name = "SESSION_NAME"
-      # external_id  = "EXTERNAL_ID"
-  }
+  # assume_role { # Since we need to read files from s3, we require a role with read access.
+  #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
+  #     session_name = "SESSION_NAME"
+  #     # external_id  = "EXTERNAL_ID"
+  # }
 }
 
 build {

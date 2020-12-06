@@ -18,29 +18,6 @@ locals {
   }
 }
 
-
-# resource "aws_iam_role" "provisioner_instance_role" {
-#   name = "provisioner_instance_role_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
-#   tags = local.common_tags
-#   path = "/"
-
-#   assume_role_policy = <<EOF
-# {
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Action": "sts:AssumeRole",
-#             "Principal": {
-#                "Service": "ec2.amazonaws.com"
-#             },
-#             "Effect": "Allow",
-#             "Sid": ""
-#         }
-#     ]
-# }
-# EOF
-# }
-
 resource "aws_iam_role" "provisioner_instance_role" {
   name = "provisioner_instance_role_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
   assume_role_policy = data.aws_iam_policy_document.provisioner_instance_assume_role.json
@@ -56,6 +33,14 @@ data "aws_iam_policy_document" "provisioner_instance_assume_role" { # Determines
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
+
+#     "Principal": { 
+#   "AWS": [
+#     "arn:aws:iam::123456789012:root",
+#     "999999999999"
+#   ]
+# }
+
   }
 }
 
