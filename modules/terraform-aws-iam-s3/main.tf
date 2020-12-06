@@ -19,26 +19,44 @@ locals {
 }
 
 
+# resource "aws_iam_role" "provisioner_instance_role" {
+#   name = "provisioner_instance_role_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+#   tags = local.common_tags
+#   path = "/"
+
+#   assume_role_policy = <<EOF
+# {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Action": "sts:AssumeRole",
+#             "Principal": {
+#                "Service": "ec2.amazonaws.com"
+#             },
+#             "Effect": "Allow",
+#             "Sid": ""
+#         }
+#     ]
+# }
+# EOF
+# }
+
 resource "aws_iam_role" "provisioner_instance_role" {
   name = "provisioner_instance_role_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  assume_role_policy = data.aws_iam_policy_document.provisioner_instance_assume_role.json
   tags = local.common_tags
-  path = "/"
-
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
 }
-EOF
+
+data "aws_iam_policy_document" "provisioner_instance_assume_role" { # Determines the services able to assume the role.  Any entity assuming this role will be able to authenticate to vault.
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
 }
 
 # resource "aws_iam_role_policy_attachment" "AmazonS3FullAccess" {
