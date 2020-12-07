@@ -85,6 +85,26 @@ resource "aws_iam_role_policy" "s3_read_write" {
 EOF
 }
 
+resource "aws_iam_role_policy" "get_caller_identity" {
+  name = "STSGetCallerIdentity"
+  role = aws_iam_role.provisioner_instance_role.id
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": [*"]
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_instance_profile" "provisioner_instance_profile" {
   name = aws_iam_role.provisioner_instance_role.name
   role = aws_iam_role.provisioner_instance_role.name
