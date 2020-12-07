@@ -98,7 +98,7 @@ resource "aws_iam_role_policy" "get_caller_identity" {
       "Action": [
         "sts:GetCallerIdentity"
       ],
-      "Resource": [*"]
+      "Resource": ["*"]
     }
   ]
 }
