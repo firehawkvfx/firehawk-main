@@ -16,7 +16,7 @@ variable "aws_region" {
   default = null
 }
 
-variable "general_host_ubuntu18_ami" {
+variable "bastion_ubuntu18_ami" {
   type = string
 }
 
@@ -37,28 +37,19 @@ variable "resourcetier" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
-  deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
   syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
   deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
   deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
-  installers_bucket = vault("/main/data/aws/installers_bucket", "value")
-  deadline_proxy_certificate_password = "fghthgmjg"
 }
 
-source "amazon-ebs" "ubuntu18-ami" {
+source "amazon-ebs" "general-host-ubuntu18-ami" {
   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   iam_instance_profile = "provisioner_instance_role_pipeid0"
-  source_ami      = "${var.general_host_ubuntu18_ami}"
+  source_ami      = "${var.bastion_ubuntu18_ami}"
   ssh_username    = "ubuntu"
-  # assume_role { # Since we need to read files from s3, we require a role with read access.
-  #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
-  #     session_name = "SESSION_NAME"
-  #     # external_id  = "EXTERNAL_ID"
-  # }
 }
 
 build {
@@ -87,7 +78,7 @@ build {
       "python3 -m pip --version"
       ]
     inline_shebang = "/bin/bash -e"
-    only           = ["amazon-ebs.ubuntu18-ami"]
+    # only           = ["amazon-ebs.ubuntu18-ami"]
   }
   provisioner "ansible" {
     playbook_file = "./ansible/newuser_deadlineuser.yaml"
@@ -135,7 +126,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
+      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deployuser delegate_host=localhost",
       "--skip-tags",
       "user_access"
     ]
@@ -145,32 +136,14 @@ build {
     galaxy_file = "./requirements.yml"
   }
 
-# ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -v --extra-vars "variable_host=role_node_centos variable_user=centos variable_become_user=deadlineuser" --skip-tags "user_access"; exit_test
-# ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -vv --extra-vars "variable_host=workstation1 variable_user=deadlineuser aws_cli_root=true ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key"; exit_test
-
   provisioner "ansible" {
-    playbook_file = "./ansible/transparent-hugepages-disable.yml"
+    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
-
-  provisioner "ansible" {
-    playbook_file = "./ansible/deadline-db-install.yaml"
-    extra_arguments = [
-      "-vvv",
-      "--extra-vars",
-      "openfirehawkserver=deadlinedb.service.consul",
-      "deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password}",
-      "user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost",
-      "installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version}",
-      "reinstallation=false"
+      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
+      "--skip-tags",
+      "user_access"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
