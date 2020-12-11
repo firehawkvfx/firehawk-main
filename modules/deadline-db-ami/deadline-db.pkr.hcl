@@ -98,6 +98,7 @@ build {
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
 
@@ -110,6 +111,7 @@ build {
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
 
@@ -124,6 +126,7 @@ build {
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
 
@@ -138,6 +141,7 @@ build {
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
 
@@ -153,6 +157,7 @@ build {
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
 
@@ -161,10 +166,15 @@ build {
     extra_arguments = [
       "-vvv",
       "--extra-vars",
-      "deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "openfirehawkserver=deadlinedb.service.consul",
+      "deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password}",
+      "user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost",
+      "installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version}",
+      "reinstallation=false"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
 
