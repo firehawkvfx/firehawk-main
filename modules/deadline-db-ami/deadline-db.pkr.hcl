@@ -70,80 +70,80 @@ build {
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu18-ami"]
   }
-  provisioner "shell" {
-    inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
-    inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
-  }
-  provisioner "shell" {
-    inline         = [
-      # "sudo apt-get -y install python3.7",
-      # "sudo dpkg --get-selections | grep hold",
-      "sudo apt update -y",
-      "sudo apt upgrade -y",
-      "sudo apt install -y python3-pip",
-      "python3 -m pip install --upgrade pip",
-      "python3 -m pip install boto3",
-      "python3 -m pip --version"
-      ]
-    inline_shebang = "/bin/bash -e"
-    only           = ["amazon-ebs.ubuntu18-ami"]
-  }
-  provisioner "ansible" {
-    playbook_file = "./ansible/newuser_deadlineuser.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "shell" {
+  #   inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
+  #   inline_shebang = "/bin/bash -e"
+  #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
+  # }
+  # provisioner "shell" {
+  #   inline         = [
+  #     # "sudo apt-get -y install python3.7",
+  #     # "sudo dpkg --get-selections | grep hold",
+  #     "sudo apt update -y",
+  #     "sudo apt upgrade -y",
+  #     "sudo apt install -y python3-pip",
+  #     "python3 -m pip install --upgrade pip",
+  #     "python3 -m pip install boto3",
+  #     "python3 -m pip --version"
+  #     ]
+  #   inline_shebang = "/bin/bash -e"
+  #   only           = ["amazon-ebs.ubuntu18-ami"]
+  # }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/newuser_deadlineuser.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
-      "--skip-tags",
-      "user_access"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
-      "--skip-tags",
-      "user_access"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
 # ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -v --extra-vars "variable_host=role_node_centos variable_user=centos variable_become_user=deadlineuser" --skip-tags "user_access"; exit_test
 # ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -vv --extra-vars "variable_host=workstation1 variable_user=deadlineuser aws_cli_root=true ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key"; exit_test
@@ -166,11 +166,7 @@ build {
     extra_arguments = [
       "-vvv",
       "--extra-vars",
-      "openfirehawkserver=deadlinedb.service.consul",
-      "deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password}",
-      "user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost",
-      "installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version}",
-      "reinstallation=false"
+      "user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
