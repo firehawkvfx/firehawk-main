@@ -54,7 +54,7 @@ source "amazon-ebs" "general-host-ubuntu18-ami" {
 
 build {
   sources = [
-    "source.amazon-ebs.ubuntu18-ami"
+    "source.amazon-ebs.general-host-ubuntu18-ami"
     ]
   provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]

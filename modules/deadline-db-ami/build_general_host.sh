@@ -19,7 +19,7 @@ rm -f $PKR_VAR_manifest_path
 # packer build -only amazon-ebs.ubuntu18-ami $SCRIPTDIR/deadline-db.pkr.hcl
 packer build $SCRIPTDIR/general-host.pkr.hcl
 
-if [[ -f "$SCRIPTDIR/../deadline-db-ami/manifest.json" ]]; then
-    export PKR_VAR_general_host_ubuntu18_ami="$(jq -r '.builds[] | select(.name == "general-host-ubuntu18-ami") | .artifact_id' $SCRIPTDIR/../deadline-db-ami/manifest.json | tail -1 | cut -d ":" -f2)"
-    echo "Found general_host_ubuntu18_ami in manifest: PKR_VAR_general_host_ubuntu18_ami=$PKR_VAR_general_host_ubuntu18_ami"
-fi
+# if [[ -f "$SCRIPTDIR/../deadline-db-ami/manifest.json" ]]; then
+#     export PKR_VAR_general_host_ubuntu18_ami="$(jq -r '.builds[] | select(.name == "general-host-ubuntu18-ami") | .artifact_id' $SCRIPTDIR/../deadline-db-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+#     echo "Found general_host_ubuntu18_ami in manifest: PKR_VAR_general_host_ubuntu18_ami=$PKR_VAR_general_host_ubuntu18_ami"
+# fi
