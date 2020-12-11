@@ -159,7 +159,7 @@ build {
   provisioner "ansible" {
     playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
-      "-v",
+      "-vvv",
       "--extra-vars",
       "deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
     ]
