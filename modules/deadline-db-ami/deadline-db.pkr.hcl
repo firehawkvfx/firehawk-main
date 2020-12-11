@@ -43,6 +43,7 @@ locals {
   deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
   deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
   installers_bucket = vault("/main/data/aws/installers_bucket", "value")
+  deadline_proxy_certificate_password = "fghthgmjg"
 }
 
 source "amazon-ebs" "ubuntu18-ami" {
@@ -160,7 +161,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
