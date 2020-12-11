@@ -144,6 +144,18 @@ build {
 # ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -vv --extra-vars "variable_host=workstation1 variable_user=deadlineuser aws_cli_root=true ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key"; exit_test
 
   provisioner "ansible" {
+    playbook_file = "./ansible/transparent-hugepages-disable.yml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" {
     playbook_file = "./ansible/deadline-db-install.yaml"
     extra_arguments = [
       "-v",
