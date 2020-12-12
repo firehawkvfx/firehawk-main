@@ -39,12 +39,12 @@ locals {
   template_dir = path.root
   bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
   deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
-  syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
-  deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
-  deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
+  # syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
+  # deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
+  # deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
   installers_bucket = vault("/main/data/aws/installers_bucket", "value")
-  user_deadlineuser_pw = "fghthgmjg"
-  deadline_proxy_certificate_password = "fghthgmjg"
+  # user_deadlineuser_pw = "fghthgmjg"
+  # deadline_proxy_certificate_password = "fghthgmjg"
 }
 
 source "amazon-ebs" "ubuntu18-ami" {
@@ -154,7 +154,8 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
+      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"

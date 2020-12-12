@@ -37,9 +37,9 @@ variable "resourcetier" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
-  deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
-  deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
+  # syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
+  # deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
+  # deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
   # user_deadlineuser_pw = "fghthgmjg"
 }
 
