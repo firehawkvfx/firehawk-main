@@ -24,6 +24,6 @@
     # - role: firehawkvfx.core.s3_bucket_shared
     #   vars:
     #     delegate_host: "{{ delegate_host }}"
-
-    - {role: deadlinedb, tags: 'deadlinedb'}
+  - role: deadline-mongo
+  # - {role: deadlinedb, tags: 'deadlinedb'}
     

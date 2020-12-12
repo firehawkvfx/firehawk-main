@@ -1,0 +1,46 @@
+
+- name: download sources
+  get_url:
+    url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
+    dest: "/tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
+
+- name: Create mongo app dir
+  file: 
+    path: /opt/Thinkbox/DeadlineDatabase10/mongo/application
+    state: directory
+  become: true
+
+- name: Create mongo data dir
+  file: 
+    path: /opt/Thinkbox/DeadlineDatabase10/mongo/data
+    state: directory
+  become: true
+
+- name: Extract
+  unarchive:
+    src: "/tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
+    dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application"
+    remote_src: true
+  become: true
+
+- name: mongodb service
+  copy: 
+    src: "config.conf"
+    dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/"
+    mode: '0755'
+  become: true
+
+- name: mongodb service
+  copy: 
+    src: "Deadline10db"
+    dest: "/etc/init.d/"
+    mode: '0755'
+  become: true
+
+- name: Start service mongodb Deadline10db
+  service:
+    name: Deadline10db
+    state: started
+    daemon_reload: true
+    enabled: true
+  become: true
