@@ -40,7 +40,7 @@ locals {
   syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
   deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
   deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
-  user_deadlineuser_pw = "fghthgmjg"
+  # user_deadlineuser_pw = "fghthgmjg"
 }
 
 source "amazon-ebs" "general-host-ubuntu18-ami" {
@@ -81,38 +81,38 @@ build {
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu18-ami"]
   }
-  provisioner "ansible" {
-    playbook_file = "./ansible/newuser_deadlineuser.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/newuser_deadlineuser.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
   provisioner "ansible" {
     playbook_file = "./ansible/aws_cli_ec2_install.yaml"
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
+      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
       "--skip-tags",
       "user_access"
     ]
@@ -122,35 +122,35 @@ build {
     galaxy_file = "./requirements.yml"
   }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deployuser delegate_host=localhost",
-      "--skip-tags",
-      "user_access"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deployuser delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
-      "--skip-tags",
-      "user_access"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
-  }
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
 
   post-processor "manifest" {
       output = "${local.template_dir}/manifest.json"
