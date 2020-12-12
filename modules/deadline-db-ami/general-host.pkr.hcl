@@ -40,6 +40,7 @@ locals {
   syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
   deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
   deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
+  user_deadlineuser_pw = "fghthgmjg"
 }
 
 source "amazon-ebs" "general-host-ubuntu18-ami" {
@@ -85,7 +86,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
@@ -98,7 +99,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
@@ -111,7 +112,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
       "--skip-tags",
       "user_access"
     ]
@@ -126,7 +127,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deployuser delegate_host=localhost",
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deployuser delegate_host=localhost",
       "--skip-tags",
       "user_access"
     ]
@@ -141,7 +142,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
       "--skip-tags",
       "user_access"
     ]

@@ -54,7 +54,7 @@
   - name: reset ssh connection to allow user changes to affect 'current login user'
     meta: reset_connection
 
-# after deadline install we need to ensure the new user can login
+# we need to ensure the new user can login
 
 - hosts: "{{ variable_host | default('ansible_control') }}" # check login is possible as user
   remote_user: "{{ variable_connect_as_user | default('deployuser') }}"

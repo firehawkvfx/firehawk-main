@@ -43,6 +43,7 @@ locals {
   deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
   deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
   installers_bucket = vault("/main/data/aws/installers_bucket", "value")
+  user_deadlineuser_pw = "fghthgmjg"
   deadline_proxy_certificate_password = "fghthgmjg"
 }
 
@@ -153,7 +154,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
@@ -166,7 +167,7 @@ build {
     extra_arguments = [
       "-vvv",
       "--extra-vars",
-      "user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
     ]
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
