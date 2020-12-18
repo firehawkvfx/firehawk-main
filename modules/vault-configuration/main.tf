@@ -157,3 +157,55 @@ output "vault_client_role_arn" {
 output "vault_client_profile_arn" {
   value = module.vault_client_iam.vault_client_profile_arn
 }
+
+# enable certificates for mongo
+
+resource "vault_pki_secret_backend" "pki" {
+  path = "pki"
+  default_lease_ttl_seconds = 2073600 # 24 days
+  max_lease_ttl_seconds = 315360000 # 10 years
+}
+
+resource "vault_pki_secret_backend_root_cert" "root" {
+  depends_on = [ "vault_pki_secret_backend.pki" ]
+
+  backend = "${vault_pki_secret_backend.pki.path}"
+
+  type = "internal"
+  common_name = "Root CA"
+  ttl = "315360000"
+  format = "pem"
+  # private_key_format = "der"
+  key_type = "rsa"
+  key_bits = 4096
+  # exclude_cn_from_sans = true
+  # ou = "My OU"
+  # organization = "Firehawk VFX"
+}
+
+resource "vault_pki_secret_backend" "pki_int" {
+  path = "pki"
+  default_lease_ttl_seconds = 2073600 # 24 days
+  max_lease_ttl_seconds = 315360000 # 10 years
+}
+
+resource "vault_pki_secret_backend_intermediate_cert_request" "intermediate" {
+  depends_on = [ "vault_pki_secret_backend.pki", "vault_pki_secret_backend.pki_int" ]
+
+  backend = "${vault_pki_secret_backend.pki_int.path}"
+
+  type = "internal"
+  common_name = "pki-ca-int"
+}
+
+resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
+  depends_on = [ "vault_pki_secret_backend_intermediate_cert_request.intermediate" ]
+
+  backend = "${vault_pki_secret_backend.pki.path}"
+
+  csr = "${vault_pki_secret_backend_intermediate_cert_request.intermediate.csr}"
+  common_name = "pki-ca-int"
+  exclude_cn_from_sans = true
+  # ou = "My OU"
+  # organization = "My organization"
+}
