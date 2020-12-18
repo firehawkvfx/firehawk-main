@@ -169,7 +169,7 @@ resource "vault_pki_secret_backend" "pki" {
 resource "vault_pki_secret_backend_root_cert" "root" {
   depends_on = [ "vault_pki_secret_backend.pki" ]
 
-  backend = "${vault_pki_secret_backend.pki.path}"
+  backend = vault_pki_secret_backend.pki.path
 
   type = "internal"
   common_name = "Root CA"
@@ -192,7 +192,7 @@ resource "vault_pki_secret_backend" "pki_int" {
 resource "vault_pki_secret_backend_intermediate_cert_request" "intermediate" {
   depends_on = [ "vault_pki_secret_backend.pki", "vault_pki_secret_backend.pki_int" ]
 
-  backend = "${vault_pki_secret_backend.pki_int.path}"
+  backend = vault_pki_secret_backend.pki_int.path
 
   type = "internal"
   common_name = "pki-ca-int"
@@ -201,9 +201,9 @@ resource "vault_pki_secret_backend_intermediate_cert_request" "intermediate" {
 resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
   depends_on = [ "vault_pki_secret_backend_intermediate_cert_request.intermediate" ]
 
-  backend = "${vault_pki_secret_backend.pki.path}"
+  backend = vault_pki_secret_backend.pki.path
 
-  csr = "${vault_pki_secret_backend_intermediate_cert_request.intermediate.csr}"
+  csr = vault_pki_secret_backend_intermediate_cert_request.intermediate.csr
   common_name = "pki-ca-int"
   exclude_cn_from_sans = true
   # ou = "My OU"
