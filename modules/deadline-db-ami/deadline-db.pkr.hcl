@@ -38,6 +38,10 @@ variable "vpc_id" {
   type    = string
 }
 
+variable "security_group_id" {
+  type = string
+}
+
 variable "subnet_id" {
   type    = string
 }
@@ -65,6 +69,8 @@ source "amazon-ebs" "ubuntu18-ami" {
   ssh_username    = "ubuntu"
   vpc_id = "${var.vpc_id}"
   subnet_id = "${var.subnet_id}"
+  security_group_id = "${var.security_group_id}"
+  
   # assume_role { # Since we need to read files from s3, we require a role with read access.
   #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
   #     session_name = "SESSION_NAME"
