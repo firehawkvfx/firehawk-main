@@ -105,6 +105,13 @@ resource "aws_iam_role_policy" "get_caller_identity" {
 EOF
 }
 
+# Adds policies necessary for running consul
+module "consul_iam_policies_for_client" {
+  source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
+
+  iam_role_id = aws_iam_role.provisioner_instance_role.id
+}
+
 resource "aws_iam_instance_profile" "provisioner_instance_profile" {
   name = aws_iam_role.provisioner_instance_role.name
   role = aws_iam_role.provisioner_instance_role.name
