@@ -206,7 +206,7 @@ resource "vault_mount" "pki_int" {
   path        = "pki_int"
   type        = "pki"
   description = "PKI for the ROOT CA"
-  default_lease_ttl_seconds = 2073600 # 24 days
+  default_lease_ttl_seconds = 315360000 # 10 years
   max_lease_ttl_seconds = 315360000 # 10 years
 }
 
@@ -217,6 +217,10 @@ resource "vault_pki_secret_backend_intermediate_cert_request" "intermediate" {
 
   type = "internal"
   common_name = "pki-ca-int"
+  format = "pem"
+  private_key_format = "der"
+  key_type = "rsa"
+  key_bits = "4096"
 }
 
 resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
@@ -227,8 +231,16 @@ resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
   csr = vault_pki_secret_backend_intermediate_cert_request.intermediate.csr
   common_name = "pki-ca-int"
   exclude_cn_from_sans = true
-  # ou = "My OU"
-  # organization = "My organization"
+  # ou = "Developement"
+  organization = "firehawkvfx.com"
+  ttl = 252288000 # 8 years
+}
+
+resource "vault_pki_secret_backend_intermediate_set_signed" "intermediate" { 
+  backend = vault_mount.pki_int.path 
+  
+  # TODO: check this is correct against https://medium.com/@stvdilln/creating-a-certificate-authority-with-hashicorp-vault-and-terraform-4d9ddad31118
+  certificate = "${vault_pki_secret_backend_root_sign_intermediate.root.certificate}\n${vault_pki_secret_backend_root_cert.root.certificate}"
 }
 
 resource "vault_pki_secret_backend_role" "firehawkvfx-dot-com" {
