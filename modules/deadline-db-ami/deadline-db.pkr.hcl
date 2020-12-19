@@ -98,7 +98,7 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
-      "/opt/consul/bin/run-consul --client --cluster-tag-key \"/${var.consul_cluster_tag_key}\" --cluster-tag-value \"/${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
+      "sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"/${var.consul_cluster_tag_key}\" --cluster-tag-value \"/${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
       "consul members list",
       "export VAULT_ADDR=https://vault.service.consul:8200",
       "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h"
