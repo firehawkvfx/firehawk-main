@@ -34,6 +34,14 @@ variable "resourcetier" {
   type    = string
 }
 
+variable "vpc_id" {
+  type    = string
+}
+
+variable "subnet_id" {
+  type    = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -55,8 +63,8 @@ source "amazon-ebs" "ubuntu18-ami" {
   iam_instance_profile = "provisioner_instance_role_pipeid0"
   source_ami      = "${var.general_host_ubuntu18_ami}"
   ssh_username    = "ubuntu"
-  vpc_id =
-  subnet_id =
+  vpc_id = "${var.vpc_id}"
+  subnet_id = "${var.subnet_id}"
   # assume_role { # Since we need to read files from s3, we require a role with read access.
   #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
   #     session_name = "SESSION_NAME"

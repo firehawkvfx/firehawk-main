@@ -19,6 +19,9 @@ fi
 export PACKER_LOG=1
 export PACKER_LOG_PATH="$SCRIPTDIR/packerlog.log"
 
+export PKR_VAR_vpc_id="$(cd ../vpc; terraform output -json "vpc_id" | jq -r '.')"
+export PKR_VAR_subnet_id="$(cd ../vpc; terraform output -json "public_subnets" | jq -r '.[0]')"
+
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
 # rm -f $PKR_VAR_manifest_path
 packer build $SCRIPTDIR/deadline-db.pkr.hcl
