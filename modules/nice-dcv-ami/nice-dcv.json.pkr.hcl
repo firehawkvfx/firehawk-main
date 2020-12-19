@@ -40,16 +40,6 @@ variable "install_auth_signing_script" {
   default = "true"
 }
 
-# variable "tls_private_key_path" {
-#   type    = string
-#   default = "/home/ec2-user/.ssh/tls/vault.key.pem"
-# }
-
-# variable "tls_public_key_path" {
-#   type    = string
-#   default = "/home/ec2-user/.ssh/tls/vault.crt.pem"
-# }
-
 variable "vault_download_url" {
   type    = string
   default = ""
