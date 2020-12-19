@@ -160,16 +160,24 @@ output "vault_client_profile_arn" {
 
 # enable certificates for mongo
 
-resource "vault_pki_secret_backend" "pki" {
-  path = "pki"
+resource "vault_mount" "pki" {
+  path        = "pki"
+  type        = "pki"
+  description = "PKI for the ROOT CA"
   default_lease_ttl_seconds = 2073600 # 24 days
   max_lease_ttl_seconds = 315360000 # 10 years
 }
 
-resource "vault_pki_secret_backend_root_cert" "root" {
-  depends_on = [ "vault_pki_secret_backend.pki" ]
+# resource "vault_pki_secret_backend" "pki" {
+#   path = "pki"
+#   default_lease_ttl_seconds = 2073600 # 24 days
+#   max_lease_ttl_seconds = 315360000 # 10 years
+# }
 
-  backend = vault_pki_secret_backend.pki.path
+resource "vault_pki_secret_backend_root_cert" "root" {
+  depends_on = [ vault_mount.pki ]
+
+  backend = vault_mount.pki.path
 
   type = "internal"
   common_name = "Root CA"
@@ -183,25 +191,33 @@ resource "vault_pki_secret_backend_root_cert" "root" {
   # organization = "Firehawk VFX"
 }
 
-resource "vault_pki_secret_backend" "pki_int" {
-  path = "pki"
+# resource "vault_pki_secret_backend" "pki_int" {
+#   path = "pki"
+#   default_lease_ttl_seconds = 2073600 # 24 days
+#   max_lease_ttl_seconds = 315360000 # 10 years
+# }
+
+resource "vault_mount" "pki_int" {
+  path        = "pki_int"
+  type        = "pki"
+  description = "PKI for the ROOT CA"
   default_lease_ttl_seconds = 2073600 # 24 days
   max_lease_ttl_seconds = 315360000 # 10 years
 }
 
 resource "vault_pki_secret_backend_intermediate_cert_request" "intermediate" {
-  depends_on = [ "vault_pki_secret_backend.pki", "vault_pki_secret_backend.pki_int" ]
+  depends_on = [ vault_mount.pki, vault_mount.pki_int ]
 
-  backend = vault_pki_secret_backend.pki_int.path
+  backend = vault_mount.pki_int.path
 
   type = "internal"
   common_name = "pki-ca-int"
 }
 
 resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
-  depends_on = [ "vault_pki_secret_backend_intermediate_cert_request.intermediate" ]
+  depends_on = [ vault_pki_secret_backend_intermediate_cert_request.intermediate ]
 
-  backend = vault_pki_secret_backend.pki.path
+  backend = vault_mount.pki.path
 
   csr = vault_pki_secret_backend_intermediate_cert_request.intermediate.csr
   common_name = "pki-ca-int"
