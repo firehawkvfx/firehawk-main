@@ -28,6 +28,6 @@ echo "Using Security Group: $PKR_VAR_security_group_id"
 
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
 # rm -f $PKR_VAR_manifest_path
-packer build $SCRIPTDIR/deadline-db.pkr.hcl
+packer build "$@" $SCRIPTDIR/deadline-db.pkr.hcl
 # packer build $SCRIPTDIR/general-host.pkr.hcl
 
