@@ -231,9 +231,9 @@ resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
   # organization = "My organization"
 }
 
-resource "vault_pki_secret_backend_role" "firhawkvfx-dot-com" {
+resource "vault_pki_secret_backend_role" "firehawkvfx-dot-com" {
   backend = vault_mount.pki_int.path
-  name    = "firhawkvfx-dot-com"
+  name    = "firehawkvfx-dot-com"
   generate_lease = true
   allow_any_name = true
   ttl = 2073600 # 24 days
