@@ -74,10 +74,7 @@ build {
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       <<EOFO
-vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | tee \
->(jq -r .data.certificate > ca.pem) \
->(jq -r .data.issuing_ca > issuing_ca.pem) \
->(jq -r .data.private_key > ca_key.pem)
+vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | tee >(jq -r .data.certificate > ca.pem) >(jq -r .data.issuing_ca > issuing_ca.pem) >(jq -r .data.private_key > ca_key.pem)
 EOFO
       ]
   }
@@ -85,10 +82,7 @@ EOFO
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       <<EOFO
-vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | tee \
->(jq -r .data.certificate > /etc/ssl/mongodb_ca.pem) \
->(jq -r .data.issuing_ca > /etc/ssl/mongodb_issuing_ca.pem) \
->(jq -r .data.private_key > /etc/ssl/mongodb_ca_key.pem)
+vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
 EOFO
       ]
   }
