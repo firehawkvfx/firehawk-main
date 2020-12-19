@@ -72,11 +72,11 @@ build {
     # only           = ["amazon-ebs.ubuntu18-ami"]
   }
 
-  # provisioner "shell" { # Generate certificates with vault.
-  #   inline = [
-  #     "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | tee >(jq -r .data.certificate > ca.pem) >(jq -r .data.issuing_ca > issuing_ca.pem) >(jq -r .data.private_key > ca_key.pem)"
-  #     ]
-  # }
+  provisioner "shell" { # Generate certificates with vault.
+    inline = [
+      "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h"
+      ]
+  }
 
 
 
