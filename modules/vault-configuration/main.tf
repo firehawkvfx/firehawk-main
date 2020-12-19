@@ -43,6 +43,11 @@ resource "vault_policy" "provisioner_policy" {
   policy = file("policies/provisioner_policy.hcl")
 }
 
+resource "vault_policy" "pki_int_policy" {
+  name   = "pki_int"
+  policy = file("policies/pki_int.hcl")
+}
+
 resource "vault_mount" "dev" {
   path        = "dev"
   type        = "kv-v2"
@@ -225,3 +230,20 @@ resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
   # ou = "My OU"
   # organization = "My organization"
 }
+
+resource "vault_pki_secret_backend_role" "firhawkvfx-dot-com" {
+  backend = vault_pki_secret_backend.pki_int.path
+  name    = "firhawkvfx-dot-com"
+  generate_lease = true
+  allow_any_name = true
+  ttl = 2073600 # 24 days
+  max_ttl = 315360000 # 10 years
+}
+
+# resource "vault_pki_secret_backend_sign" "test" {
+#   depends_on = [ "vault_pki_secret_backend_role.admin" ]
+
+#   backend = vault_pki_secret_backend.pki_int.path
+
+#   name = vault_pki_secret_backend_role.admin.name
+#   csr = vault_pki_secret_backend_root_sign_intermediate.root.certificate
