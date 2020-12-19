@@ -1,3 +1,10 @@
+- name: generate certs with vault
+  shell: |
+    vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | tee \
+    >(jq -r .data.certificate > ca.pem) \
+    >(jq -r .data.issuing_ca > issuing_ca.pem) \
+    >(jq -r .data.private_key > ca-key.pem)
+  become: true
 
 - name: download sources
   get_url:
