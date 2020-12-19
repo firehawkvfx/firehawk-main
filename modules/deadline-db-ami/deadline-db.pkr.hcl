@@ -74,6 +74,7 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
+      "export VAULT_ADDR=https://vault.service.consul:8200",
       "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h"
       ]
   }
