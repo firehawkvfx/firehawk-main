@@ -14,6 +14,10 @@ output "bastion_graphical_public_ip" {
   value = module.vpc.bastion_graphical_public_ip
 }
 
+output "consul_client_security_group" {
+  value = module.vpc.consul_client_security_group
+}
+
 output "Instructions" {
   value = <<EOF
   To use connect to the graphical bastion, you must first set a user password using ssh:
