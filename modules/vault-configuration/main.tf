@@ -232,7 +232,7 @@ resource "vault_pki_secret_backend_root_sign_intermediate" "root" {
 }
 
 resource "vault_pki_secret_backend_role" "firhawkvfx-dot-com" {
-  backend = vault_pki_secret_backend.pki_int.path
+  backend = vault_mount.pki_int.path
   name    = "firhawkvfx-dot-com"
   generate_lease = true
   allow_any_name = true
