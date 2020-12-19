@@ -46,6 +46,14 @@ variable "subnet_id" {
   type    = string
 }
 
+variable "consul_cluster_tag_key" {
+  type = string
+}
+
+variable "consul_cluster_tag_value" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -70,7 +78,7 @@ source "amazon-ebs" "ubuntu18-ami" {
   vpc_id = "${var.vpc_id}"
   subnet_id = "${var.subnet_id}"
   security_group_id = "${var.security_group_id}"
-  
+
   # assume_role { # Since we need to read files from s3, we require a role with read access.
   #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
   #     session_name = "SESSION_NAME"
@@ -90,6 +98,8 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
+      "/opt/consul/bin/run-consul --client --cluster-tag-key \"/${var.consul_cluster_tag_key}\" --cluster-tag-value \"/${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
+      "consul members list",
       "export VAULT_ADDR=https://vault.service.consul:8200",
       "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h"
       ]

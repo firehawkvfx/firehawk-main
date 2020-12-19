@@ -65,5 +65,8 @@ export VAULT_ADDR=https://vault.service.consul:8200 # verify dns before login wi
 
 source $SCRIPTDIR/../secrets/secret_vars.sh # cluster info is stored in secrets.
 export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs should be defined in secrets
+export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs should be defined in secrets
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
+export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
+
 export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
