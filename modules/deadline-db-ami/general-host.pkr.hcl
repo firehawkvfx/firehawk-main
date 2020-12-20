@@ -265,7 +265,13 @@ build {
   #   only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazonlinux2-nicedcv-nvidia-ami"]
   # }
   provisioner "shell" {
-    inline = ["/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved"]
+    inline = [
+      "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved"
+      "sudo unlink /etc/resolv.conf",
+      "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
+      "setx -x; sudo cat /etc/resolv.conf"
+      "sudo systemctl daemon-reload"
+      ]
     # only   = ["amazon-ebs.ubuntu18-ami"]
   }
 
