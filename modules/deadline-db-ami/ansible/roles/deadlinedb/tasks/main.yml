@@ -75,7 +75,7 @@
 - name: Get the current caller identity information
   aws_caller_info:
   register: caller_info
-  become_user: "{{ user_deadlineuser_name }}"
+  become_user: "{{ user_deadlineuser_name }}" 
 
 - name: show aws caller info
   debug:
