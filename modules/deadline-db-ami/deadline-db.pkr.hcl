@@ -104,6 +104,7 @@ build {
       "dig @localhost vault.service.consul",
       "dig vault.service.consul",
       "export VAULT_ADDR=https://vault.service.consul:8200",
+      "vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role",
       "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h"
       ]
   }
