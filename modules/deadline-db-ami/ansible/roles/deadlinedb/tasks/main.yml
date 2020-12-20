@@ -65,7 +65,7 @@
     path: "{{ item }}"
     state: directory
     owner: "{{ user_deadlineuser_name }}"
-    group: syscontrol
+    # group: syscontrol
     mode: u=rwX,g=rX,o-rwx
   become: true
   with_items:
