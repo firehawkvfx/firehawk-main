@@ -3,6 +3,11 @@ variable "global_bucket_extension" {
   type = string
 }
 
+variable "vault_client_role_arns" {
+  description = "The list of Role ARNS the provide access to the vault provisioner role"
+  type = list(string)
+}
+
 # variable "envtier" {
 #   description = "The environment tier eg: dev, prod"
 #   type = string
