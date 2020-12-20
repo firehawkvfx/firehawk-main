@@ -99,9 +99,6 @@ build {
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       "set -x; sudo cat /etc/resolv.conf",
-      # "sudo unlink /etc/resolv.conf",
-      # "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
-      # "sudo systemctl daemon-reload",
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
       "consul members list",
       "dig @localhost vault.service.consul",
