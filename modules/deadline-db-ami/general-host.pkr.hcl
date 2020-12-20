@@ -266,10 +266,13 @@ build {
   # }
   provisioner "shell" {
     inline = [
-      "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved"
+      "set -x; sudo cat /etc/resolv.conf",
+      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+      "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
+      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
       "sudo unlink /etc/resolv.conf",
       "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
-      "setx -x; sudo cat /etc/resolv.conf"
+      "set -x; sudo cat /etc/resolv.conf",
       "sudo systemctl daemon-reload"
       ]
     # only   = ["amazon-ebs.ubuntu18-ami"]
