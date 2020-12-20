@@ -14,9 +14,4 @@ exit_if_error() {
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-cd ../terraform-aws-iam-s3; terraform output
-vault_client_role_arns
-
-export TF_VAR_vault_client_role_arns=["$(cd ../terraform-aws-iam-s3; terraform output -json "provisioner_instance_role_arn" | jq -r '.')"]
-
 terraform apply "tfplan" -input=false

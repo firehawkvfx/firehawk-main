@@ -24,5 +24,7 @@ fi
 
 $SCRIPTDIR/s3-backend-template/generate-s3-backend
 
+export TF_VAR_vault_client_role_arns=["$(cd ../terraform-aws-iam-s3; terraform output -json "provisioner_instance_role_arn" | jq -r '.')"]
+
 terraform init -input=false
 terraform plan -out=tfplan -input=false
