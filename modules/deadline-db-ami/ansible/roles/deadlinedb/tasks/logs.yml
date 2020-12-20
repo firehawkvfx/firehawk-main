@@ -1,14 +1,18 @@
+- stat:
+    path: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/logs/"
+  register: result
+
 - name: Get files in a folder /opt/Thinkbox/DeadlineDatabase10/mongo/data/logs/
   find:
     paths: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/logs/"
   register: found_files
   no_log: true
+  when: result.stat.exists
   
-
 - name: Get latest file
   set_fact:
     latest_file: "{{ found_files.files | sort(attribute='mtime',reverse=true) | first }}"
-  when: found_files.stat.exists
+  when: result.stat.exists
 
 - name: "Get file {{ latest_file.path }} copy to {{ firehawk_path }}/tmp/{{ out_file }}"
   fetch:
@@ -17,7 +21,7 @@
     flat: yes
     validate_checksum: no # logs may have incorrect checksums, possibly since data changes rapidly after download.
   become: true
-  when: found_files.stat.exists
+  when: result.stat.exists
 
 - name: 'Get all files: file {{ item.path }} copy to {{ firehawk_path }}/tmp/'
   fetch:
@@ -28,4 +32,4 @@
   become: true
   with_items: "{{ found_files.files }}"
   no_log: true
-  when: found_files.stat.exists
+  when: result.stat.exists
