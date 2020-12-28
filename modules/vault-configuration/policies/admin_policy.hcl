@@ -79,30 +79,34 @@ path "pki_int/issue/*" {
     capabilities = ["create", "update"]
 }
 
+path "pki_int/roles/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 path "pki_int/config/*" {
-    capabilities = ["create", "update"]
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 path "pki_int/certs" {
-    capabilities = ["list"]
+  capabilities = ["list"]
 }
 
 path "pki_int/revoke" {
-    capabilities = ["create", "update"]
+  capabilities = ["create", "update"]
 }
 
 path "pki_int/tidy" {
-    capabilities = ["create", "update"]
+  capabilities = ["create", "update"]
 }
 
 path "pki/cert/ca" {
-    capabilities = ["read"]
+  capabilities = ["read"]
 }
 
 path "auth/token/renew" {
-    capabilities = ["update"]
+  capabilities = ["update"]
 }
 
 path "auth/token/renew-self" {
-    capabilities = ["update"]
+  capabilities = ["update"]
 }
