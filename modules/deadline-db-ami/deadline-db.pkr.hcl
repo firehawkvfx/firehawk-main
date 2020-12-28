@@ -105,19 +105,21 @@ build {
       "dig vault.service.consul",
       "export VAULT_ADDR=https://vault.service.consul:8200",
       "vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role",
-      "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h"
+      "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul ttl=8760h"
       ]
   }
 
 
 
-#   provisioner "shell" { # Generate certificates with vault.
-#     inline = [
-#       <<EOFO
-# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
-# EOFO
-#       ]
-#   }
+  provisioner "shell" { # Generate certificates with vault.
+    inline = [
+      <<EOFO
+export VAULT_ADDR=https://vault.service.consul:8200
+vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
+vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
+EOFO
+      ]
+  }
   # provisioner "shell" {
   #   inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
   #   inline_shebang = "/bin/bash -e"
@@ -216,6 +218,20 @@ build {
 
   provisioner "ansible" {
     playbook_file = "./ansible/deadline-db-install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/deadlinercs.yaml"
     extra_arguments = [
       "-v",
       "--extra-vars",

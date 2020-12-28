@@ -259,9 +259,9 @@ resource "vault_pki_secret_backend_role" "firehawkvfx-dot-com" {
 # then login with it:
 # vault login <my token>
 # Then you can generate a cert with:
-# vault write pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com
+# vault write pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul
 # or you can generate and write output to files like so:
-# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.firehawkvfx.com ttl=8760h | tee \
+# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul ttl=8760h | tee \
 # >(jq -r .data.certificate > ca.pem) \
 # >(jq -r .data.issuing_ca > issuing_ca.pem) \
 # >(jq -r .data.private_key > ca-key.pem)

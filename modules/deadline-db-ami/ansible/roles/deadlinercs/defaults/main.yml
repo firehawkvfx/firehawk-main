@@ -1,2 +1,8 @@
 ---
 # defaults file for roles/deadlinercs
+
+resourcetier: ""
+deadline_certificates_location: "/etc/ssl"
+deadline_client_certificate: "mongodb_ca.pem"
+# deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
+deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
