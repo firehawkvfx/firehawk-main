@@ -79,6 +79,10 @@ path "pki_int/issue/*" {
     capabilities = ["create", "update"]
 }
 
+path "pki_int/config/*" {
+    capabilities = ["create", "update"]
+}
+
 path "pki_int/certs" {
     capabilities = ["list"]
 }
