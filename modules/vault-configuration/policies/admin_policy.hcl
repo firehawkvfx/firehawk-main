@@ -99,6 +99,10 @@ path "pki_int/tidy" {
   capabilities = ["create", "update"]
 }
 
+path "pki/config/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 path "pki/cert/ca" {
   capabilities = ["read"]
 }
