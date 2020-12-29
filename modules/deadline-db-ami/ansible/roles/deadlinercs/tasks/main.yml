@@ -220,7 +220,7 @@
     state: directory
     mode: u+rX,g+rX,o-rwx
     owner: "{{ user_deadlineuser_name }}"
-    group: syscontrol
+    # group: syscontrol
   become: yes
 
 - name: set permissions Thinkbox cert dir - non recursive
@@ -229,14 +229,14 @@
     state: directory
     mode: u=rwX,g=rX,o-rwx
     owner: "{{ user_deadlineuser_name }}"
-    group: syscontrol
+    # group: syscontrol
   become: yes
 
 - name: set permissions DeadlineRepository10 - recursive
   file:
     path: /opt/Thinkbox/DeadlineRepository10/
     owner: "{{ user_deadlineuser_name }}"
-    group: syscontrol
+    # group: syscontrol
     mode: u=rX,g=rX,o-rwx
     recurse: yes
   become: true
@@ -245,7 +245,7 @@
   file:
     path: "{{ item }}"
     owner: "{{ user_deadlineuser_name }}"
-    group: syscontrol
+    # group: syscontrol
     mode: u=rwX,g=rwX,o-rwx
     recurse: yes
   become: true
