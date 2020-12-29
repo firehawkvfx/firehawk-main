@@ -27,11 +27,24 @@
         cat /etc/security/limits.conf
       become: true
 
-    - name: check db
+    - name: check db without password
+      shell: |
+        cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
+        ./deadline_mongo --eval 'printjson(db.getCollectionNames())'
+      # no_log: true
+      when: deadline_proxy_certificate_password is undefined
+      become: true
+      retries: 5
+      delay: 5
+      register: result
+      until: result.rc == 0
+
+    - name: check db with password
       shell: |
         cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
         ./deadline_mongo --sslPEMKeyPassword "{{ deadline_proxy_certificate_password }}" --eval 'printjson(db.getCollectionNames())'
-      no_log: true
+      # no_log: true
+      when: deadline_proxy_certificate_password is defined
       become: true
       retries: 5
       delay: 5
