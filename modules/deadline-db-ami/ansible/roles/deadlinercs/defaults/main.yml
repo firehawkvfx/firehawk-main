@@ -12,3 +12,4 @@ deadline_linux_installers_tar: /tmp/Deadline-{{ deadline_version }}-linux-instal
 deadline_linux_no_extension: "{{ deadline_linux_installers_tar | splitext | first }}"
 deadline_linux_basename: "{{ deadline_linux_no_extension.split('/')[-1] }}"
 deadline_linux_filename: "{{ deadline_linux_installers_tar.split('/')[-1] }}"
+deadline_proxy_root_dir: "mongodb.service.consul:4433"
