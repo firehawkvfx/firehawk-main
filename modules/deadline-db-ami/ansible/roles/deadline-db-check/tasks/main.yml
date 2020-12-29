@@ -27,8 +27,16 @@
         cat /etc/security/limits.conf
       become: true
 
+    - name: install tree
+      package:
+        name: tree
+        state: present
+      become: true
+
     - name: check db without password
       shell: |
+        cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/
+        tree
         cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
         ./deadline_mongo --eval 'printjson(db.getCollectionNames())'
       # no_log: true
