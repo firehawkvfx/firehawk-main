@@ -1,4 +1,4 @@
-- name: generate certs with vault
+- name: generate certs with vault for mongo db server
   shell: |
     export VAULT_ADDR=https://vault.service.consul:8200
     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
@@ -8,6 +8,21 @@
     >(jq -r .data.certificate > /etc/ssl/mongodb_ca.pem) \
     >(jq -r .data.issuing_ca > /etc/ssl/mongodb_issuing_ca.pem) \
     >(jq -r .data.private_key > /etc/ssl/mongodb_ca_key.pem)
+  become: true
+  args:
+    executable: /bin/bash
+
+- name: generate certs with vault for mongo db client
+  shell: |
+    export VAULT_ADDR=https://vault.service.consul:8200
+    vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
+    vault write -format=json pki_int/issue/firehawkvfx-dot-com \
+    common_name=mongodb.service.consul \
+    ttl=8760h | tee \
+    >(jq -r .data.certificate > /etc/ssl/mongodbclient_ca.pem) \
+    >(jq -r .data.issuing_ca > /etc/ssl/mongodbclient_issuing_ca.pem) \
+    >(jq -r .data.private_key > /etc/ssl/mongodbclient_ca_key.pem)
+    cat /etc/ssl/mongodbclient_ca.pem /etc/ssl/mongodbclient_ca_key.pem > /etc/ssl/mongodbclient_consolidated_certs.pem
   become: true
   args:
     executable: /bin/bash

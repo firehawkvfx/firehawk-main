@@ -25,7 +25,7 @@
 
 - name: set permissions
   file:
-    path: "/opt/Thinkbox/DeadlineDatabase10/certs/{{ deadline_client_certificate }}"
+    path: "{{ deadline_certificates_location }}/{{ deadline_client_certificate }}"
     mode: u=r,g=r,o=r
     owner: "{{ user_deadlineuser_name }}"
   become: yes
@@ -39,7 +39,7 @@
   become: yes
 
 - name: check permissions and ownership on certificates
-  command: ls -ltria /opt/Thinkbox/DeadlineDatabase10/certs/
+  command: ls -ltria {{ deadline_certificates_location }}/
   register: cert_permissions
 
 - debug: msg="{{ cert_permissions.stdout }}"
@@ -84,12 +84,12 @@
     --mode unattended \
     --launcherdaemon true \
     --enable-components proxyconfig \
-    --servercert /opt/Thinkbox/DeadlineDatabase10/certs/{{ deadline_client_certificate }} \
+    --servercert {{ deadline_certificates_location }}/{{ deadline_client_certificate }} \
     --debuglevel 2 \
     --prefix /opt/Thinkbox/Deadline10 \
     --connectiontype Repository \
     --repositorydir /opt/Thinkbox/DeadlineRepository10/ \
-    --dbsslcertificate /opt/Thinkbox/DeadlineDatabase10/certs/{{ deadline_client_certificate }} \
+    --dbsslcertificate {{ deadline_certificates_location }}/{{ deadline_client_certificate }} \
     --licensemode UsageBased \
     --daemonuser {{ user_deadlineuser_name }} \
     --connserveruser {{ user_deadlineuser_name }} \

@@ -3,8 +3,8 @@
 
 
 resourcetier: ""
-deadline_certificates_location: "/etc/ssl"
-deadline_client_certificate: "mongodb_ca.pem"
+deadline_certificates_location: "/etc/ssl" # this was previously /opt/Thinkbox/DeadlineDatabase10/certs before seperate mongo install was required, so we use mongo defaults now.
+deadline_client_certificate: "mongodbclient_consolidated_certs.pem"
 # deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
 deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
 ansible_python_interpreter: /usr/bin/python3
