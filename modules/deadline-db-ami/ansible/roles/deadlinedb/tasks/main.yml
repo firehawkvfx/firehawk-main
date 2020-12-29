@@ -272,13 +272,13 @@
 #         --installmongodb true \
 #         --dbOverwrite true \
 #         --mongodir /opt/Thinkbox/DeadlineDatabase10 \
-#         --dbListeningPort 27100 \
+#         --dbListeningPort 27017 \
 #         --certgen_outdir /opt/Thinkbox/DeadlineDatabase10/certs \
 #         --certgen_password {{ deadline_proxy_certificate_password }} \
 #         --createX509dbuser true \
 #         --requireSSL true \
 #         --dbhost {{ openfirehawkserver }} \
-#         --dbport 27100 \
+#         --dbport 27017 \
 #         --dbuser {{ user_deadlineuser_name }} \
 #         --dbpassword {{ deadline_proxy_certificate_password }} \
 #         --dbauth true \
@@ -299,11 +299,11 @@
         --mode unattended --debuglevel 2 \
         --prefix /opt/Thinkbox/DeadlineRepository10 \
         --setpermissions true --installmongodb false \
-        --dbListeningPort 27100 \
+        --dbListeningPort 27017 \
         --createX509dbuser true \
         --requireSSL true \
         --dbhost {{ openfirehawkserver }} \
-        --dbport 27100 \
+        --dbport 27017 \
         --dbuser {{ user_deadlineuser_name }} \
         --dbauth true \
         --dbssl true
