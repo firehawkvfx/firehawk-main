@@ -27,6 +27,21 @@
   args:
     executable: /bin/bash
 
+- name: generate certs with vault for mongo db remote client
+  shell: |
+    export VAULT_ADDR=https://vault.service.consul:8200
+    vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
+    vault write -format=json pki_int/issue/firehawkvfx-dot-com \
+    common_name=mongodb.service.consul \
+    ttl=8760h | tee \
+    >(jq -r .data.certificate > /etc/ssl/mongodbremoteclient_ca.pem) \
+    >(jq -r .data.issuing_ca > /etc/ssl/mongodbremoteclient_issuing_ca.pem) \
+    >(jq -r .data.private_key > /etc/ssl/mongodbremoteclient_ca_key.pem)
+    cat /etc/ssl/mongodbremoteclient_ca.pem /etc/ssl/mongodbremoteclient_ca_key.pem > /etc/ssl/mongodbremoteclient_consolidated_certs.pem
+  become: true
+  args:
+    executable: /bin/bash
+
 - name: download sources
   get_url:
     url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
