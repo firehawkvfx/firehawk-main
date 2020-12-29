@@ -1,6 +1,7 @@
 ---
 # defaults file for roles/deadlinercs
 
+deadline_linux_installers_tar: /tmp/Deadline-{{ deadline_version }}-linux-installers.tar
 resourcetier: ""
 deadline_certificates_location: "/etc/ssl"
 deadline_client_certificate: "mongodb_ca.pem"
