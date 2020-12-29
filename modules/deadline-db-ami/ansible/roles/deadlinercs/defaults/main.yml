@@ -1,9 +1,14 @@
 ---
 # defaults file for roles/deadlinercs
 
-deadline_linux_installers_tar: /tmp/Deadline-{{ deadline_version }}-linux-installers.tar
+
 resourcetier: ""
 deadline_certificates_location: "/etc/ssl"
 deadline_client_certificate: "mongodb_ca.pem"
 # deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
 deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
+ansible_python_interpreter: /usr/bin/python3
+deadline_linux_installers_tar: /tmp/Deadline-{{ deadline_version }}-linux-installers.tar
+deadline_linux_no_extension: "{{ deadline_linux_installers_tar | splitext | first }}"
+deadline_linux_basename: "{{ deadline_linux_no_extension.split('/')[-1] }}"
+deadline_linux_filename: "{{ deadline_linux_installers_tar.split('/')[-1] }}"
