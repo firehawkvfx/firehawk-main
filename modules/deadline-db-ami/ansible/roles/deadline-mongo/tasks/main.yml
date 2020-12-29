@@ -63,6 +63,8 @@
   unarchive:
     src: "/tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
     dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application"
+    extra_opts:
+    - --strip-components=1 
     remote_src: true
   become: true
 
