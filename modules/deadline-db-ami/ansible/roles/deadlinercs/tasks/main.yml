@@ -96,17 +96,14 @@
     --httpport 8080 \
     --tlsport 4433 \
     --enabletls true \
-    --tlscertificates generate  \
+    --tlscertificates existing  \
     --generatedcertdir /opt/Thinkbox/certs/ \
+    --servercert /etc/ssl/mongodb_ca.pem \
+    --cacert /etc/ssl/mongodb_issuing_ca.pem \
     --slavestartup false \
     --proxyrootdir {{ deadline_proxy_root_dir }} \
     --proxycertificate {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }}
     ls -ltriah {{ deadline_certificates_location }}
-    if [[ -f "{{ deadline_certificates_location }}/Deadline10RemoteClient.pfx" ]]; then
-      sudo mv -f {{ deadline_certificates_location }}/Deadline10RemoteClient.pfx {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} # Ensure unique name for cert based on resource color
-      sudo cp -f {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} /secrets/keys/{{ deadline_proxy_certificate }}
-      ls -ltriah {{ deadline_certificates_location }}
-    fi
   register: deadline_rcs_install_output_shell
   args:
     executable: /bin/bash
