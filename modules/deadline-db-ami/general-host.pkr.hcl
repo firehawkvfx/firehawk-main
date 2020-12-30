@@ -70,7 +70,7 @@ locals {
 
 source "amazon-ebs" "general-host-ubuntu18-ami" {
   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
-  ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-general-host-vault-client-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   iam_instance_profile = "provisioner_instance_role_pipeid0"

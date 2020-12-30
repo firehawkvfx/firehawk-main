@@ -97,7 +97,7 @@
     --tlsport 4433 \
     --enabletls true \
     --tlscertificates existing  \
-    --generatedcertdir /opt/Thinkbox/certs/ \
+    --generatedcertdir {{ deadline_certificates_location }}/ \
     --servercert /etc/ssl/mongodb_ca.pem \
     --cacert /etc/ssl/mongodb_issuing_ca.pem \
     --slavestartup false \
