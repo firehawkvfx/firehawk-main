@@ -29,12 +29,6 @@ variable "aws_private_key_path" {
   default = ""
 }
 
-variable "vault_public_key" {
-  description = "The public key of the host used to ssh into the vault cluster"
-  type = string
-  default = ""
-}
-
 variable "remote_ip_cidr" {
   description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host.."
   type = string
