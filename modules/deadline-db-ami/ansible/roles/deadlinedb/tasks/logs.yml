@@ -6,7 +6,8 @@
   find:
     paths: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/logs/"
   register: found_files
-  no_log: true
+  become: true
+  # no_log: true
   when: result.stat.exists
   
 - name: Get latest file

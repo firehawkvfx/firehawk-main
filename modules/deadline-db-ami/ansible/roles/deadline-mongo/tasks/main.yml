@@ -1,3 +1,30 @@
+
+- name: change hostname
+  hostname:
+    name: "{{ set_hostname }}"
+  when: set_hostname is defined
+
+- name: Update hosts file with regex if ubuntu to handle correctly.  Otherwise this https://github.com/ansible/ansible-modules-core/issues/2308
+  lineinfile:
+    dest: /etc/hosts
+    line: "127.0.0.1       localhost       localhost.localdomain       {{ set_hostname }}"
+    regexp: "^127\.0\.0\.1.*localhost.*$"
+  when: set_hostname is defined and ( ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' )
+
+- name: set preserve hostname in cloud.cfg
+  lineinfile:
+    dest: /etc/cloud/cloud.cfg
+    line: "preserve_hostname: true"
+    regexp: ".*preserve_hostname.*"
+  when: set_hostname is defined and ( ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' )
+
+- name: Check registration of hostname
+  shell: |
+    dig deadlinedb.service.consul
+  become: true
+  args:
+    executable: /bin/bash
+
 - name: generate certs with vault for mongo db server
   shell: |
     export VAULT_ADDR=https://vault.service.consul:8200
