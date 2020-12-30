@@ -26,12 +26,24 @@
     regexp: ".*preserve_hostname.*"
   when: set_hostname is defined and ( ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' )
 
-- name: Check registration of hostname
+- name: Check registration of hostname and register service with consul
   shell: |
+    hostnamectl
+    consul services register -name=deadlinedb
     dig deadlinedb.service.consul
   become: true
   args:
     executable: /bin/bash
+
+- local_action: shell dig +short deadlinedb.service.consul
+  changed_when: false
+  register: dig_output
+
+- set_fact:
+    looked_up_ips: "{{ dig_output.stdout_lines }}"
+
+- debug: msg="found ip {{ item }}"
+  with_items: looked_up_ips
 
 - name: generate certs with vault for mongo db server
   shell: |
