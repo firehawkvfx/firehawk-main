@@ -78,7 +78,12 @@ source "amazon-ebs" "ubuntu18-ami" {
   vpc_id = "${var.vpc_id}"
   subnet_id = "${var.subnet_id}"
   security_group_id = "${var.security_group_id}"
-
+  launch_block_device_mappings {
+    device_name = "/dev/sda1"
+    volume_size = 20
+    # encrypted = true
+    # kms_key_id = "1a2b3c4d-5e6f-1a2b-3c4d-5e6f1a2b3c4d"
+  }
   # assume_role { # Since we need to read files from s3, we require a role with read access.
   #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
   #     session_name = "SESSION_NAME"
