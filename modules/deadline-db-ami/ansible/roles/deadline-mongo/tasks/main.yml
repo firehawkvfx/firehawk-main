@@ -3,11 +3,12 @@
     export VAULT_ADDR=https://vault.service.consul:8200
     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
     vault write -format=json pki_int/issue/firehawkvfx-dot-com \
-    common_name=mongodb.service.consul \
+    common_name=deadlinedb.service.consul \
     ttl=8760h | tee \
     >(jq -r .data.certificate > /etc/ssl/mongodb_ca.pem) \
     >(jq -r .data.issuing_ca > /etc/ssl/mongodb_issuing_ca.pem) \
     >(jq -r .data.private_key > /etc/ssl/mongodb_ca_key.pem)
+    cat /etc/ssl/mongodb_ca.pem /etc/ssl/mongodb_ca_key.pem > /etc/ssl/mongodb_consolidated_certs.pem
   become: true
   args:
     executable: /bin/bash
@@ -17,7 +18,7 @@
     export VAULT_ADDR=https://vault.service.consul:8200
     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
     vault write -format=json pki_int/issue/firehawkvfx-dot-com \
-    common_name=mongodb.service.consul \
+    common_name=deadlinedb.service.consul \
     ttl=8760h | tee \
     >(jq -r .data.certificate > /etc/ssl/mongodbclient_ca.pem) \
     >(jq -r .data.issuing_ca > /etc/ssl/mongodbclient_issuing_ca.pem) \
@@ -32,7 +33,7 @@
     export VAULT_ADDR=https://vault.service.consul:8200
     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
     vault write -format=json pki_int/issue/firehawkvfx-dot-com \
-    common_name=mongodb.service.consul \
+    common_name=deadlinedb.service.consul \
     ttl=8760h | tee \
     >(jq -r .data.certificate > /etc/ssl/mongodbremoteclient_ca.pem) \
     >(jq -r .data.issuing_ca > /etc/ssl/mongodbremoteclient_issuing_ca.pem) \
@@ -68,10 +69,23 @@
     remote_src: true
   become: true
 
-- name: mongodb service
+- name: Create mongo log dir
+  file: 
+    path: /opt/Thinkbox/DeadlineDatabase10/mongo/data/logs
+    state: directory
+  become: true
+
+- name: mongodb service config file
   copy: 
     src: "config.conf"
     dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/"
+    mode: '0755'
+  become: true
+
+- name: deadline_mongo wrapper executable helper
+  copy: 
+    src: "deadline_mongo"
+    dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application/bin"
     mode: '0755'
   become: true
 

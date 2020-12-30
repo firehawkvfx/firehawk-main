@@ -105,7 +105,7 @@ build {
       "dig vault.service.consul",
       # "export VAULT_ADDR=https://vault.service.consul:8200",
       # "vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role",
-      # "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul ttl=8760h"
+      # "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h"
       ]
   }
 
@@ -116,7 +116,7 @@ build {
 # export VAULT_ADDR=https://vault.service.consul:8200
 # vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
 # # try placing this in a bash script
-# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
+# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
 # EOFO
 #       ]
 #   }
@@ -126,7 +126,7 @@ build {
 #       <<EOFO
 # export VAULT_ADDR=https://vault.service.consul:8200
 # vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
-# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=mongodb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
+# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
 # EOFO
 #       ]
 #   }
