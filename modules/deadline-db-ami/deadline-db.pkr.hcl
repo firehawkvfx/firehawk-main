@@ -79,7 +79,7 @@ source "amazon-ebs" "ubuntu18-ami" {
   subnet_id = "${var.subnet_id}"
   security_group_id = "${var.security_group_id}"
   launch_block_device_mappings {
-    device_name = "/dev/sda1"
+    device_name = "/dev/xvda1"
     volume_size = 20
     # encrypted = true
     # kms_key_id = "1a2b3c4d-5e6f-1a2b-3c4d-5e6f1a2b3c4d"
