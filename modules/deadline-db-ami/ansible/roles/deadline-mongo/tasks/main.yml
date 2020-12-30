@@ -30,10 +30,13 @@
   shell: |
     hostnamectl
     consul services register -name=deadlinedb
+    sleep 5
+    consul catalog services
     dig deadlinedb.service.consul
+    if [[ $(dig +short deadlinedb.service.consul) -eq 0 ]]; then echo "No DNS entry found for deadlinedb.service.consul"; exit 1; fi
   become: true
-  args:
-    executable: /bin/bash
+  # args:
+  #   executable: /bin/bash
 
 - local_action: shell dig +short deadlinedb.service.consul
   changed_when: false
