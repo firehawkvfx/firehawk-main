@@ -116,12 +116,11 @@
     --mode unattended \
     --launcherdaemon true \
     --enable-components proxyconfig \
-    --servercert {{ deadline_certificates_location }}/{{ deadline_client_certificate }} \
     --debuglevel 2 \
     --prefix /opt/Thinkbox/Deadline10 \
     --connectiontype Repository \
     --repositorydir /opt/Thinkbox/DeadlineRepository10/ \
-    --dbsslcertificate {{ deadline_certificates_location }}/{{ deadline_client_certificate }} \
+    --dbsslcertificate /root/ssl/client.pem \
     --licensemode UsageBased \
     --daemonuser {{ user_deadlineuser_name }} \
     --connserveruser {{ user_deadlineuser_name }} \
@@ -130,7 +129,7 @@
     --enabletls true \
     --tlscertificates existing  \
     --generatedcertdir {{ deadline_certificates_location }}/ \
-    --servercert /root/ssl/server.pem \
+    --servercert /root/ssl/client.pem \
     --cacert /root/ssl/ca.pem \
     --slavestartup false \
     --proxyrootdir {{ deadline_proxy_root_dir }} \

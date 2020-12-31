@@ -4,9 +4,11 @@
 
 resourcetier: ""
 deadline_certificates_location: "/etc/ssl" # this was previously /opt/Thinkbox/DeadlineDatabase10/certs before seperate mongo install was required, so we use mongo defaults now.
-deadline_client_certificate: "mongodbclient_consolidated_certs.pem"
+# deadline_client_certificate: "mongodbclient_consolidated_certs.pem"
+deadline_client_certificate: "client.pem"
 # deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
-deadline_proxy_certificate: "mongodbremoteclient_consolidated_certs.pem"
+# deadline_proxy_certificate: "mongodbremoteclient_consolidated_certs.pem"
+deadline_proxy_certificate: "client.pem"
 ansible_python_interpreter: /usr/bin/python3
 deadline_linux_installers_tar: /tmp/Deadline-{{ deadline_version }}-linux-installers.tar
 deadline_linux_no_extension: "{{ deadline_linux_installers_tar | splitext | first }}"
