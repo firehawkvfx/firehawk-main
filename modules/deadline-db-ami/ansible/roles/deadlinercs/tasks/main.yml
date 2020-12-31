@@ -77,6 +77,38 @@
   command: "mv /var/lib/Thinkbox/Deadline10/deadline.ini {{ backup_dest }}"
   when: deadline_ini_file.stat.exists
 
+# - name: install deadline rcs
+#   shell: |
+#     # set -x
+#     {{ files_matched.files[0].path }} \
+#     --mode unattended \
+#     --launcherdaemon true \
+#     --enable-components proxyconfig \
+#     --servercert {{ deadline_certificates_location }}/{{ deadline_client_certificate }} \
+#     --debuglevel 2 \
+#     --prefix /opt/Thinkbox/Deadline10 \
+#     --connectiontype Repository \
+#     --repositorydir /opt/Thinkbox/DeadlineRepository10/ \
+#     --dbsslcertificate {{ deadline_certificates_location }}/{{ deadline_client_certificate }} \
+#     --licensemode UsageBased \
+#     --daemonuser {{ user_deadlineuser_name }} \
+#     --connserveruser {{ user_deadlineuser_name }} \
+#     --httpport 8080 \
+#     --tlsport 4433 \
+#     --enabletls true \
+#     --tlscertificates existing  \
+#     --generatedcertdir {{ deadline_certificates_location }}/ \
+#     --servercert /etc/ssl/mongodb_ca.pem \
+#     --cacert /etc/ssl/mongodb_issuing_ca.pem \
+#     --slavestartup false \
+#     --proxyrootdir {{ deadline_proxy_root_dir }} \
+#     --proxycertificate {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }}
+#     ls -ltriah {{ deadline_certificates_location }}
+#   register: deadline_rcs_install_output_shell
+#   args:
+#     executable: /bin/bash
+#   become: true
+
 - name: install deadline rcs
   shell: |
     # set -x
@@ -98,17 +130,17 @@
     --enabletls true \
     --tlscertificates existing  \
     --generatedcertdir {{ deadline_certificates_location }}/ \
-    --servercert /etc/ssl/mongodb_ca.pem \
-    --cacert /etc/ssl/mongodb_issuing_ca.pem \
+    --servercert /root/ssl/server.pem \
+    --cacert /root/ssl/ca.pem \
     --slavestartup false \
     --proxyrootdir {{ deadline_proxy_root_dir }} \
-    --proxycertificate {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }}
+    --proxycertificate /root/ssl/client.pem
     ls -ltriah {{ deadline_certificates_location }}
   register: deadline_rcs_install_output_shell
   args:
     executable: /bin/bash
-  become: true
-  
+  become: true  
+
 # - name: install deadline rcs
 #   shell: |
 #     # set -x
