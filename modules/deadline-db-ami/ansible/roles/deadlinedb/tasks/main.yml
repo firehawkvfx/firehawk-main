@@ -306,7 +306,7 @@
         --dbport 27017 \
         --dbuser "" \
         --dbauth true \
-        --dbclientcert /root/ssl/client.pem
+        --dbclientcert /etc/ssl/client.pem
         --dbssl true
       become_user: "{{ user_deadlineuser_name }}"
       register: deadline_db_install_output_shell

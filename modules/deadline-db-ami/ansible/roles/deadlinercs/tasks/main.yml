@@ -120,7 +120,7 @@
     --prefix /opt/Thinkbox/Deadline10 \
     --connectiontype Repository \
     --repositorydir /opt/Thinkbox/DeadlineRepository10/ \
-    --dbsslcertificate /root/ssl/client.pem \
+    --dbsslcertificate /etc/ssl/client.pem \
     --licensemode UsageBased \
     --daemonuser {{ user_deadlineuser_name }} \
     --connserveruser {{ user_deadlineuser_name }} \
@@ -129,11 +129,11 @@
     --enabletls true \
     --tlscertificates existing  \
     --generatedcertdir {{ deadline_certificates_location }}/ \
-    --servercert /root/ssl/client.pem \
-    --cacert /root/ssl/ca.pem \
+    --servercert /etc/ssl/client.pem \
+    --cacert /etc/ssl/ca.pem \
     --slavestartup false \
     --proxyrootdir {{ deadline_proxy_root_dir }} \
-    --proxycertificate /root/ssl/client.pem
+    --proxycertificate /etc/ssl/client.pem
     ls -ltriah {{ deadline_certificates_location }}
   register: deadline_rcs_install_output_shell
   args:

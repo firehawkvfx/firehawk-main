@@ -65,8 +65,8 @@
     #ensure rand file exists
     cd ~/; openssl rand -writerand .rnd
 
-    mkdir -p ~/ssl
-    cd ~/ssl
+    mkdir -p /etc/ssl
+    cd /etc/ssl
 
     # create private key and self sign it.
     openssl genrsa -out privkey.pem 2048
