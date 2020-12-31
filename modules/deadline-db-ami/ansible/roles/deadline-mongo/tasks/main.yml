@@ -26,6 +26,14 @@
     regexp: ".*preserve_hostname.*"
   when: set_hostname is defined and ( ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' )
 
+- name: "Ensure a key exists" # This may need to be cleaned up.  ssh need initialisation for deadline to work.
+  openssh_keypair:
+    path: "/etc/ssh/init_key"
+    mode: '0600'
+    # owner: deployuser
+  # delegate_to: "{{ delegate_host }}"
+  # become: true
+
 - name: Check registration of hostname and register service with consul
   shell: |
     hostnamectl
