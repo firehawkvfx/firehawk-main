@@ -59,7 +59,7 @@
 # See an example SSL workflow here https://stackoverflow.com/questions/35790287/self-signed-ssl-connection-using-pymongo#35967188
 
 - name: legacy- generate self signed certs on the host.
-  shell:
+  shell: |
     # from https://stackoverflow.com/questions/35790287/self-signed-ssl-connection-using-pymongo#35967188
 
     #ensure rand file exists
