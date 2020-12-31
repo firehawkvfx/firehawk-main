@@ -304,7 +304,7 @@
         --requireSSL true \
         --dbhost {{ openfirehawkserver }} \
         --dbport 27017 \
-        --dbuser "" \
+        --dbuser {{ user_deadlineuser_name }} \
         --dbauth true \
         --dbclientcert /etc/ssl/client.pem
         --dbssl true
