@@ -5,4 +5,4 @@
 
 # exec /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/mongo "deadline10db" --host "deadlinedb.service.consul" --port "27017" --ssl --sslPEMKeyFile "/etc/ssl/mongodb_consolidated_certs.pem" --sslCAFile "/etc/ssl/mongodb_ca.pem" --authenticationDatabase '$external' --authenticationMechanism "MONGODB-X509" --username "OU=Deadline10Client,O=Deadline10Installer,CN=Deadline10Client" "$@"
 
-exec /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/mongo "deadline10db" --host "deadlinedb.service.consul" --port "27017" --ssl --sslPEMKeyFile "/root/ssl/client.pem" --sslCAFile "/root/ssl/ca.pem" --authenticationDatabase '$external' --authenticationMechanism "MONGODB-X509" --username "OU=Deadline10Client,O=Deadline10Installer,CN=Deadline10Client" "$@"
+exec /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/mongo "deadline10db" --host "deadlinedb.service.consul" --port "27017" --ssl --sslPEMKeyFile "/root/ssl/client.pem" --sslCAFile "/root/ssl/ca.pem" --authenticationDatabase '$external' --authenticationMechanism "MONGODB-X509" --username "" "$@"
