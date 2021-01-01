@@ -272,6 +272,7 @@
         --prefix /opt/Thinkbox/DeadlineRepository10 \
         --setpermissions true \
         --installmongodb true \
+        --prepackagedDB /tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz \
         --dbOverwrite true \
         --mongodir /opt/Thinkbox/DeadlineDatabase10 \
         --dbListeningPort 27017 \
