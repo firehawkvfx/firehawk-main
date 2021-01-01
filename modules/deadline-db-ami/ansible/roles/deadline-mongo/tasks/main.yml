@@ -195,8 +195,9 @@
 - name: Init admin, test, and x509 user # https://docs.mongodb.com/manual/tutorial/enable-authentication/
   shell: |
     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin
-    mongod --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
-    mongo --port 27017 --eval '
+    ls -ltriah
+    ./mongod --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
+    ./mongo --port 27017 --eval '
       use admin
       db.createUser(
         {
@@ -208,8 +209,8 @@
       db.adminCommand( { shutdown: 1 } )
     '
 
-    mongod --auth --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
-    mongo --port 27017  --authenticationDatabase "admin" -u "myUserAdmin" -p "passwordfromvault" --eval '
+    ./mongod --auth --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
+    ./mongo --port 27017  --authenticationDatabase "admin" -u "myUserAdmin" -p "passwordfromvault" --eval '
       use test
       db.createUser(
         {
