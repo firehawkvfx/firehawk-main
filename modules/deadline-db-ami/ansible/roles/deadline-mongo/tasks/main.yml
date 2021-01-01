@@ -201,20 +201,39 @@
 
 # - name: Init admin, test, and x509 user # https://docs.mongodb.com/manual/tutorial/enable-authentication/
 #   shell: |
+    
 #     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin
 #     ls -ltriah
 #     ./mongod --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
-#     ./mongo --port 27017 --eval '
-#       use admin
+#     # ./mongo --port 27017 --authenticationDatabase admin --eval '
+#     #   db.createUser(
+#     #     {
+#     #       user: "myUserAdmin",
+#     #       pwd: "passwordfromvault",
+#     #       roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+#     #     }
+#     #   );
+#     #   db.adminCommand( { shutdown: 1 } );
+#     # '
+
+#     ./mongo --port 27017 --authenticationDatabase admin --eval '
 #       db.createUser(
 #         {
 #           user: "myUserAdmin",
-#           pwd: "passwordfromvault", // or cleartext password
-#           roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+#           pwd: "passwordfromvault",
+#           roles: [
+#             { role: "userAdminAnyDatabase", db: "admin" },
+#             { role: "dbAdminAnyDatabase", db: "admin" },
+#             { role: "readWriteAnyDatabase", db: "admin" }
+#           ]
 #         }
-#       )
-#       db.adminCommand( { shutdown: 1 } )
+#       );
 #     '
+
+#     ./mongo --port 27017 --authenticationDatabase "admin" -u "myUserAdmin" -p "passwordfromvault" --eval '
+#       db.adminCommand( { shutdown: 1 } );
+#     '
+
 
 #     ./mongod --auth --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
 #     ./mongo --port 27017  --authenticationDatabase "admin" -u "myUserAdmin" -p "passwordfromvault" --eval '
@@ -228,7 +247,9 @@
 #         }
 #       )
 
-#       use admin
+
+#     ./mongo --port 27017  --authenticationDatabase "admin" -u "myUserAdmin" -p "passwordfromvault" --eval '
+#       use admin;
 #       db.getSiblingDB("$external").runCommand(
 #         {
 #           createUser: "CN=Deadline10Client,O=Deadline10Installer,OU=Deadline10Client,keyUsage=digitalSignature,extendedKeyUsage=clientAuth",
@@ -239,8 +260,8 @@
 #           ],
 #           writeConcern: { w: "majority" , wtimeout: 5000 }
 #         }
-#       )
-#       db.adminCommand( { shutdown: 1 } )
+#       );
+#       db.adminCommand( { shutdown: 1 } );
 #     '
 #   become: true
 #   args:
