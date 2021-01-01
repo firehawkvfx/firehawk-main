@@ -77,7 +77,7 @@
     hostname=$(hostname)  # note down the value
     echo "00" > file.srl # two random digits number
     openssl genrsa -out server.key 2048
-    openssl req -key server.key -new -out server.req -subj  "/O=Deadline10Installer/CN=server1/CN=$hostname"
+    openssl req -key server.key -new -out server.req -subj  "/O=Deadline10Installer/OU=Deadline10Server/CN=server1/CN=$hostname"
     openssl x509 -req -in server.req -CA ca.pem -CAkey privkey.pem -CAserial file.srl -out server.crt -days 3650
     cat server.key server.crt > server.pem
     openssl verify -CAfile ca.pem server.pem
@@ -85,10 +85,12 @@
     # create a client key
     client_hostname=$(hostname) # since we are running the deadline RCS on the same host, we use the same host name
     openssl genrsa -out client.key 2048
-    openssl req -key client.key -new -out client.req -subj "/CN=Deadline10Client/O=Deadline10Installer/OU=Deadline10Client"
+    openssl req -key client.key -new -out client.req -subj "/CN=Deadline10Client/O=Deadline10Installer/OU=Deadline10Client/keyUsage=digitalSignature/extendedKeyUsage=clientAuth/"
     openssl x509 -req -in client.req -CA ca.pem -CAkey privkey.pem -CAserial file.srl -out client.crt -days 3650
     cat client.key client.crt > client.pem
     openssl verify -CAfile ca.pem client.pem
+    echo "The below value of the subject for the certificate must be added as a user"
+    openssl x509 -in client.pem -inform PEM -subject -nameopt RFC2253
 
     # the server can use these keys
     # mongod --sslMode requireSSL --sslPEMKeyFile ~/server.pem --sslCAFile ~/ca.pem
@@ -189,6 +191,51 @@
     dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application/bin"
     mode: '0755'
   become: true
+
+- name: Init admin, test, and x509 user # https://docs.mongodb.com/manual/tutorial/enable-authentication/
+  shell: |
+    mongod --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
+    mongo --port 27017 --eval '
+      use admin
+      db.createUser(
+        {
+          user: "myUserAdmin",
+          pwd: "passwordfromvault", // or cleartext password
+          roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+        }
+      )
+      db.adminCommand( { shutdown: 1 } )
+    '
+
+    mongod --auth --port 27017 --dbpath /opt/Thinkbox/DeadlineDatabase10/mongo/data
+    mongo --port 27017  --authenticationDatabase "admin" -u "myUserAdmin" -p "passwordfromvault" --eval '
+      use test
+      db.createUser(
+        {
+          user: "myTester",
+          pwd:  "passwordfromvault",   // or cleartext password
+          roles: [ { role: "readWrite", db: "test" },
+                  { role: "read", db: "reporting" } ]
+        }
+      )
+
+      use admin
+      db.getSiblingDB("$external").runCommand(
+        {
+          createUser: "CN=Deadline10Client,O=Deadline10Installer,OU=Deadline10Client,keyUsage=digitalSignature,extendedKeyUsage=clientAuth",
+          roles: [
+              { role: "readWrite", db: "test" },
+              { role: "userAdminAnyDatabase", db: "admin" },
+              "readWriteAnyDatabase"
+          ],
+          writeConcern: { w: "majority" , wtimeout: 5000 }
+        }
+      )
+      db.adminCommand( { shutdown: 1 } )
+    '
+  become: true
+  args:
+    executable: /bin/bash
 
 - name: mongodb service
   copy: 

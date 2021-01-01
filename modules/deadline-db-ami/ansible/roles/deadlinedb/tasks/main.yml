@@ -290,7 +290,7 @@
 
 - name: Install Deadline DB & pull latest log.
   block:
-    - name: 'Install deadline db as {{ user_deadlineuser_name }}'
+    - name: 'Install deadline db as {{ user_deadlineuser_name }}' # we need to ensure the x509 user is created, this may not be occuring here.
       shell: |
         # set -x
         cd /home/{{ user_deadlineuser_name }}/Downloads/
