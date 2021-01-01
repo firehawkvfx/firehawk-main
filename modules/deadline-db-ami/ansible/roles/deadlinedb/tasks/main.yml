@@ -304,6 +304,16 @@
         enabled: true
         daemon_reload: true
       become: true
+    - stat: # fail if no dir
+        path: /opt/Thinkbox/DeadlineDatabase10/certs
+      become: true
+      register: certs
+      failed_when: certs.stat.exists == false
+      # fail if dir empty
+    - find: paths=/opt/Thinkbox/DeadlineDatabase10/certs file_type=directory patterns="*"
+      become: true
+      register: dir_files
+      failed_when: dir_files.matched|int == 0
     # - name: Restart service for deadlinedb # may need process to wait for process to be started
     #   service:
     #     name: Deadline10db
