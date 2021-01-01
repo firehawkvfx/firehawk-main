@@ -58,146 +58,146 @@
 
 # See an example SSL workflow here https://stackoverflow.com/questions/35790287/self-signed-ssl-connection-using-pymongo#35967188
 
-- name: legacy- generate self signed certs on the host.
-  shell: |
-    # from https://stackoverflow.com/questions/35790287/self-signed-ssl-connection-using-pymongo#35967188
+# - name: legacy- generate self signed certs on the host.
+#   shell: |
+#     # from https://stackoverflow.com/questions/35790287/self-signed-ssl-connection-using-pymongo#35967188
 
-    #ensure rand file exists
-    cd ~/; openssl rand -writerand .rnd
+#     #ensure rand file exists
+#     cd ~/; openssl rand -writerand .rnd
 
-    mkdir -p /etc/ssl
-    cd /etc/ssl
+#     mkdir -p /etc/ssl
+#     cd /etc/ssl
 
-    # create private key and self sign it.
-    openssl genrsa -out privkey.pem 2048
-    openssl req -new -key privkey.pem -out certreq.csr -subj "/O=Deadline10Installer/CN=root"
-    openssl x509 -req -in certreq.csr -signkey privkey.pem -out ca.pem
+#     # create private key and self sign it.
+#     openssl genrsa -out privkey.pem 2048
+#     openssl req -new -key privkey.pem -out certreq.csr -subj "/O=Deadline10Installer/CN=root"
+#     openssl x509 -req -in certreq.csr -signkey privkey.pem -out ca.pem
 
-    # sign a key for the server
-    hostname=$(hostname)  # note down the value
-    echo "00" > file.srl # two random digits number
-    openssl genrsa -out server.key 2048
-    openssl req -key server.key -new -out server.req -subj  "/O=Deadline10Installer/OU=Deadline10Server/CN=server1/CN=$hostname"
-    openssl x509 -req -in server.req -CA ca.pem -CAkey privkey.pem -CAserial file.srl -out server.crt -days 3650
-    cat server.key server.crt > server.pem
-    openssl verify -CAfile ca.pem server.pem
+#     # sign a key for the server
+#     hostname=$(hostname)  # note down the value
+#     echo "00" > file.srl # two random digits number
+#     openssl genrsa -out server.key 2048
+#     openssl req -key server.key -new -out server.req -subj  "/O=Deadline10Installer/OU=Deadline10Server/CN=server1/CN=$hostname"
+#     openssl x509 -req -in server.req -CA ca.pem -CAkey privkey.pem -CAserial file.srl -out server.crt -days 3650
+#     cat server.key server.crt > server.pem
+#     openssl verify -CAfile ca.pem server.pem
 
-    # create a client key
-    client_hostname=$(hostname) # since we are running the deadline RCS on the same host, we use the same host name
-    openssl genrsa -out client.key 2048
-    openssl req -key client.key -new -out client.req -subj "/CN=Deadline10Client/O=Deadline10Installer/OU=Deadline10Client/keyUsage=digitalSignature/extendedKeyUsage=clientAuth/"
-    openssl x509 -req -in client.req -CA ca.pem -CAkey privkey.pem -CAserial file.srl -out client.crt -days 3650
-    cat client.key client.crt > client.pem
-    openssl verify -CAfile ca.pem client.pem
-    echo "The below value of the subject for the certificate must be added as a user"
-    openssl x509 -in client.pem -inform PEM -subject -nameopt RFC2253
+#     # create a client key
+#     client_hostname=$(hostname) # since we are running the deadline RCS on the same host, we use the same host name
+#     openssl genrsa -out client.key 2048
+#     openssl req -key client.key -new -out client.req -subj "/CN=Deadline10Client/O=Deadline10Installer/OU=Deadline10Client/keyUsage=digitalSignature/extendedKeyUsage=clientAuth/"
+#     openssl x509 -req -in client.req -CA ca.pem -CAkey privkey.pem -CAserial file.srl -out client.crt -days 3650
+#     cat client.key client.crt > client.pem
+#     openssl verify -CAfile ca.pem client.pem
+#     echo "The below value of the subject for the certificate must be added as a user"
+#     openssl x509 -in client.pem -inform PEM -subject -nameopt RFC2253
 
-    # the server can use these keys
-    # mongod --sslMode requireSSL --sslPEMKeyFile ~/server.pem --sslCAFile ~/ca.pem
+#     # the server can use these keys
+#     # mongod --sslMode requireSSL --sslPEMKeyFile ~/server.pem --sslCAFile ~/ca.pem
 
-    # and client connect with
-    # mongo --ssl --sslPEMKeyFile ~/client.pem --sslCAFile ~/ca.pem --host <server hostname>
-  become: true
-  args:
-    executable: /bin/bash
+#     # and client connect with
+#     # mongo --ssl --sslPEMKeyFile ~/client.pem --sslCAFile ~/ca.pem --host <server hostname>
+#   become: true
+#   args:
+#     executable: /bin/bash
 
-- name: generate certs with vault for mongo db server
-  shell: |
-    export VAULT_ADDR=https://vault.service.consul:8200
-    vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-    vault write -format=json pki_int/issue/firehawkvfx-dot-com \
-    common_name=deadlinedb.service.consul \
-    ttl=8760h | tee \
-    >(jq -r .data.certificate > /etc/ssl/mongodb_ca.pem) \
-    >(jq -r .data.issuing_ca > /etc/ssl/mongodb_issuing_ca.pem) \
-    >(jq -r .data.private_key > /etc/ssl/mongodb_ca_key.pem)
-    cat /etc/ssl/mongodb_ca_key.pem /etc/ssl/mongodb_ca.pem > /etc/ssl/mongodb_consolidated_certs.pem
-  become: true
-  args:
-    executable: /bin/bash
+# - name: generate certs with vault for mongo db server
+#   shell: |
+#     export VAULT_ADDR=https://vault.service.consul:8200
+#     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
+#     vault write -format=json pki_int/issue/firehawkvfx-dot-com \
+#     common_name=deadlinedb.service.consul \
+#     ttl=8760h | tee \
+#     >(jq -r .data.certificate > /etc/ssl/mongodb_ca.pem) \
+#     >(jq -r .data.issuing_ca > /etc/ssl/mongodb_issuing_ca.pem) \
+#     >(jq -r .data.private_key > /etc/ssl/mongodb_ca_key.pem)
+#     cat /etc/ssl/mongodb_ca_key.pem /etc/ssl/mongodb_ca.pem > /etc/ssl/mongodb_consolidated_certs.pem
+#   become: true
+#   args:
+#     executable: /bin/bash
 
-- name: generate certs with vault for mongo db client
-  shell: |
-    export VAULT_ADDR=https://vault.service.consul:8200
-    vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-    vault write -format=json pki_int/issue/firehawkvfx-dot-com \
-    common_name=deadlinedb.service.consul \
-    ttl=8760h | tee \
-    >(jq -r .data.certificate > /etc/ssl/mongodbclient_ca.pem) \
-    >(jq -r .data.issuing_ca > /etc/ssl/mongodbclient_issuing_ca.pem) \
-    >(jq -r .data.private_key > /etc/ssl/mongodbclient_ca_key.pem)
-    cat /etc/ssl/mongodbclient_ca.pem /etc/ssl/mongodbclient_ca_key.pem > /etc/ssl/mongodbclient_consolidated_certs.pem
-  become: true
-  args:
-    executable: /bin/bash
+# - name: generate certs with vault for mongo db client
+#   shell: |
+#     export VAULT_ADDR=https://vault.service.consul:8200
+#     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
+#     vault write -format=json pki_int/issue/firehawkvfx-dot-com \
+#     common_name=deadlinedb.service.consul \
+#     ttl=8760h | tee \
+#     >(jq -r .data.certificate > /etc/ssl/mongodbclient_ca.pem) \
+#     >(jq -r .data.issuing_ca > /etc/ssl/mongodbclient_issuing_ca.pem) \
+#     >(jq -r .data.private_key > /etc/ssl/mongodbclient_ca_key.pem)
+#     cat /etc/ssl/mongodbclient_ca.pem /etc/ssl/mongodbclient_ca_key.pem > /etc/ssl/mongodbclient_consolidated_certs.pem
+#   become: true
+#   args:
+#     executable: /bin/bash
 
-- name: generate certs with vault for mongo db remote client
-  shell: |
-    export VAULT_ADDR=https://vault.service.consul:8200
-    vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-    vault write -format=json pki_int/issue/firehawkvfx-dot-com \
-    common_name=deadlinedb.service.consul \
-    ttl=8760h | tee \
-    >(jq -r .data.certificate > /etc/ssl/mongodbremoteclient_ca.pem) \
-    >(jq -r .data.issuing_ca > /etc/ssl/mongodbremoteclient_issuing_ca.pem) \
-    >(jq -r .data.private_key > /etc/ssl/mongodbremoteclient_ca_key.pem)
-    cat /etc/ssl/mongodbremoteclient_ca.pem /etc/ssl/mongodbremoteclient_ca_key.pem > /etc/ssl/mongodbremoteclient_consolidated_certs.pem
-  become: true
-  args:
-    executable: /bin/bash
+# - name: generate certs with vault for mongo db remote client
+#   shell: |
+#     export VAULT_ADDR=https://vault.service.consul:8200
+#     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
+#     vault write -format=json pki_int/issue/firehawkvfx-dot-com \
+#     common_name=deadlinedb.service.consul \
+#     ttl=8760h | tee \
+#     >(jq -r .data.certificate > /etc/ssl/mongodbremoteclient_ca.pem) \
+#     >(jq -r .data.issuing_ca > /etc/ssl/mongodbremoteclient_issuing_ca.pem) \
+#     >(jq -r .data.private_key > /etc/ssl/mongodbremoteclient_ca_key.pem)
+#     cat /etc/ssl/mongodbremoteclient_ca.pem /etc/ssl/mongodbremoteclient_ca_key.pem > /etc/ssl/mongodbremoteclient_consolidated_certs.pem
+#   become: true
+#   args:
+#     executable: /bin/bash
 
 - name: download sources
   get_url:
     url: "https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
     dest: "/tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
 
-- name: Create mongo app dir
-  file: 
-    path: /opt/Thinkbox/DeadlineDatabase10/mongo/application
-    state: directory
-  become: true
+# - name: Create mongo app dir
+#   file: 
+#     path: /opt/Thinkbox/DeadlineDatabase10/mongo/application
+#     state: directory
+#   become: true
 
-- name: Create mongo data dir
-  file: 
-    path: /opt/Thinkbox/DeadlineDatabase10/mongo/data
-    state: directory
-  become: true
+# - name: Create mongo data dir
+#   file: 
+#     path: /opt/Thinkbox/DeadlineDatabase10/mongo/data
+#     state: directory
+#   become: true
 
-- name: Extract
-  unarchive:
-    src: "/tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
-    dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application"
-    extra_opts:
-    - --strip-components=1 
-    remote_src: true
-  become: true
+# - name: Extract
+#   unarchive:
+#     src: "/tmp/mongodb-linux-x86_64-ubuntu1604-3.6.19.tgz"
+#     dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application"
+#     extra_opts:
+#     - --strip-components=1 
+#     remote_src: true
+#   become: true
 
-- name: Create mongo log dir
-  file: 
-    path: /opt/Thinkbox/DeadlineDatabase10/mongo/data/logs
-    state: directory
-  become: true
+# - name: Create mongo log dir
+#   file: 
+#     path: /opt/Thinkbox/DeadlineDatabase10/mongo/data/logs
+#     state: directory
+#   become: true
 
-- name: mongodb service config file
-  copy: 
-    src: "config.conf"
-    dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/"
-    mode: '0755'
-  become: true
+# - name: mongodb service config file
+#   copy: 
+#     src: "config.conf"
+#     dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/"
+#     mode: '0755'
+#   become: true
 
-- name: deadline_mongo wrapper executable helper
-  copy: 
-    src: "deadline_mongo"
-    dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application/bin"
-    mode: '0755'
-  become: true
+# - name: deadline_mongo wrapper executable helper
+#   copy: 
+#     src: "deadline_mongo"
+#     dest: "/opt/Thinkbox/DeadlineDatabase10/mongo/application/bin"
+#     mode: '0755'
+#   become: true
 
-- name: mongodb service
-  copy: 
-    src: "Deadline10db"
-    dest: "/etc/init.d/"
-    mode: '0755'
-  become: true
+# - name: mongodb service
+#   copy: 
+#     src: "Deadline10db"
+#     dest: "/etc/init.d/"
+#     mode: '0755'
+#   become: true
 
 # - name: Init admin, test, and x509 user # https://docs.mongodb.com/manual/tutorial/enable-authentication/
 #   shell: |

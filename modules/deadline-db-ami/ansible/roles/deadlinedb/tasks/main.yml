@@ -258,96 +258,74 @@
 #   tags:
 #   - install
   
-# - name: Install Deadline DB & pull latest log.
-#   block:
-#     - name: 'Install deadline db as {{ user_deadlineuser_name }}'
-#       shell: |
-#         # set -x
-#         cd /home/{{ user_deadlineuser_name }}/Downloads/
-#         sudo {{ files_matched.files[0].path }} \
-#         --mode unattended \
-#         --debuglevel 2 \
-#         --prefix /opt/Thinkbox/DeadlineRepository10 \
-#         --setpermissions true \
-#         --installmongodb true \
-#         --dbOverwrite true \
-#         --mongodir /opt/Thinkbox/DeadlineDatabase10 \
-#         --dbListeningPort 27017 \
-#         --certgen_outdir /opt/Thinkbox/DeadlineDatabase10/certs \
-#         --certgen_password {{ deadline_proxy_certificate_password }} \
-#         --createX509dbuser true \
-#         --requireSSL true \
-#         --dbhost {{ openfirehawkserver }} \
-#         --dbport 27017 \
-#         --dbuser {{ user_deadlineuser_name }} \
-#         --dbpassword {{ deadline_proxy_certificate_password }} \
-#         --dbauth true \
-#         --dbcertpass {{ deadline_proxy_certificate_password }} \
-#         --dbssl true
-#       become_user: "{{ user_deadlineuser_name }}"
-#       register: deadline_db_install_output_shell
-#       become: true
 
-# - name: Install Deadline DB & pull latest log.
-#   block:
-#     - name: 'Install deadline db as {{ user_deadlineuser_name }}' # we need to ensure the x509 user is created, this may not be occuring here.
-#       shell: |
-#         # set -x
-#         cd /home/{{ user_deadlineuser_name }}/Downloads/
 
-#         sudo {{ files_matched.files[0].path }} \
-#         --mode unattended --debuglevel 2 \
-#         --prefix /opt/Thinkbox/DeadlineRepository10 \
-#         --setpermissions true --installmongodb false \
-#         --dbListeningPort 27017 \
-#         --createX509dbuser true \
-#         --requireSSL true \
-#         --dbhost {{ openfirehawkserver }} \
-#         --dbport 27017 \
-#         --dbuser {{ user_deadlineuser_name }} \
-#         --dbauth true \
-#         --dbclientcert /etc/ssl/client.pem
-#         --dbssl true
-#       become_user: "{{ user_deadlineuser_name }}"
-#       register: deadline_db_install_output_shell
-#       become: true
-#     - name: Started service for deadlinedb # may need process to wait for process to be started
-#       service:
-#         name: Deadline10db
-#         state: restarted
-#         enabled: true
-#         daemon_reload: true
-#       become: true
-#     - name: Started service for deadlinedb # may need process to wait for process to be started
-#       service:
-#         name: Deadline10db
-#         state: restarted
-#         enabled: true
-#         daemon_reload: true
-#       become: true
-#     # - name: Restart service for deadlinedb # may need process to wait for process to be started
-#     #   service:
-#     #     name: Deadline10db
-#     #     state: restarted
-#     #   become: true
-#     #   tags:
-#     #   - install
-#     # - include_role:
-#     #     name: "deadlinedb"
-#     #     tasks_from: "logs"
-#   rescue:
-#     - include_role:
-#         name: "deadlinedb"
-#         tasks_from: "logs"
-#     - name: fatal
-#       set_fact:
-#         fatal_error: true
-#   always:
-#   - meta: end_play
-#     when: fatal_error is defined and fatal_error
-#   any_errors_fatal: yes
-#   tags:
-#   - install
+- name: Install Deadline DB & pull latest log.
+  block:
+    - name: 'Install deadline db as {{ user_deadlineuser_name }}'
+      shell: |
+        # set -x
+        cd /home/{{ user_deadlineuser_name }}/Downloads/
+        sudo {{ files_matched.files[0].path }} \
+        --mode unattended \
+        --debuglevel 2 \
+        --prefix /opt/Thinkbox/DeadlineRepository10 \
+        --setpermissions true \
+        --installmongodb true \
+        --dbOverwrite true \
+        --mongodir /opt/Thinkbox/DeadlineDatabase10 \
+        --dbListeningPort 27017 \
+        --certgen_outdir /opt/Thinkbox/DeadlineDatabase10/certs \
+        --certgen_password avaultpassword \
+        --createX509dbuser true \
+        --requireSSL true \
+        --dbhost {{ openfirehawkserver }} \
+        --dbport 27017 \
+        --dbuser {{ user_deadlineuser_name }} \
+        --dbpassword avaultpassword \
+        --dbauth true \
+        --dbcertpass avaultpassword \
+        --dbssl true
+      become_user: "{{ user_deadlineuser_name }}"
+      register: deadline_db_install_output_shell
+      become: true
+    - name: Started service for deadlinedb # may need process to wait for process to be started
+      service:
+        name: Deadline10db
+        state: restarted
+        enabled: true
+        daemon_reload: true
+      become: true
+    - name: Started service for deadlinedb # may need process to wait for process to be started
+      service:
+        name: Deadline10db
+        state: restarted
+        enabled: true
+        daemon_reload: true
+      become: true
+    # - name: Restart service for deadlinedb # may need process to wait for process to be started
+    #   service:
+    #     name: Deadline10db
+    #     state: restarted
+    #   become: true
+    #   tags:
+    #   - install
+    # - include_role:
+    #     name: "deadlinedb"
+    #     tasks_from: "logs"
+  rescue:
+    - include_role:
+        name: "deadlinedb"
+        tasks_from: "logs"
+    - name: fatal
+      set_fact:
+        fatal_error: true
+  always:
+  - meta: end_play
+    when: fatal_error is defined and fatal_error
+  any_errors_fatal: yes
+  tags:
+  - install
 
 
 
