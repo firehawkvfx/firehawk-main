@@ -287,30 +287,34 @@
         --dbauth true \
         --dbcertpass avaultpassword \
         --dbssl true
+        sleep 30
       become_user: "{{ user_deadlineuser_name }}"
       register: deadline_db_install_output_shell
       become: true
     - name: Started service for deadlinedb # may need process to wait for process to be started
       service:
         name: Deadline10db
-        state: restarted
+        state: started
         enabled: true
         daemon_reload: true
       become: true
-    - name: Started service for deadlinedb # may need process to wait for process to be started
-      service:
-        name: Deadline10db
-        state: restarted
-        enabled: true
-        daemon_reload: true
-      become: true
+    # - name: Started service for deadlinedb # may need process to wait for process to be started
+    #   service:
+    #     name: Deadline10db
+    #     state: restarted
+    #     enabled: true
+    #     daemon_reload: true
+    #   become: true
     - stat: # fail if no dir
         path: /opt/Thinkbox/DeadlineDatabase10/certs
       become: true
       register: certs
       failed_when: certs.stat.exists == false
       # fail if dir empty
-    - find: paths=/opt/Thinkbox/DeadlineDatabase10/certs file_type=directory patterns="*"
+    - name: Check if certs were created.
+      find:
+        paths: /opt/Thinkbox/DeadlineDatabase10/certs
+        patterns: "*"
       become: true
       register: dir_files
       failed_when: dir_files.matched|int == 0

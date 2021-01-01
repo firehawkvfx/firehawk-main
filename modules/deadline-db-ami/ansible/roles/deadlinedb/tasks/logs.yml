@@ -7,7 +7,7 @@
     paths: "/opt/Thinkbox/DeadlineDatabase10/mongo/data/logs/"
   register: found_files
   become: true
-  # no_log: true
+  no_log: true
   when: result.stat.exists
   
 - name: Get latest file
@@ -32,7 +32,7 @@
     validate_checksum: no # logs may have incorrect checksums, possibly since data changes rapidly after download.
   become: true
   with_items: "{{ found_files.files }}"
-  # no_log: true
+  no_log: true
   when: result.stat.exists
 
 # get logs from tmp
