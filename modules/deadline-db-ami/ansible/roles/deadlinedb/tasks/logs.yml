@@ -38,6 +38,7 @@
 # get logs from tmp
 - stat:
     path: "/tmp/"
+  become: true
   register: result
 
 - name: Get files in a folder /tmp/
@@ -63,6 +64,7 @@
 # get logs from /var/log/Thinkbox/Deadline[VERSION]
 - stat:
     path: "/var/log/Thinkbox/Deadline10/"
+  become: true
   register: result
 
 - name: Get files in a folder /var/log/Thinkbox/Deadline10/
