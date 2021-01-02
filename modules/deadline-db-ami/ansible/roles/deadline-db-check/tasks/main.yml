@@ -33,26 +33,26 @@
         state: present
       become: true
 
-    - name: check db without password
-      shell: |
-        cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/
-        tree
-        cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
-        ./{{ mongo_executable }} --eval 'printjson(db.getCollectionNames())'
-      # no_log: true
-      when: deadline_proxy_certificate_password is undefined
-      become: true
-      retries: 5
-      delay: 5
-      register: result
-      until: result.rc == 0
+    # - name: check db without password
+    #   shell: |
+    #     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/
+    #     tree
+    #     cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
+    #     ./{{ mongo_executable }} --eval 'printjson(db.getCollectionNames())'
+    #   # no_log: true
+    #   when: deadline_proxy_certificate_password is undefined
+    #   become: true
+    #   retries: 5
+    #   delay: 5
+    #   register: result
+    #   until: result.rc == 0
 
     - name: check db with password
       shell: |
         cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
         ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'printjson(db.getCollectionNames())'
       # no_log: true
-      when: deadline_proxy_certificate_password is defined
+      # when: deadline_proxy_certificate_password is defined
       become: true
       retries: 5
       delay: 5
