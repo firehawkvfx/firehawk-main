@@ -25,7 +25,7 @@
 
 - name: set permissions
   file:
-    path: "{{ deadline_certificates_location }}/{{ deadline_client_certificate }}"
+    path: "{{ deadline_server_certificates_location }}/{{ deadline_client_certificate }}"
     mode: u=r,g=r,o=r
     owner: "{{ user_deadlineuser_name }}"
   become: yes
@@ -39,7 +39,7 @@
   become: yes
 
 - name: check permissions and ownership on certificates
-  command: ls -ltria {{ deadline_certificates_location }}/
+  command: ls -ltria {{ deadline_server_certificates_location }}/
   register: cert_permissions
 
 - debug: msg="{{ cert_permissions.stdout }}"
