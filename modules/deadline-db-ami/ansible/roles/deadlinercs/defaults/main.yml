@@ -4,7 +4,8 @@
 
 resourcetier: ""
 deadline_client_certificate: "Deadline10Client.pfx"
-deadline_certificates_location: "/opt/Thinkbox/DeadlineDatabase10/certs" # this was previously /opt/Thinkbox/DeadlineDatabase10/certs before seperate mongo install was required, so we use mongo defaults now.
+deadline_server_certificates_location: "/opt/Thinkbox/DeadlineDatabase10/certs"
+deadline_certificates_location: "/opt/Thinkbox/certs" # the location that dealine will generate certificates for remote clients.
 deadline_proxy_certificate: "{{ resourcetier }}Deadline10RemoteClient.pfx"
 
 ansible_python_interpreter: /usr/bin/python3

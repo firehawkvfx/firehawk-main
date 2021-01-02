@@ -141,50 +141,64 @@
 #   become: true  
 
 - name: install deadline rcs
-  shell: |
-    # set -x
-    {{ files_matched.files[0].path }} \
-    --mode unattended \
-    --launcherdaemon true \
-    --enable-components proxyconfig \
-    --servercert /opt/Thinkbox/DeadlineDatabase10/certs/{{ deadline_client_certificate }} \
-    --debuglevel 2 \
-    --prefix /opt/Thinkbox/Deadline10 \
-    --connectiontype Repository \
-    --repositorydir /opt/Thinkbox/DeadlineRepository10/ \
-    --dbsslcertificate /opt/Thinkbox/DeadlineDatabase10/certs/{{ deadline_client_certificate }} \
-    --dbsslpassword avaultpassword \
-    --licensemode UsageBased \
-    --daemonuser {{ user_deadlineuser_name }} \
-    --connserveruser {{ user_deadlineuser_name }} \
-    --httpport 8080 \
-    --tlsport 4433 \
-    --enabletls true \
-    --tlscertificates generate  \
-    --generatedcertdir /opt/Thinkbox/certs/ \
-    --clientcert_pass avaultpassword \
-    --slavestartup false \
-    --proxycertificatepassword avaultpassword \
-    --proxyrootdir {{ deadline_proxy_root_dir }} \
-    --proxycertificate {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }}
-    ls -ltriah {{ deadline_certificates_location }}
-    if [[ -f "{{ deadline_certificates_location }}/Deadline10RemoteClient.pfx" ]]; then
-      sudo mv -f {{ deadline_certificates_location }}/Deadline10RemoteClient.pfx {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} # Ensure unique name for cert based on resource color
-      sudo cp -f {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} /secrets/keys/{{ deadline_proxy_certificate }}
-      ls -ltriah {{ deadline_certificates_location }}
-    else
-      echo "Error: Deadline10RemoteClient.pfx was not created"
-      ls -ltriah {{ deadline_certificates_location }}
-      exit 1
-    fi
-  register: deadline_rcs_install_output_shell
-  args:
-    executable: /bin/bash
-  become: true
-    
-- name: check deadline rcs install output
-  debug:
-    msg: "{{ deadline_rcs_install_output_shell.stdout }}"
+  block: 
+    - name: install deadline rcs
+      shell: |
+        # set -x
+        {{ files_matched.files[0].path }} \
+        --mode unattended \
+        --launcherdaemon true \
+        --enable-components proxyconfig \
+        --servercert {{ deadline_server_certificates_location }}/{{ deadline_client_certificate }} \
+        --debuglevel 2 \
+        --prefix /opt/Thinkbox/Deadline10 \
+        --connectiontype Repository \
+        --repositorydir /opt/Thinkbox/DeadlineRepository10/ \
+        --dbsslcertificate {{ deadline_server_certificates_location }}/{{ deadline_client_certificate }} \
+        --dbsslpassword avaultpassword \
+        --licensemode UsageBased \
+        --daemonuser {{ user_deadlineuser_name }} \
+        --connserveruser {{ user_deadlineuser_name }} \
+        --httpport 8080 \
+        --tlsport 4433 \
+        --enabletls true \
+        --tlscertificates generate  \
+        --generatedcertdir {{ deadline_certificates_location }}/ \
+        --clientcert_pass avaultpassword \
+        --slavestartup false \
+        --proxycertificatepassword avaultpassword \
+        --proxyrootdir {{ deadline_proxy_root_dir }} \
+        --proxycertificate {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }}
+        ls -ltriah {{ deadline_certificates_location }}
+        if [[ -f "{{ deadline_certificates_location }}/Deadline10RemoteClient.pfx" ]]; then # Rename the default client cert to include the environment.  This allows a user to switch databases if required.
+          sudo mv -f {{ deadline_certificates_location }}/Deadline10RemoteClient.pfx {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} # Ensure unique name for cert based on resource color
+          sudo cp -f {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} /secrets/keys/{{ deadline_proxy_certificate }}
+          ls -ltriah {{ deadline_certificates_location }}
+        else
+          1>&2 echo "ERROR: Couldn't find {{ deadline_certificates_location }}/Deadline10RemoteClient.pfx for remote clients"
+          exit 1
+        fi
+      register: deadline_rcs_install_output_shell
+      args:
+        executable: /bin/bash
+      become: true
+    - name: check deadline rcs install output
+      debug:
+        msg: "{{ deadline_rcs_install_output_shell.stdout }}"
+    - include_role:
+        name: "deadlinedb"
+        tasks_from: "logs"
+  rescue:
+    - include_role:
+        name: "deadlinedb"
+        tasks_from: "logs"
+    - name: fatal
+      set_fact:
+        fatal_error: true
+  always:
+  - meta: end_play
+    when: fatal_error is defined and fatal_error
+  any_errors_fatal: yes
 
 - name: check /var/lib/Thinkbox/Deadline10/deadline.ini
   command: cat /var/lib/Thinkbox/Deadline10/deadline.ini 
@@ -285,3 +299,7 @@
   - /opt/Thinkbox/DeadlineRepository10/jobs
   - /opt/Thinkbox/DeadlineRepository10/jobsArchived
   - /opt/Thinkbox/DeadlineRepository10/reports
+
+- include_role:
+    name: "deadlinedb"
+    tasks_from: "logs"

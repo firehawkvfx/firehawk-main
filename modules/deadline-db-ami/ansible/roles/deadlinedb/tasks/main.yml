@@ -325,9 +325,9 @@
     #   become: true
     #   tags:
     #   - install
-    # - include_role:
-    #     name: "deadlinedb"
-    #     tasks_from: "logs"
+    - include_role:
+        name: "deadlinedb"
+        tasks_from: "logs"
   rescue:
     - include_role:
         name: "deadlinedb"
