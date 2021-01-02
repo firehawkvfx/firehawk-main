@@ -155,8 +155,8 @@
     --dbsslcertificate /opt/Thinkbox/DeadlineDatabase10/certs/{{ deadline_client_certificate }} \
     --dbsslpassword avaultpassword \
     --licensemode UsageBased \
-    --daemonuser deadlineuser \
-    --connserveruser deadlineuser \
+    --daemonuser {{ user_deadlineuser_name }} \
+    --connserveruser {{ user_deadlineuser_name }} \
     --httpport 8080 \
     --tlsport 4433 \
     --enabletls true \
@@ -172,6 +172,10 @@
       sudo mv -f {{ deadline_certificates_location }}/Deadline10RemoteClient.pfx {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} # Ensure unique name for cert based on resource color
       sudo cp -f {{ deadline_certificates_location }}/{{ deadline_proxy_certificate }} /secrets/keys/{{ deadline_proxy_certificate }}
       ls -ltriah {{ deadline_certificates_location }}
+    else
+      echo "Error: Deadline10RemoteClient.pfx was not created"
+      ls -ltriah {{ deadline_certificates_location }}
+      exit 1
     fi
   register: deadline_rcs_install_output_shell
   args:

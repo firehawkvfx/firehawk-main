@@ -27,6 +27,8 @@ export PKR_VAR_security_group_id="$(cd ../vpc; terraform output -json "consul_cl
 echo "Using Security Group: $PKR_VAR_security_group_id"
 
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
+
+mkdir -p $SCRIPTDIR/tmp/log
 # rm -f $PKR_VAR_manifest_path
 packer build "$@" $SCRIPTDIR/deadline-db.pkr.hcl
 # packer build $SCRIPTDIR/general-host.pkr.hcl
