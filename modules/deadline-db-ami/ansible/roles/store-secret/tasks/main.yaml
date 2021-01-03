@@ -35,7 +35,7 @@
       vault kv patch -address="$VAULT_ADDR" -format=json $target owner="$(sudo id -un -- $file_uid)"
       vault kv patch -address="$VAULT_ADDR" -format=json $target uid="$file_uid"
       
-      file_gid="$(sudo stat -f '%g' $file_path)"
+      file_gid="$(sudo stat --format '%g' $file_path)"
       # vault kv patch -address="$VAULT_ADDR" -format=json $target group=
       vault kv patch -address="$VAULT_ADDR" -format=json $target gid="$file_gid"
     else
