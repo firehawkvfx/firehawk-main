@@ -1,26 +1,50 @@
 - name: test
   debug:
-    msg: "{{ item.key }}, {{ item.value.location }} is from: {{ item.value.location | dirname }} \n will encrypt at: {{ item.value.target | dirname }}"
+    msg: "{{ item.key }}, {{ item.value.location }} is from: {{ item.value.location }} \n will encrypt at: {{ resourcetier }}/{{ item.value.target }}"
 
-- name: ensure dir exists
-  file:
-    path: "{{ item.value.target | dirname }}"
-    state: directory
-    recurse: true
+# - name: ensure dir exists
+#   file:
+#     path: "{{ item.value.target | dirname }}"
+#     state: directory
+#     recurse: true
 
-- name: copy secret
-  copy:
-    src: "{{ item.value.location }}"
-    dest: "{{ item.value.target }}"
-    remote_src: true
+- name: Write secret to vault
+  shell: |
+    export VAULT_ADDR=https://vault.service.consul:8200
+    vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
+    vault write -format=json {{ resourcetier }}/files/{{ item.value.target }} file=@{{ item.value.location }}
+    vault write -format=json {{ resourcetier }}/files/{{ item.value.target }} permissions="$(stat -f '%p' {{ item.value.location }} | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)""
+    file_uid="$(stat -f '%u' {{ item.value.location }})"
+    vault write -format=json {{ resourcetier }}/files/{{ item.value.target }} owner="$(id -un -- "$file_uid")""
+    vault write -format=json {{ resourcetier }}/files/{{ item.value.target }} uid="$file_uid"
+    file_gid="$(stat -f '%g' {{ item.value.location }})"
+    # vault write -format=json {{ resourcetier }}/files/{{ item.value.target }} group=
+    vault write -format=json {{ resourcetier }}/files/{{ item.value.target }} gid="$file_gid"
   become: true
+  args:
+    executable: /bin/bash
 
-- name: ready to encrypt
-  debug:
-    msg: "use key to encrypt {{ vault_key_path }}"
+- name: Removing original file from disk
+  shell: |
+    rm -f {{ item.value.location }}
+  become: true
+  args:
+    executable: /bin/bash
+  when: remove_file|bool
 
-- name: Pass secret to encrypt
-  include_role:
-    name: validate-encryption
-  vars:
-    secret_path: "{{ item.value.target }}"
+# - name: copy secret
+#   copy:
+#     src: "{{ item.value.location }}"
+#     dest: "{{ item.value.target }}"
+#     remote_src: true
+#   become: true
+
+# - name: ready to encrypt
+#   debug:
+#     msg: "use key to encrypt {{ vault_key_path }}"
+
+# - name: Pass secret to encrypt
+#   include_role:
+#     name: validate-encryption
+#   vars:
+#     secret_path: "{{ item.value.target }}"
