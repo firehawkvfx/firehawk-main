@@ -13,16 +13,16 @@
     export VAULT_ADDR=https://vault.service.consul:8200
     echo "Directory content:"
     sudo ls {{ item.value.location | dirname }}
-    
+
     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-    sudo vault write -format=json {{ resourcetier }}/files{{ item.value.target }} file=@{{ item.value.location }}
-    # vault write -format=json {{ resourcetier }}/files{{ item.value.target }} permissions="$(sudo stat -f '%p' {{ item.value.location }} | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)""
+    sudo vault kv put -format=json {{ resourcetier }}/files{{ item.value.target }} file=@{{ item.value.location }}
+    # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} permissions="$(sudo stat -f '%p' {{ item.value.location }} | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)""
     # file_uid="$(sudo stat -f '%u' {{ item.value.location }})"
-    # vault write -format=json {{ resourcetier }}/files{{ item.value.target }} owner="$(sudo id -un -- "$file_uid")""
-    # vault write -format=json {{ resourcetier }}/files{{ item.value.target }} uid="$file_uid"
+    # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} owner="$(sudo id -un -- "$file_uid")""
+    # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} uid="$file_uid"
     # file_gid="$(sudo stat -f '%g' {{ item.value.location }})"
-    # # vault write -format=json {{ resourcetier }}/files{{ item.value.target }} group=
-    # vault write -format=json {{ resourcetier }}/files{{ item.value.target }} gid="$file_gid"
+    # # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} group=
+    # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} gid="$file_gid"
   become: true
   args:
     executable: /bin/bash
