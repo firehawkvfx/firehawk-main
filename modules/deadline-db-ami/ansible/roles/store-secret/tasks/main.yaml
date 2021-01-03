@@ -15,7 +15,7 @@
     file_dir="{{ item.value.location | dirname }}"
     target="{{ resourcetier }}/files{{ item.value.target }}"
     
-    if [[ -f "$file_path" ]]; then
+    if sudo test -f "$file_path"; then
       echo "Directory content:"
       sudo ls "$file_dir"
 
