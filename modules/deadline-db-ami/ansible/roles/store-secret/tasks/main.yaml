@@ -24,9 +24,9 @@
       vault kv put -address="$VAULT_ADDR" -format=json $target file="$(sudo cat \"$file_path\")"
       
       if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
-          octal_permissions=$(stat -f %A "$file_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev )
+          octal_permissions=$(sudo stat -f %A "$file_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev )
       else
-          octal_permissions=$(stat --format '%a' "$file_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)
+          octal_permissions=$(sudo stat --format '%a' "$file_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)
       fi
 
       vault kv patch -address="$VAULT_ADDR" -format=json $target permissions="$octal_permissions"
