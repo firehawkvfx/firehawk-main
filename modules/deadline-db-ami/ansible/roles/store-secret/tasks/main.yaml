@@ -32,7 +32,7 @@
       vault kv patch -address="$VAULT_ADDR" -format=json $target permissions="$octal_permissions"
       
       file_uid="$(sudo stat --format '%u' $file_path)"
-      vault kv patch -address="$VAULT_ADDR" -format=json $target owner="$(sudo id -un -- \"$file_uid\")"
+      vault kv patch -address="$VAULT_ADDR" -format=json $target owner="$(sudo id -un -- $file_uid)"
       vault kv patch -address="$VAULT_ADDR" -format=json $target uid="$file_uid"
       
       file_gid="$(sudo stat -f '%g' $file_path)"
