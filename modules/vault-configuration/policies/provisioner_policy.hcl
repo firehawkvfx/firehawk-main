@@ -1,9 +1,15 @@
 # The provisioner policy is for packer instances and other automation that requires read access to vault
 
+# path "dev/*"
+# {
+#   capabilities = ["list", "read"]
+# }
+
 path "dev/*"
 {
-  capabilities = ["list", "read"]
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
+
 
 path "dev/data/user"
 {

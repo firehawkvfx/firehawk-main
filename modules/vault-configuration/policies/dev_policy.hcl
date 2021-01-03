@@ -1,6 +1,11 @@
+# path "dev/*"
+# {
+#   capabilities = ["list", "read", "update"]
+# }
+
 path "dev/*"
 {
-  capabilities = ["list", "read", "update"]
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 path "dev/data/user"
