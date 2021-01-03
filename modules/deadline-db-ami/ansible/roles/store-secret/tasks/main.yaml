@@ -21,25 +21,25 @@
 
       export VAULT_ADDR=https://vault.service.consul:8200
       vault login -address="$VAULT_ADDR" -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-      vault kv put -address="$VAULT_ADDR" -format=json $target file="$(sudo cat \"$file_path\")"
+      vault kv put -address="$VAULT_ADDR" -format=json $target file="$(sudo cat $file_path)"
       
       if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
-          octal_permissions=$(sudo stat -f %A "$file_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev )
+          octal_permissions=$(sudo stat -f %A $file_path | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev )
       else
-          octal_permissions=$(sudo stat --format '%a' "$file_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)
+          octal_permissions=$(sudo stat --format '%a' $file_path | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)
       fi
 
       vault kv patch -address="$VAULT_ADDR" -format=json $target permissions="$octal_permissions"
       
-      file_uid="$(sudo stat --format '%u' \"$file_path\")"
+      file_uid="$(sudo stat --format '%u' $file_path)"
       vault kv patch -address="$VAULT_ADDR" -format=json $target owner="$(sudo id -un -- \"$file_uid\")"
       vault kv patch -address="$VAULT_ADDR" -format=json $target uid="$file_uid"
       
-      file_gid="$(sudo stat -f '%g' \"$file_path\")"
+      file_gid="$(sudo stat -f '%g' $file_path)"
       # vault kv patch -address="$VAULT_ADDR" -format=json $target group=
       vault kv patch -address="$VAULT_ADDR" -format=json $target gid="$file_gid"
     else
-      print "Error: file not found: \"$file_path\""
+      print "Error: file not found: $file_path"
       exit 1
     fi
   args:
