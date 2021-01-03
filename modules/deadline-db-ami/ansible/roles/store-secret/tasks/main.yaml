@@ -10,12 +10,13 @@
 
 - name: Write secret to vault
   shell: |
+    set -e
     export VAULT_ADDR=https://vault.service.consul:8200
     echo "Directory content:"
     sudo ls {{ item.value.location | dirname }}
 
     vault login -address="$VAULT_ADDR" -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-    vault kv put -address="$VAULT_ADDR" -format=json {{ resourcetier }}/files{{ item.value.target }} file="$(sudo cat @{{ item.value.location }})"
+    vault kv put -address="$VAULT_ADDR" -format=json {{ resourcetier }}/files{{ item.value.target }} file="$(sudo cat {{ item.value.location }})"
     # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} permissions="$(sudo stat -f '%p' {{ item.value.location }} | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)""
     # file_uid="$(sudo stat -f '%u' {{ item.value.location }})"
     # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} owner="$(sudo id -un -- "$file_uid")""
