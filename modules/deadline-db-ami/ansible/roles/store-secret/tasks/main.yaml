@@ -15,7 +15,7 @@
     sudo ls {{ item.value.location | dirname }}
 
     vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role  
-    vault kv put -format=json {{ resourcetier }}/files{{ item.value.target }} file="$(sudo cat @{{ item.value.location }})"
+    vault kv put -address="$VAULT_ADDR" -format=json {{ resourcetier }}/files{{ item.value.target }} file="$(sudo cat @{{ item.value.location }})"
     # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} permissions="$(sudo stat -f '%p' {{ item.value.location }} | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev)""
     # file_uid="$(sudo stat -f '%u' {{ item.value.location }})"
     # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} owner="$(sudo id -un -- "$file_uid")""
@@ -23,7 +23,7 @@
     # file_gid="$(sudo stat -f '%g' {{ item.value.location }})"
     # # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} group=
     # vault kv patch -format=json {{ resourcetier }}/files{{ item.value.target }} gid="$file_gid"
-  become: true
+  # become: true
   args:
     executable: /bin/bash
 
