@@ -6,10 +6,12 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 source $SCRIPTDIR/update_vars.sh
 
 cd $SCRIPTDIR/modules/vault
+terraform init -input=false
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 # terraform destroy --auto-approve -input=false $SCRIPTDIR/modules/vault # Destroy vault instances. Data is persisted to S3.
 
 cd $SCRIPTDIR/modules/vpc
+terraform init -input=false
 terraform plan -out=tfplan -input=false -var "sleep=true"
 terraform apply -input=false tfplan # Stop bastion hosts.
