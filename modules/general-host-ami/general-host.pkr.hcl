@@ -62,10 +62,6 @@ variable "vault_version" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  # syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
-  # deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
-  # deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
-  # user_deadlineuser_pw = "fghthgmjg"
 }
 
 source "amazon-ebs" "general-host-ubuntu18-ami" {
@@ -106,31 +102,6 @@ build {
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu18-ami"]
   }
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
 
   provisioner "ansible" {
     playbook_file = "./ansible/aws_cli_ec2_install.yaml"
@@ -146,36 +117,6 @@ build {
     ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
   }
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deployuser delegate_host=localhost",
-  #     "--skip-tags",
-  #     "user_access"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_pw=${local.user_deadlineuser_pw} variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
-  #     "--skip-tags",
-  #     "user_access"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
 
   provisioner "shell" {
     inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
@@ -207,30 +148,6 @@ build {
       ]
   }
 
-  # provisioner "file" { # vault and consul servers only: clients may not need the private and public keys.
-  #   destination = "/tmp/vault.crt.pem"
-  #   source      = "${var.tls_public_key_path}" # servers only
-  # }
-  # provisioner "file" { # vault and consul servers only: clients may not need the private and public keys.
-  #   destination = "/tmp/vault.key.pem"
-  #   source      = "${var.tls_private_key_path}"
-  # }
-  # provisioner "shell" {
-  #   inline         = [
-  #     "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
-  #     "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
-  #     "else",
-  #     "sudo rm /tmp/sign-request.py",
-  #     "fi",
-  #     "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
-  #     # "sudo mv /tmp/vault.crt.pem /opt/vault/tls/", # vault and consul servers only: clients dont need the private and public keys.
-  #     # "sudo mv /tmp/vault.key.pem /opt/vault/tls/", # vault and consul servers only: clients dont need the private and public keys.
-  #     "sudo chown -R vault:vault /opt/vault/tls/",
-  #     "sudo chmod -R 600 /opt/vault/tls",
-  #     "sudo chmod 700 /opt/vault/tls",
-  #     "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"]
-  #   inline_shebang = "/bin/bash -e"
-  # }
   provisioner "shell" {
     inline         = [
       "sudo apt-get install -y git",
@@ -241,14 +158,6 @@ build {
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
-  # provisioner "shell" {
-  #   inline = ["sudo yum install -y git",
-  #     "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
-  #     "sudo yum install -y python2-pip",
-  #     "LC_ALL=C && sudo pip install boto3",
-  #     "fi"]
-  #   only   = ["amazon-ebs.amazonlinux2-nicedcv-nvidia-ami"]
-  # }
 
   provisioner "shell" {
     inline = [
@@ -260,10 +169,11 @@ build {
       "fi"]
   }
 
-  # provisioner "shell" {
-  #   inline = ["/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"]
-  #   only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazonlinux2-nicedcv-nvidia-ami"]
-  # }
+  provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
+    destination = "/run/systemd/resolve/resolv.conf"
+    source      = "${local.template_dir}/resolv.conf"
+  }
+
   provisioner "shell" {
     inline = [
       "set -x; sudo cat /etc/resolv.conf",
