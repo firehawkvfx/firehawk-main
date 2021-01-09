@@ -1,6 +1,5 @@
 ---
 # tasks file for roles/deadlinedb
-
 - name: diskspace-check
   include_role:
     name: diskspace-check
@@ -17,6 +16,7 @@
   with_items:
   - "/{{ user_deadlineuser_name }}/tmp/DeadlineRepository10/backup"
   - "/{{ user_deadlineuser_name }}/tmp/DeadlineDatabase10/mongo/backup/"
+  - "/usr/share/desktop-directories/" # required to avoid xdg-utils error.
   when: reinstallation | bool
       
 - name: Find backups if present - DeadlineDatabase10
