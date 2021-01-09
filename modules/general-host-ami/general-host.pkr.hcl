@@ -74,6 +74,22 @@ source "amazon-ebs" "general-host-ubuntu18-ami" {
   ssh_username    = "ubuntu"
 }
 
+source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and consul, so we build it here as well.
+  ami_description = "An Open VPN Access Server AMI configured for Firehawk"
+  ami_name        = "firehawk-openvpn-server-base-${local.timestamp}-{{uuid}}"
+  instance_type   = "t2.micro"
+  region          = "${var.aws_region}"
+  source_ami_filter {
+    filters = {
+      description  = "OpenVPN Access Server 2.8.3 publisher image from https://www.openvpn.net/."
+      product-code = "f2ew2wrz425a1jagnifd02u5t"
+    }
+    most_recent = true
+    owners      = ["679593333241"]
+  }
+  ssh_username = "openvpnas"
+}
+
 build {
   sources = [
     "source.amazon-ebs.general-host-ubuntu18-ami"
@@ -84,23 +100,19 @@ build {
     # only           = ["amazon-ebs.ubuntu18-ami"]
   }
   provisioner "shell" {
-    inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
-    inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
-  }
-  provisioner "shell" {
     inline         = [
-      # "sudo apt-get -y install python3.7",
-      # "sudo dpkg --get-selections | grep hold",
-      "sudo apt update -y",
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", 
+      "sudo apt-get install -y -q", 
+      "sudo apt-get -y update", 
       "sudo apt upgrade -y",
       "sudo apt install -y python3-pip",
       "python3 -m pip install --upgrade pip",
       "python3 -m pip install boto3",
-      "python3 -m pip --version"
+      "python3 -m pip --version",
+      "sudo apt-get install -y git"
       ]
     inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.ubuntu18-ami"]
+    # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
 
   provisioner "ansible" {
@@ -116,6 +128,23 @@ build {
     roles_path = "./ansible/roles"
     ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
     galaxy_file = "./requirements.yml"
+    only           = ["amazon-ebs.general-host-ubuntu18-ami"]
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
+      "--skip-tags",
+      "user_access"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+    only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
   provisioner "shell" {

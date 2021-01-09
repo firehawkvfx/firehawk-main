@@ -54,61 +54,56 @@ variable "consul_cluster_tag_value" {
   type = string
 }
 
+variable "openvpn_admin_user" {
+  type = string
+  default = "openvpnas"
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
   bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
   deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
-  # syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
-  # deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
-  # deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
   installers_bucket = vault("/main/data/aws/installers_bucket", "value")
-  # user_deadlineuser_pw = "fghthgmjg"
-  # deadline_proxy_certificate_password = "fghthgmjg"
 }
 
-source "amazon-ebs" "ubuntu18-ami" {
-  ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
-  ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
+# source "amazon-ebs" "openvpn-ami" {
+#   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
+#   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
+#   instance_type   = "t2.micro"
+#   region          = "${var.aws_region}"
+#   iam_instance_profile = "provisioner_instance_role_pipeid0"
+#   source_ami      = "${var.general_host_ubuntu18_ami}"
+#   ssh_username    = "ubuntu"
+#   vpc_id = "${var.vpc_id}"
+#   subnet_id = "${var.subnet_id}"
+#   security_group_id = "${var.security_group_id}"
+# }
+
+source "amazon-ebs" "openvpn-ami" {
+  ami_description = "An Open VPN Access Server AMI configured for Firehawk"
+  ami_name        = "firehawk-openvpn-server-base-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
-  source_ami      = "${var.general_host_ubuntu18_ami}"
-  ssh_username    = "ubuntu"
-  vpc_id = "${var.vpc_id}"
-  subnet_id = "${var.subnet_id}"
-  security_group_id = "${var.security_group_id}"
-  launch_block_device_mappings {
-    device_name = "/dev/sda1"
-    volume_size = 40
-    volume_type = "gp2"
-    delete_on_termination = true
+  source_ami_filter {
+    filters = {
+      description  = "OpenVPN Access Server 2.8.3 publisher image from https://www.openvpn.net/."
+      product-code = "f2ew2wrz425a1jagnifd02u5t"
+    }
+    most_recent = true
+    owners      = ["679593333241"]
   }
-  // Notice that instead of providing a list of mappings, you are just providing
-  // multiple mappings in a row. This diverges from the JSON template format.
-  ami_block_device_mappings {
-    device_name  = "/dev/sdb"
-    virtual_name = "ephemeral0"
-  }
-  ami_block_device_mappings {
-    device_name  = "/dev/sdc"
-    virtual_name = "ephemeral1"
-  }
-  # assume_role { # Since we need to read files from s3, we require a role with read access.
-  #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
-  #     session_name = "SESSION_NAME"
-  #     # external_id  = "EXTERNAL_ID"
-  # }
+  ssh_username = "${var.openvpn_admin_user}"
 }
 
 build {
   sources = [
-    "source.amazon-ebs.ubuntu18-ami"
+    "source.amazon-ebs.openvpn-ami"
     ]
   provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
     inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.ubuntu18-ami"]
+    # only           = ["amazon-ebs.openvpn-ami"]
   }
 
   provisioner "shell" { # Generate certificates with vault.
@@ -148,7 +143,7 @@ build {
   # provisioner "shell" {
   #   inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
   #   inline_shebang = "/bin/bash -e"
-  #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
+  #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.openvpn-ami"]
   # }
   # provisioner "shell" {
   #   inline         = [
@@ -162,7 +157,7 @@ build {
   #     "python3 -m pip --version"
   #     ]
   #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.ubuntu18-ami"]
+  #   only           = ["amazon-ebs.openvpn-ami"]
   # }
   # provisioner "ansible" {
   #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
