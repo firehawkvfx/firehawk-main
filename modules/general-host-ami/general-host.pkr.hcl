@@ -96,10 +96,15 @@ build {
     "source.amazon-ebs.openvpn-server-ami"
     ]
   provisioner "shell" {
+    inline         = ["echo 'connected success'"]
+    # inline_shebang = "/bin/bash -e"
+  }
+
+  provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
     inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.ubuntu18-ami"]
   }
+
   provisioner "shell" {
     inline         = [
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", 
