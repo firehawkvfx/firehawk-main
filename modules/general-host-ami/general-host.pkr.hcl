@@ -176,7 +176,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf"
+      "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
       "set -x; sudo cat /etc/resolv.conf",
       "set -x; sudo cat /run/systemd/resolve/resolv.conf",
       "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
