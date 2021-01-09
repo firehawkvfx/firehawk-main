@@ -92,7 +92,8 @@ source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and 
 
 build {
   sources = [
-    "source.amazon-ebs.general-host-ubuntu18-ami"
+    "source.amazon-ebs.general-host-ubuntu18-ami",
+    "source.amazon-ebs.openvpn-server-ami"
     ]
   provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
