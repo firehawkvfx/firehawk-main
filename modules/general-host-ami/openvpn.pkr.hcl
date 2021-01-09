@@ -22,6 +22,7 @@ source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and 
     owners      = ["679593333241"]
   }
   ssh_username = "openvpnas"
+  ssh_password = "openvpnas"
 }
 
 build {
