@@ -170,12 +170,13 @@ build {
   }
 
   provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
-    destination = "/run/systemd/resolve/resolv.conf"
+    destination = "/tmp/resolv.conf"
     source      = "${local.template_dir}/resolv.conf"
   }
 
   provisioner "shell" {
     inline = [
+      "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf"
       "set -x; sudo cat /etc/resolv.conf",
       "set -x; sudo cat /run/systemd/resolve/resolv.conf",
       "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
