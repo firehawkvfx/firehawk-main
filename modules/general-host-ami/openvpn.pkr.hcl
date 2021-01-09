@@ -30,3 +30,4 @@ build {
   provisioner "shell" {
     inline         = ["echo 'connected success'"]
   }
+}
