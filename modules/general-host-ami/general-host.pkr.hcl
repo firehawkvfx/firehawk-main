@@ -134,6 +134,9 @@ build {
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
+      "apt-get install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
+      "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
       "sudo apt-get -y update",
       "sudo apt-get -y install python3",
       "sudo apt-get -y install python-apt",
@@ -141,6 +144,7 @@ build {
       "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
       "echo '...Finished bootstrapping'"
     ]
+    only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
   # provisioner "shell" {
@@ -162,6 +166,7 @@ build {
       ]
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
+    # only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
   provisioner "ansible" {
