@@ -134,11 +134,22 @@ build {
       "lsb_release -a",
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
-      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
-      "sudo chown openvpnas:openvpnas /home/openvpnas",
-      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
-      "ls -ltriah /var/cache/debconf/passwords.dat",
-      "ls -ltriah /var/cache/"
+      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\"",
+      "sudo chown openvpnas:openvpnas /home/openvpnas; echo \"exit $?\"",
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections; echo \"exit $?\"",
+      "ls -ltriah /var/cache/debconf/passwords.dat; echo \"exit $?\"",
+      "ls -ltriah /var/cache/; echo \"exit $?\""
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    valid_exit_codes = [0,1] # ignore exit code.  this requirement is a bug in the open vpn ami.
+    inline         = [
+      # "sudo apt -y install dialog || exit 0" # supressing exit code.
+      "sudo apt -y install dialog; echo \"exit $?\"" # supressing exit code.
     ]
   }
 
@@ -147,7 +158,7 @@ build {
     only           = ["amazon-ebs.openvpn-server-ami"]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
-      "sudo apt -y install dialog || exit 0" # supressing exit code.
+      "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q; echo \"exit $?\""
     ]
   }
 
@@ -155,23 +166,15 @@ build {
     inline_shebang = "/bin/bash -e"
     only           = ["amazon-ebs.openvpn-server-ami"]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
-    inline         = [
-      "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q"
-    ]
-  }
-
-  provisioner "shell" {
-    inline_shebang = "/bin/bash -e"
-    only           = ["amazon-ebs.openvpn-server-ami"]
-    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    valid_exit_codes = [0,1] # ignore exit code.
     inline         = [
       # "DEBIAN_FRONTEND=noninteractive sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
       # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get -y update",
       # "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
-      "ls -ltriah /home",
-      "sudo fuser -v /var/cache/debconf/config.dat" # get info if anything else has a lock on this file
+      "ls -ltriah /home; echo \"exit $?\"",
+      "sudo fuser -v /var/cache/debconf/config.dat; echo \"exit $?\"" # get info if anything else has a lock on this file
     ]
   }
 
