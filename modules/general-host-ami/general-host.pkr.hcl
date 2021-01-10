@@ -134,15 +134,12 @@ build {
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
-      "sudo apt-get install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
-      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
-      "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
-      "sudo apt-get -y update",
-      "sudo apt-get -y install python3",
-      "sudo apt-get -y install python-apt",
-      "sudo fuser -v /var/cache/debconf/config.dat", # get info if anything else has a lock on this file
+      "sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
+      # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
+      # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
+      # "sudo apt-get -y update",
       "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
-      "echo '...Finished bootstrapping'"
+      "sudo fuser -v /var/cache/debconf/config.dat" # get info if anything else has a lock on this file
     ]
     only           = ["amazon-ebs.openvpn-server-ami"]
   }
@@ -158,11 +155,14 @@ build {
       "sudo apt-get install -y -q", 
       "sudo apt-get -y update", 
       "sudo apt upgrade -y",
+      "sudo apt-get -y install python3",
+      "sudo apt-get -y install python-apt",
       "sudo apt install -y python3-pip",
       "python3 -m pip install --upgrade pip",
       "python3 -m pip install boto3",
       "python3 -m pip --version",
-      "sudo apt-get install -y git"
+      "sudo apt-get install -y git",
+      "echo '...Finished bootstrapping'"
       ]
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
