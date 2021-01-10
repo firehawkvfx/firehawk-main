@@ -137,8 +137,9 @@ build {
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
       "ls -ltriah /var/cache/debconf/passwords.dat",
       "ls -ltriah /var/cache/",
-      "sudo apt-get install -y -q", 
-      "sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
+      "sudo apt -y install dialog || exit 0", # supressing exit code.
+      "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q", 
+      # "DEBIAN_FRONTEND=noninteractive sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
       # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get -y update",
