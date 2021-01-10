@@ -104,7 +104,7 @@ build {
         "echo === Waiting for Cloud-Init ===",
         "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
         "echo === System Packages ===",
-        "echo 'connected success'",
+        "echo 'Connected success. Wait for updates to finish...'", # Open VPN AMI runs apt daily update which must end before we continue.
         "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\""
         ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
@@ -117,8 +117,8 @@ build {
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
       "export SHOWCOMMANDS=true; set -x",
-      "lsb_release -a",
-      "ps aux | grep [a]pt",
+      # "lsb_release -a",
+      # "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo chown openvpnas:openvpnas /home/openvpnas; echo \"exit $?\"",
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections; echo \"exit $?\"",
