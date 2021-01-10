@@ -195,6 +195,15 @@ build {
 
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
+    only           = ["source.amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "sudo apt-get -y update"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
     only           = ["amazon-ebs.openvpn-server-ami"]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     valid_exit_codes = [0,1] # ignore exit code.  this requirement is a bug in the open vpn ami.
