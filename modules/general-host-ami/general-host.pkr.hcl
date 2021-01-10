@@ -134,7 +134,7 @@ build {
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
-      "apt-get install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
+      "sudo apt-get install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
       "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
       "sudo apt-get -y update",
