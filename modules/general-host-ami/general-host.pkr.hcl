@@ -227,7 +227,6 @@ build {
   }
 
   provisioner "ansible" {
-    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
     extra_arguments = [
       "-v",
       "--extra-vars",
@@ -235,6 +234,7 @@ build {
       "--skip-tags",
       "user_access"
     ]
+    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
     collections_path = "./ansible/collections"
     roles_path = "./ansible/roles"
     ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]

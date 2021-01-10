@@ -15,5 +15,6 @@ export PACKER_LOG=1
 export PACKER_LOG_PATH="$SCRIPTDIR/packerlog.log"
 
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
+mkdir -p $SCRIPTDIR/ansible/collections/ansible_collections
 rm -f $PKR_VAR_manifest_path
 packer build "$@" $SCRIPTDIR/general-host.pkr.hcl
