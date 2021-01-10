@@ -5,12 +5,14 @@ variable "aws_region" {
 
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
+  template_dir = path.root
 }
 
 source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and consul, so we build it here as well.
   ami_description = "An Open VPN Access Server AMI configured for Firehawk"
   ami_name        = "firehawk-openvpn-server-base-${local.timestamp}-{{uuid}}"
-  user_data       = "admin_user=openvpnas; admin_pw=openvpnas"
+#   user_data       = "admin_user=openvpnas; admin_pw=openvpnas"
+  user_data_file  = "${local.template_dir}/user_data.sh"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami_filter {
@@ -22,7 +24,7 @@ source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and 
     owners      = ["679593333241"]
   }
   ssh_username = "openvpnas"
-  ssh_password = "openvpnas"
+#   ssh_password = "openvpnas"
 }
 
 build {
