@@ -143,6 +143,7 @@ build {
       # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get -y update",
+      "ls -ltriah /home",
       "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
       "sudo fuser -v /var/cache/debconf/config.dat" # get info if anything else has a lock on this file
     ]
