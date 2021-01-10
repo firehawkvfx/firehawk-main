@@ -9,6 +9,8 @@ export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
 if [[ -f "$SCRIPTDIR/../bastion-ami/manifest.json" ]]; then
     export PKR_VAR_bastion_ubuntu18_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/../bastion-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found bastion_ubuntu18_ami in manifest: PKR_VAR_bastion_ubuntu18_ami=$PKR_VAR_bastion_ubuntu18_ami"
+    export PKR_VAR_openvpn_server_ami="$(jq -r '.builds[] | select(.name == "openvpn-server-ami") | .artifact_id' $SCRIPTDIR/../bastion-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+    echo "Found openvpn_server_ami in manifest: PKR_VAR_openvpn_server_ami=$PKR_VAR_openvpn_server_ami"
 fi
 
 export PACKER_LOG=1
