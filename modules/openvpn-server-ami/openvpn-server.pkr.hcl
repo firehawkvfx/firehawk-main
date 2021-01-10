@@ -16,7 +16,7 @@ variable "aws_region" {
   default = null
 }
 
-variable "general_host_ubuntu18_ami" {
+variable "bastion_ubuntu18_ami" {
   type = string
 }
 
@@ -25,67 +25,57 @@ variable "ca_public_key_path" {
   default = "/home/ec2-user/.ssh/tls/ca.crt.pem"
 }
 
+variable "resourcetier" {
+  type    = string
+}
+
+variable "consul_download_url" {
+  type    = string
+  default = ""
+}
+
+variable "consul_module_version" {
+  type    = string
+  default = "v0.8.0"
+}
+
+variable "consul_version" {
+  type    = string
+  default = "1.8.4"
+}
+
 variable "install_auth_signing_script" {
   type    = string
   default = "true"
 }
 
-variable "resourcetier" {
+variable "vault_download_url" {
   type    = string
+  default = ""
 }
 
-variable "vpc_id" {
+variable "vault_version" {
   type    = string
-}
-
-variable "security_group_id" {
-  type = string
-}
-
-variable "subnet_id" {
-  type    = string
-}
-
-variable "consul_cluster_tag_key" {
-  type = string
-}
-
-variable "consul_cluster_tag_value" {
-  type = string
-}
-
-variable "openvpn_admin_user" {
-  type = string
-  default = "openvpnas"
+  default = "1.5.5"
 }
 
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
-  deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
-  installers_bucket = vault("/main/data/aws/installers_bucket", "value")
 }
 
-# source "amazon-ebs" "openvpn-ami" {
-#   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   iam_instance_profile = "provisioner_instance_role_pipeid0"
-#   source_ami      = "${var.general_host_ubuntu18_ami}"
-#   ssh_username    = "ubuntu"
-#   vpc_id = "${var.vpc_id}"
-#   subnet_id = "${var.subnet_id}"
-#   security_group_id = "${var.security_group_id}"
-# }
-
-source "amazon-ebs" "openvpn-ami" {
+source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and consul, so we build it here as well.
   ami_description = "An Open VPN Access Server AMI configured for Firehawk"
   ami_name        = "firehawk-openvpn-server-base-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  user_data_file  = "${local.template_dir}/user_data.sh"
+  # user_data = "admin_user=openvpnas; admin_pw=openvpnas"
+  user_data = <<EOF
+#! /bin/bash
+admin_user=openvpnas
+admin_pw=''
+EOF
+  # user_data_file  = "${local.template_dir}/openvpn_user_data.sh"
   source_ami_filter {
     filters = {
       description  = "OpenVPN Access Server 2.8.3 publisher image from https://www.openvpn.net/."
@@ -94,14 +84,23 @@ source "amazon-ebs" "openvpn-ami" {
     most_recent = true
     owners      = ["679593333241"]
   }
-  ssh_username = "${var.openvpn_admin_user}"
+  ssh_username = "openvpnas"
 }
 
 build {
   sources = [
-    "source.amazon-ebs.openvpn-ami"
+    "source.amazon-ebs.openvpn-server-ami"
     ]
-    
+  provisioner "shell" {
+    inline         = ["echo 'init success'"]
+    inline_shebang = "/bin/bash -e"
+  }
+
+  provisioner "shell" {
+    inline         = ["sudo echo 'sudo echo test'"] # verify sudo is available
+    inline_shebang = "/bin/bash -e"
+  }
+
   provisioner "shell" {
     inline         = [
         "unset HISTFILE",
@@ -109,188 +108,250 @@ build {
         "echo === Waiting for Cloud-Init ===",
         "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
         "echo === System Packages ===",
-        "echo 'connected success'"
+        "echo 'connected success'",
+        "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\""
         ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang = "/bin/bash -e"
   }
+  
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "export SHOWCOMMANDS=true; set -x",
+      "lsb_release -a",
+      "ps aux | grep [a]pt",
+      "sudo cat /etc/systemd/system.conf",
+      "sudo chown openvpnas:openvpnas /home/openvpnas; echo \"exit $?\"",
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections; echo \"exit $?\"",
+      "ls -ltriah /var/cache/debconf/passwords.dat; echo \"exit $?\"",
+      "ls -ltriah /var/cache/; echo \"exit $?\""
+    ]
+  }
 
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    valid_exit_codes = [0,1] # ignore exit code.  this requirement is a bug in the open vpn ami.
+    inline         = [
+      # "sudo apt -y install dialog || exit 0" # supressing exit code.
+      "sudo apt -y install dialog; echo \"exit $?\"" # supressing exit code.
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q; echo \"exit $?\""
+    ]
+  }
+
+  # provisioner "shell" {
+  #   inline_shebang = "/bin/bash -e"
+  #   # only           = ["amazon-ebs.openvpn-server-ami"]
+  #   environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+  #   valid_exit_codes = [0,1] # ignore exit code.
+  #   inline         = [
+  #     # "DEBIAN_FRONTEND=noninteractive sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
+  #     # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
+  #     # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
+  #     # "sudo apt-get -y update",
+  #     # "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
+  #     "ls -ltriah /home; echo \"exit $?\"",
+  #     "sudo fuser -v /var/cache/debconf/config.dat; echo \"exit $?\"" # get info if anything else has a lock on this file
+  #   ]
+  # }
+
+  # provisioner "shell" {
+  #   inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
+  #   inline_shebang = "/bin/bash -e"
+  # }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", 
+      "sudo apt-get install -y -q"
+    ]
+  }
+
+  ### Public cert block to verify other consul agents ###
+
+  provisioner "shell" {
+    inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
+  }
+
+  provisioner "file" {
+    destination = "/tmp/terraform-aws-vault/modules"
+    source      = "${local.template_dir}/../terraform-aws-vault/modules/"
+  }
+
+  provisioner "file" {
+    destination = "/tmp/sign-request.py"
+    source      = "${local.template_dir}/auth/sign-request.py"
+  }
+  provisioner "file" {
+    destination = "/tmp/ca.crt.pem"
+    source      = "${var.ca_public_key_path}"
+  }
+  provisioner "shell" {
+    inline         = [
+      "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
+      "sudo mkdir -p /opt/vault/scripts/",
+      "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
+      "else",
+      "sudo rm /tmp/sign-request.py", 
+      "fi",
+      "sudo mkdir -p /opt/vault/tls/", 
+      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/", 
+      "sudo chmod -R 600 /opt/vault/tls", 
+      "sudo chmod 700 /opt/vault/tls", 
+      "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
+    ]
+    inline_shebang = "/bin/bash -e"
+  }
   provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
     inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.openvpn-ami"]
+    only           = ["amazon-ebs.ubuntu18-ami"]
+  }
+  provisioner "shell" {
+    inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
+    inline_shebang = "/bin/bash -e"
+    only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
 
-  provisioner "shell" { # Generate certificates with vault.
+  ### End public cert block to verify other consul agents ###
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "sudo apt-get -y update"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [ 
+      "sudo apt-get install dpkg -y"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [ 
+      "sudo apt-get -y install python3",
+      "sudo apt-get -y install python-apt",
+      "sudo apt install -y python3-pip",
+      "python3 -m pip install --upgrade pip",
+      "python3 -m pip install boto3",
+      "python3 -m pip --version",
+      "sudo apt-get install -y git",
+      "echo '...Finished bootstrapping'"
+    ]
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
+      "--skip-tags",
+      "user_access"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+  }
+
+  provisioner "shell" {
+    inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
+  }
+
+  provisioner "file" {
+    destination = "/tmp/terraform-aws-vault/modules"
+    source      = "${local.template_dir}/../terraform-aws-vault/modules/"
+  }
+
+  provisioner "file" {
+    destination = "/tmp/sign-request.py"
+    source      = "${local.template_dir}/auth/sign-request.py"
+  }
+  provisioner "file" {
+    destination = "/tmp/ca.crt.pem"
+    source      = "${var.ca_public_key_path}"
+  }
+
+  ### This block will install Vault Agent
+
+  provisioner "shell" { # Vault client probably wont be installed on bastions in future, but most hosts that will authenticate will require it.
     inline = [
-      "set -x; sudo cat /etc/resolv.conf",
-      "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
-      "consul members list",
-      "dig @localhost vault.service.consul",
-      "dig vault.service.consul",
-      # "export VAULT_ADDR=https://vault.service.consul:8200",
-      # "vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role",
-      # "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h"
+      "if test -n '${var.vault_download_url}'; then",
+      " /tmp/terraform-aws-vault/modules/install-vault/install-vault --download-url ${var.vault_download_url};",
+      "else",
+      " /tmp/terraform-aws-vault/modules/install-vault/install-vault --version ${var.vault_version};",
+      "fi"
       ]
   }
 
-
-#   provisioner "shell" { # Generate certificates with vault.
-#     inline = [
-#       <<EOFO
-# export VAULT_ADDR=https://vault.service.consul:8200
-# vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
-# # try placing this in a bash script
-# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
-# EOFO
-#       ]
-#   }
-
-#   provisioner "shell" { # Generate certificates with vault.
-#     inline = [
-#       <<EOFO
-# export VAULT_ADDR=https://vault.service.consul:8200
-# vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
-# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
-# EOFO
-#       ]
-#   }
-  # provisioner "shell" {
-  #   inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
-  #   inline_shebang = "/bin/bash -e"
-  #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.openvpn-ami"]
-  # }
-  # provisioner "shell" {
-  #   inline         = [
-  #     # "sudo apt-get -y install python3.7",
-  #     # "sudo dpkg --get-selections | grep hold",
-  #     "sudo apt update -y",
-  #     "sudo apt upgrade -y",
-  #     "sudo apt install -y python3-pip",
-  #     "python3 -m pip install --upgrade pip",
-  #     "python3 -m pip install boto3",
-  #     "python3 -m pip --version"
-  #     ]
-  #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.openvpn-ami"]
-  # }
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
-  #     "--skip-tags",
-  #     "user_access"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-  # provisioner "ansible" {
-  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
-  #     "--skip-tags",
-  #     "user_access"
-  #   ]
-  #   collections_path = "./ansible/collections"
-  #   roles_path = "./ansible/roles"
-  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-  #   galaxy_file = "./requirements.yml"
-  # }
-
-# ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -v --extra-vars "variable_host=role_node_centos variable_user=centos variable_become_user=deadlineuser" --skip-tags "user_access"; exit_test
-# ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -vv --extra-vars "variable_host=workstation1 variable_user=deadlineuser aws_cli_root=true ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key"; exit_test
-
-
-
-### Install Mongo
-
-  provisioner "ansible" {
-    playbook_file = "./ansible/transparent-hugepages-disable.yml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
-      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
+  provisioner "shell" {
+    inline         = [
+      "sudo apt-get install -y git",
+      "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
+      "sudo apt-get install -y python-pip",
+      "LC_ALL=C && sudo pip install boto3",
+      "fi"]
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/deadline-db-install.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
+  provisioner "shell" {
+    inline = [
+      "git clone --branch ${var.consul_module_version} https://github.com/hashicorp/terraform-aws-consul.git /tmp/terraform-aws-consul",
+      "if test -n \"${var.consul_download_url}\"; then",
+      " /tmp/terraform-aws-consul/modules/install-consul/install-consul --download-url ${var.consul_download_url};",
+      "else",
+      " /tmp/terraform-aws-consul/modules/install-consul/install-consul --version ${var.consul_version};",
+      "fi"]
   }
 
-  provisioner "ansible" {
-    playbook_file = "./ansible/deadlinercs.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
+  provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
+    destination = "/tmp/resolv.conf"
+    source      = "${local.template_dir}/resolv.conf"
   }
 
-  provisioner "ansible" { # remove any keys from the image and store them in vault.
-    playbook_file = "./ansible/deadline-vault-store-secrets.yaml"
-    extra_arguments = [
-      "-v",
-      "--extra-vars",
-      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
-    ]
-    collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
+  provisioner "shell" {
+    inline = [
+      "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
+      "set -x; sudo cat /etc/resolv.conf",
+      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+      "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
+      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+      "sudo unlink /etc/resolv.conf",
+      "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
+      "set -x; sudo cat /etc/resolv.conf",
+      "sudo systemctl daemon-reload",
+      "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
+      "sudo cat /etc/hostname",
+      "sudo cat /etc/hosts"
+      ]
+    # only   = ["amazon-ebs.ubuntu18-ami"]
   }
 
   post-processor "manifest" {
