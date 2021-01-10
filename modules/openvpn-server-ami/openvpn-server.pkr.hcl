@@ -85,6 +85,7 @@ source "amazon-ebs" "openvpn-ami" {
   ami_name        = "firehawk-openvpn-server-base-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
+  user_data_file  = "${local.template_dir}/user_data.sh"
   source_ami_filter {
     filters = {
       description  = "OpenVPN Access Server 2.8.3 publisher image from https://www.openvpn.net/."
@@ -100,6 +101,20 @@ build {
   sources = [
     "source.amazon-ebs.openvpn-ami"
     ]
+    
+  provisioner "shell" {
+    inline         = [
+        "unset HISTFILE",
+        "history -cw",
+        "echo === Waiting for Cloud-Init ===",
+        "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
+        "echo === System Packages ===",
+        "echo 'connected success'"
+        ]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline_shebang = "/bin/bash -e"
+  }
+
   provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
     inline_shebang = "/bin/bash -e"
