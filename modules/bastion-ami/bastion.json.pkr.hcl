@@ -183,8 +183,8 @@ build {
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
       "export SHOWCOMMANDS=true; set -x",
-      "lsb_release -a",
-      "ps aux | grep [a]pt",
+      # "lsb_release -a",
+      # "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo chown openvpnas:openvpnas /home/openvpnas; echo \"exit $?\"",
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections; echo \"exit $?\"",
