@@ -184,11 +184,38 @@ build {
   # }
 
   provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", 
-      "sudo apt-get install -y -q", 
-      "sudo apt-get -y update", 
-      "sudo apt upgrade -y",
+      "sudo apt-get install -y -q"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "sudo apt-get -y update"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [ 
+      "sudo apt-get install dpkg -y"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [ 
       "sudo apt-get -y install python3",
       "sudo apt-get -y install python-apt",
       "sudo apt install -y python3-pip",
@@ -197,10 +224,7 @@ build {
       "python3 -m pip --version",
       "sudo apt-get install -y git",
       "echo '...Finished bootstrapping'"
-      ]
-    inline_shebang = "/bin/bash -e"
-    # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
-    # only           = ["amazon-ebs.openvpn-server-ami"]
+    ]
   }
 
   provisioner "ansible" {
