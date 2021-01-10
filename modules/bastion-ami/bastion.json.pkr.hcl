@@ -199,6 +199,7 @@ build {
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     valid_exit_codes = [0,1] # ignore exit code.  this requirement is a bug in the open vpn ami.
     inline         = [
+      "sudo add-apt-repository universe",
       "set -x; sudo apt-get -y install dialog; echo \"exit $?\"" # supressing exit code.
     ]
   }
