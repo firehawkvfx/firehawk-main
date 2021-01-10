@@ -103,7 +103,7 @@ build {
     "source.amazon-ebs.openvpn-server-ami"
     ]
   provisioner "shell" {
-    inline         = ["echo 'connected success'"]
+    inline         = ["echo 'init success'"]
     inline_shebang = "/bin/bash -e"
   }
 
@@ -111,10 +111,42 @@ build {
     inline         = ["sudo echo 'sudo echo test'"] # verify sudo is available
     inline_shebang = "/bin/bash -e"
   }
+
   provisioner "shell" {
-    inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
+    inline         = [
+        "unset HISTFILE",
+        "history -cw",
+        "echo === Waiting for Cloud-Init ===",
+        "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
+        "echo === System Packages ===",
+        "echo 'connected success'"
+        ]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang = "/bin/bash -e"
   }
+  
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "export SHOWCOMMANDS=true; set -x",
+      "lsb_release -a",
+      "ps aux | grep [a]pt",
+      "sudo cat /etc/systemd/system.conf",
+      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
+      "sudo apt-get -y update",
+      "sudo apt-get -y install python3",
+      "sudo apt-get -y install python-apt",
+      "sudo fuser -v /var/cache/debconf/config.dat", # get info if anything else has a lock on this file
+      "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
+      "echo '...Finished bootstrapping'"
+    ]
+  }
+
+  # provisioner "shell" {
+  #   inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
+  #   inline_shebang = "/bin/bash -e"
+  # }
 
   provisioner "shell" {
     inline         = [
