@@ -325,7 +325,10 @@ build {
       "sudo unlink /etc/resolv.conf",
       "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
       "set -x; sudo cat /etc/resolv.conf",
-      "sudo systemctl daemon-reload"
+      "sudo systemctl daemon-reload",
+      "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
+      "sudo cat /etc/hostname",
+      "sudo cat /etc/hosts"
       ]
     # only   = ["amazon-ebs.ubuntu18-ami"]
   }
