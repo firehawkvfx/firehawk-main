@@ -119,7 +119,8 @@ build {
         "echo === Waiting for Cloud-Init ===",
         "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
         "echo === System Packages ===",
-        "echo 'connected success'"
+        "echo 'connected success'",
+        "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\""
         ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang = "/bin/bash -e"
@@ -134,7 +135,6 @@ build {
       "lsb_release -a",
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
-      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\"",
       "sudo chown openvpnas:openvpnas /home/openvpnas; echo \"exit $?\"",
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections; echo \"exit $?\"",
       "ls -ltriah /var/cache/debconf/passwords.dat; echo \"exit $?\"",
