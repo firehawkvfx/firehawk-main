@@ -127,27 +127,52 @@ build {
   
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
-    # environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
       "export SHOWCOMMANDS=true; set -x",
       "lsb_release -a",
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
+      "sudo chown openvpnas:openvpnas /home/openvpnas",
       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
       "ls -ltriah /var/cache/debconf/passwords.dat",
-      "ls -ltriah /var/cache/",
-      "sudo apt -y install dialog || exit 0", # supressing exit code.
-      "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q", 
+      "ls -ltriah /var/cache/"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "sudo apt -y install dialog || exit 0" # supressing exit code.
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
+      "DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q"
+    ]
+  }
+
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [
       # "DEBIAN_FRONTEND=noninteractive sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
       # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get -y update",
+      # "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
       "ls -ltriah /home",
-      "sudo chown openvpnas:openvpnas /home/openvpnas", # This must be a bug with 2.8.5 open vpn ami.
       "sudo fuser -v /var/cache/debconf/config.dat" # get info if anything else has a lock on this file
     ]
-    only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
   # provisioner "shell" {
