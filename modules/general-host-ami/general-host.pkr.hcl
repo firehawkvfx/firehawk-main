@@ -80,11 +80,11 @@ source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and 
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   # user_data = "admin_user=openvpnas; admin_pw=openvpnas"
-	user_data = << EOF
-          #! /bin/bash
-          admin_user=openvpnas
-          admin_pw=openvpnas
-	EOF
+  user_data = <<EOF
+#! /bin/bash
+admin_user=openvpnas
+admin_pw=openvpnas
+EOF
   # user_data_file  = "${local.template_dir}/openvpn_user_data.sh"
   source_ami_filter {
     filters = {
