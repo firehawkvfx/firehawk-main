@@ -127,13 +127,17 @@ build {
   
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
-    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    # environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
       "export SHOWCOMMANDS=true; set -x",
       "lsb_release -a",
       "ps aux | grep [a]pt",
       "sudo cat /etc/systemd/system.conf",
       "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true",
+      "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections",
+      "ls -ltriah /var/cache/debconf/passwords.dat",
+      "ls -ltriah /var/cache/",
+      "sudo apt-get install -y -q", 
       "sudo apt-get -y install dialog apt-utils", # may fix error with debconf: unable to initialize frontend: Dialog
       # "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", # may fix error with debconf: unable to initialize frontend: Dialog
       # "sudo apt-get install -y -q", # may fix error with debconf: unable to initialize frontend: Dialog
