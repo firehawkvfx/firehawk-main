@@ -158,9 +158,9 @@ build {
 
   provisioner "shell" {
     only           = [
-    "source.amazon-ebs.ubuntu16-ami",
-    "source.amazon-ebs.ubuntu18-ami",
-    "source.amazon-ebs.openvpn-server-ami"
+    "amazon-ebs.ubuntu16-ami",
+    "amazon-ebs.ubuntu18-ami",
+    "amazon-ebs.openvpn-server-ami"
     ]
     inline         = [
         "unset HISTFILE",
@@ -193,14 +193,14 @@ build {
     ]
   }
 
-  provisioner "shell" {
-    inline_shebang = "/bin/bash -e"
-    only           = ["source.amazon-ebs.openvpn-server-ami"]
-    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
-    inline         = [
-      "sudo apt-get -y update"
-    ]
-  }
+  # provisioner "shell" {
+  #   inline_shebang = "/bin/bash -e"
+  #   only           = ["amazon-ebs.openvpn-server-ami"]
+  #   environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+  #   inline         = [
+  #     "sudo apt-get -y update"
+  #   ]
+  # }
 
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
@@ -227,9 +227,9 @@ build {
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
     only           = [ 
-      "source.amazon-ebs.ubuntu16-ami",
-      "source.amazon-ebs.ubuntu18-ami",
-      "source.amazon-ebs.openvpn-server-ami"
+      "amazon-ebs.ubuntu16-ami",
+      "amazon-ebs.ubuntu18-ami",
+      "amazon-ebs.openvpn-server-ami"
       ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
@@ -241,9 +241,9 @@ build {
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
     only           = [ 
-      "source.amazon-ebs.ubuntu16-ami",
-      "source.amazon-ebs.ubuntu18-ami",
-      "source.amazon-ebs.openvpn-server-ami"
+      "amazon-ebs.ubuntu16-ami",
+      "amazon-ebs.ubuntu18-ami",
+      "amazon-ebs.openvpn-server-ami"
       ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
@@ -254,9 +254,9 @@ build {
   provisioner "shell" {
     inline_shebang = "/bin/bash -e"
     only           = [ 
-      "source.amazon-ebs.ubuntu16-ami",
-      "source.amazon-ebs.ubuntu18-ami",
-      "source.amazon-ebs.openvpn-server-ami"
+      "amazon-ebs.ubuntu16-ami",
+      "amazon-ebs.ubuntu18-ami",
+      "amazon-ebs.openvpn-server-ami"
       ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [ 
@@ -305,18 +305,18 @@ build {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
     inline_shebang = "/bin/bash -e"
     only           = [ 
-      "source.amazon-ebs.ubuntu16-ami",
-      "source.amazon-ebs.ubuntu18-ami",
-      "source.amazon-ebs.openvpn-server-ami"
+      "amazon-ebs.ubuntu16-ami",
+      "amazon-ebs.ubuntu18-ami",
+      "amazon-ebs.openvpn-server-ami"
       ]
   }
   provisioner "shell" {
     inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
     inline_shebang = "/bin/bash -e"
     only           = [ 
-      "source.amazon-ebs.ubuntu16-ami",
-      "source.amazon-ebs.ubuntu18-ami",
-      "source.amazon-ebs.openvpn-server-ami"
+      "amazon-ebs.ubuntu16-ami",
+      "amazon-ebs.ubuntu18-ami",
+      "amazon-ebs.openvpn-server-ami"
       ]
   }
   provisioner "shell" {
@@ -332,9 +332,9 @@ build {
       ]
     inline_shebang = "/bin/bash -e"
     only           = [ 
-      "source.amazon-ebs.ubuntu16-ami",
-      "source.amazon-ebs.ubuntu18-ami",
-      "source.amazon-ebs.openvpn-server-ami"
+      "amazon-ebs.ubuntu16-ami",
+      "amazon-ebs.ubuntu18-ami",
+      "amazon-ebs.openvpn-server-ami"
     ]
   }
   provisioner "shell" {
