@@ -83,7 +83,7 @@ source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and 
   user_data = <<EOF
 #! /bin/bash
 admin_user=openvpnas
-admin_pw=openvpnas
+admin_pw=''
 EOF
   # user_data_file  = "${local.template_dir}/openvpn_user_data.sh"
   source_ami_filter {
@@ -104,9 +104,13 @@ build {
     ]
   provisioner "shell" {
     inline         = ["echo 'connected success'"]
-    # inline_shebang = "/bin/bash -e"
+    inline_shebang = "/bin/bash -e"
   }
 
+  provisioner "shell" {
+    inline         = ["sudo echo 'sudo echo test'"] # verify sudo is available
+    inline_shebang = "/bin/bash -e"
+  }
   provisioner "shell" {
     inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
     inline_shebang = "/bin/bash -e"
