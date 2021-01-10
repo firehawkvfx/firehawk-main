@@ -295,7 +295,7 @@ build {
     source      = "${var.ca_public_key_path}"
   }
 
-  ### This block will install Vault Agent
+  ### This block will install Vault and Consul Agent
 
   provisioner "shell" { # Vault client probably wont be installed on bastions in future, but most hosts that will authenticate will require it.
     inline = [
