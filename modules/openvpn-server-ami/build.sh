@@ -4,6 +4,12 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 
+manifest="$($SCRIPTDIR/base-ami/manifest.json)"
+if [[ -f $manifest ]]; then
+    export PKR_VAR_openvpn_server_base_ami="$(jq -r '.builds[] | select(.name == "openvpn-server-base-ami") | .artifact_id' $manifest | tail -1 | cut -d ":" -f2)"
+    echo "Found openvpn_server_base_ami in manifest: PKR_VAR_openvpn_server_base_ami=$PKR_VAR_openvpn_server_base_ami"
+fi
+
 # Packer Vars
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
 
