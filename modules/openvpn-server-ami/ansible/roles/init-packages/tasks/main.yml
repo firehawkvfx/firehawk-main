@@ -13,18 +13,6 @@
   debug:
     var: ansible_distribution
 
-- name: fping
-  apt:
-    name:
-    - fping # used to ping with max reytries up to a certain time to test open vpn.
-    state: present
-    update_cache: yes
-  register: install_package
-  until: install_package is not failed
-  retries: 5
-  become: true
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
 - name: install mkpasswd, pip, pexpect, passlib, fping
   package:
     name:
@@ -41,6 +29,20 @@
     - dnsmasq # For open vpn server,
     state: present
   become: true
+  vars:
+    ansible_python_interpreter: "{{ package_python_interpreter }}"
+
+- name: fping
+  apt:
+    name:
+    - fping # used to ping with max reytries up to a certain time to test open vpn.
+    state: present
+    update_cache: yes
+  register: install_package
+  until: install_package is not failed
+  retries: 5
+  become: true
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
   vars:
     ansible_python_interpreter: "{{ package_python_interpreter }}"
 

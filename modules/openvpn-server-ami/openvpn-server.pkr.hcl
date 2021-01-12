@@ -366,6 +366,15 @@ build {
     # only              = ["amazon-ebs.centos7-ami"]
   }
 
+
+  provisioner "shell" {
+    inline = [
+      "sudo apt install -y fping"
+    ]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline_shebang   = "/bin/bash -e"
+  }
+
   # gateway vars
   # vpn_address=${local.vpn_address} private_domain_name=${var.private_domain_name} 
   # private_ip=${local.private_ip} 
@@ -375,9 +384,9 @@ build {
 
   provisioner "ansible" {
     extra_arguments = [
-      "-v",
+      "-vvvv",
       "--extra-vars",
-      "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${local.client_network} client_netmask_bits=${local.client_netmask_bits}",
+      "ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${local.client_network} client_netmask_bits=${local.client_netmask_bits}",
       "--skip-tags",
       "user_access"
     ]
