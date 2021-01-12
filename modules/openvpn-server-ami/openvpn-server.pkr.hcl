@@ -77,8 +77,8 @@ locals {
   public_subnet1      = vault("/${var.resourcetier}/data/network/public_subnet1", "value")
   remote_subnet_cidr  = vault("/${var.resourcetier}/data/network/remote_subnet_cidr", "value")
   vpn_cidr            = vault("/${var.resourcetier}/data/network/vpn_cidr", "value")
-  client_network      = element(split("/", local.vpn_cidr), 0)
-  client_netmask_bits = element(split("/", local.vpn_cidr), 1)
+  client_network      = element( split("/", vault("/${var.resourcetier}/data/network/vpn_cidr", "value") ), 0 )
+  client_netmask_bits = element( split("/", vault("/${var.resourcetier}/data/network/vpn_cidr", "value") ), 1 )
 }
 
 source "amazon-ebs" "openvpn-server-ami" {
