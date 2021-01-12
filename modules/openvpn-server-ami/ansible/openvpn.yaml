@@ -26,10 +26,14 @@
 #   - assert:
 #       that: hosts_confirmed | default(false) # A method that verifies the host was reached.
 
-- hosts: "{{ variable_host | default('openvpnip_private') }}"
-  remote_user: openvpnas
+- hosts: "{{ variable_host | default('ansible_control') }}"
+  remote_user: "{{ variable_connect_as_user | default(variable_user) }}"
   gather_facts: "{{ variable_gather_facts | default('false') }}"
   become: true
+
+  vars:
+    variable_user: openvpnas
+    variable_become_user: "{{ variable_user }}"
 
   # vars:
     # ansible_python_interpreter: "/usr/bin/python3"
@@ -39,12 +43,14 @@
       debug:
         msg: "test vpn connection"
 
-- hosts: "{{ variable_host | default('openvpnip_private') }}"
-  remote_user: openvpnas
+- hosts: "{{ variable_host | default('ansible_control') }}"
+  remote_user: "{{ variable_connect_as_user | default(variable_user) }}"
   gather_facts: "{{ variable_gather_facts | default('false') }}"
   become: true
 
   vars:
+    variable_user: openvpnas
+    variable_become_user: "{{ variable_user }}"
     openvpn_user: openvpnas
     # ansible_python_interpreter: "/usr/bin/python3"
     # my_password: "{{ openvpn_user_pw | string | password_hash('sha512') }}"
