@@ -56,13 +56,11 @@ source "amazon-ebs" "openvpn-server-base-ami" { # Open vpn server requires vault
   ami_name        = "firehawk-openvpn-server-base-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  # user_data = "admin_user=openvpnas; admin_pw=openvpnas"
   user_data = <<EOF
 #! /bin/bash
 admin_user=openvpnas
 admin_pw=''
 EOF
-  # user_data_file  = "${local.template_dir}/openvpn_user_data.sh"
   source_ami_filter {
     filters = {
       description  = "OpenVPN Access Server 2.8.3 publisher image from https://www.openvpn.net/."
