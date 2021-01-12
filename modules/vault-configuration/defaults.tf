@@ -32,7 +32,13 @@ locals {
       "description": "The group id (GID) for the syscontrol group",
       "default": "9003",
       "example_1": "9003",
-    }
+    },
+    "network/remote_subnet_cidr" = {
+      "name" = "remote_subnet_cidr",
+      "description": "This is the IP range of your subnet onsite that the firehawkserver vm will reside in, and that other onsite nodes reside in.  The below example (in CIDR notation) would denote the range 192.168.29.0 - 192.168.29.255",
+      "default": "",
+      "example_1": "192.168.29.0/24",
+    },
   } )
   dev = merge(local.defaults, tomap( {
     "aws/bucket_extension" = {
@@ -42,16 +48,48 @@ locals {
       "example_1": "dev.example.com",
       "example_2": "green.example.com",
       "example_3": "dev-myemail-gmail-com"
-    }
-  } ) )
-  green = merge(local.defaults, tomap( {
-    "aws/bucket_extension" = {
-      "name" = "bucket_extension",
-      "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THIS RESOURCE TIER (DEV, GREEN, BLUE). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
-      "default": "green.${var.global_bucket_extension}",
-      "example_1": "dev.example.com",
-      "example_2": "green.example.com",
-      "example_3": "dev-myemail-gmail-com"
+    },
+    "network/vpn_cidr" = {
+      "name" = "vpn_cidr",
+      "description": "Open VPN sets up DHCP in this range for every connection in the dev env to provide a unique ip on each side of the VPN for every system. Dont change this from the default for now. Reference for potential ranges https://www.arin.net/reference/research/statistics/address_filters/",
+      "default": "172.17.232.0/24",
+      "example_1": "172.17.232.0/24"
+    },
+    "network/vpc_cidr" = {
+      "name" = "vpc_cidr",
+      "description": "This is the IP range (CIDR notation) of your cloud subnet that all AWS private addresses will reside in.",
+      "default": "10.1.0.0/16",
+      "example_1": "10.1.0.0/16"
+    },
+    "network/private_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.1.1.0/24",
+      "example_1": "10.1.1.0/24"
+    },
+    "network/private_subnet2" = {
+      "name" = "private_subnet2",
+      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.1.2.0/24",
+      "example_1": "10.1.2.0/24"
+    },
+    "network/public_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.1.101.0/24",
+      "example_1": "10.1.101.0/24"
+    },
+    "network/public_subnet2" = {
+      "name" = "public_subnet2",
+      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.1.102.0/24",
+      "example_1": "10.1.102.0/24"
+    },
+    "network/private_domain" = {
+      "name" = "private_domain",
+      "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
+      "default": "dev.openfirehawk.com",
+      "example_1": "dev.openfirehawk.com"
     }
   } ) )
   blue = merge(local.defaults, tomap( {
@@ -62,6 +100,100 @@ locals {
       "example_1": "dev.example.com",
       "example_2": "green.example.com",
       "example_3": "dev-myemail-gmail-com"
+    },
+    "network/vpn_cidr" = {
+      "name" = "vpn_cidr",
+      "description": "Open VPN sets up DHCP in this range for every connection in the dev env to provide a unique ip on each side of the VPN for every system. Dont change this from the default for now. Reference for potential ranges https://www.arin.net/reference/research/statistics/address_filters/",
+      "default": "172.18.232.0/24",
+      "example_1": "172.18.232.0/24"
+    },
+    "network/vpc_cidr" = {
+      "name" = "vpc_cidr",
+      "description": "This is the IP range (CIDR notation) of your cloud subnet that all AWS private addresses will reside in.",
+      "default": "10.2.0.0/16",
+      "example_1": "10.2.0.0/16"
+    },
+    "network/private_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.2.1.0/24",
+      "example_1": "10.2.1.0/24"
+    },
+    "network/private_subnet2" = {
+      "name" = "private_subnet2",
+      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.2.2.0/24",
+      "example_1": "10.2.2.0/24"
+    },
+    "network/public_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.2.101.0/24",
+      "example_1": "10.2.101.0/24"
+    },
+    "network/public_subnet2" = {
+      "name" = "public_subnet2",
+      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.2.102.0/24",
+      "example_1": "10.2.102.0/24"
+    },
+    "network/private_domain" = {
+      "name" = "private_domain",
+      "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
+      "default": "blue.openfirehawk.com",
+      "example_1": "blue.openfirehawk.com"
+    }
+  } ) )
+  green = merge(local.defaults, tomap( {
+    "aws/bucket_extension" = {
+      "name" = "bucket_extension",
+      "description": "The extension for cloud storage used to label your S3 storage buckets.  MUST BE UNIQUE TO THIS RESOURCE TIER (DEV, GREEN, BLUE). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html",
+      "default": "green.${var.global_bucket_extension}",
+      "example_1": "dev.example.com",
+      "example_2": "green.example.com",
+      "example_3": "dev-myemail-gmail-com"
+    },
+    "network/vpn_cidr" = {
+      "name" = "vpn_cidr",
+      "description": "Open VPN sets up DHCP in this range for every connection in the dev env to provide a unique ip on each side of the VPN for every system. Dont change this from the default for now. Reference for potential ranges https://www.arin.net/reference/research/statistics/address_filters/",
+      "default": "172.19.232.0/24",
+      "example_1": "172.19.232.0/24"
+    },
+    "network/vpc_cidr" = {
+      "name" = "vpc_cidr",
+      "description": "This is the IP range (CIDR notation) of your cloud subnet that all AWS private addresses will reside in.",
+      "default": "10.3.0.0/16",
+      "example_1": "10.3.0.0/16"
+    },
+    "network/private_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.3.1.0/24",
+      "example_1": "10.3.1.0/24"
+    },
+    "network/private_subnet2" = {
+      "name" = "private_subnet2",
+      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.3.2.0/24",
+      "example_1": "10.3.2.0/24"
+    },
+    "network/public_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.3.101.0/24",
+      "example_1": "10.3.101.0/24"
+    },
+    "network/public_subnet2" = {
+      "name" = "public_subnet2",
+      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.3.102.0/24",
+      "example_1": "10.3.102.0/24"
+    },
+    "network/private_domain" = {
+      "name" = "private_domain",
+      "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
+      "default": "green.openfirehawk.com",
+      "example_1": "green.openfirehawk.com"
     }
   } ) )
   main = tomap( {
@@ -71,6 +203,48 @@ locals {
       "default" = "software.main.${var.global_bucket_extension}",
       "example_1" = "software.main.example.com",
       "example_3": "software-main-myemail-gmail-com"
-    } 
+    },
+    "network/vpn_cidr" = {
+      "name" = "vpn_cidr",
+      "description": "Open VPN sets up DHCP in this range for every connection in the dev env to provide a unique ip on each side of the VPN for every system. Dont change this from the default for now. Reference for potential ranges https://www.arin.net/reference/research/statistics/address_filters/",
+      "default": "172.20.232.0/24",
+      "example_1": "172.20.232.0/24"
+    },
+    "network/vpc_cidr" = {
+      "name" = "vpc_cidr",
+      "description": "This is the IP range (CIDR notation) of your cloud subnet that all AWS private addresses will reside in.",
+      "default": "10.4.0.0/16",
+      "example_1": "10.4.0.0/16"
+    },
+    "network/private_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.4.1.0/24",
+      "example_1": "10.4.1.0/24"
+    },
+    "network/private_subnet2" = {
+      "name" = "private_subnet2",
+      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.4.2.0/24",
+      "example_1": "10.4.2.0/24"
+    },
+    "network/public_subnet1" = {
+      "name" = "private_subnet1",
+      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.4.101.0/24",
+      "example_1": "10.4.101.0/24"
+    },
+    "network/public_subnet2" = {
+      "name" = "public_subnet2",
+      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.4.102.0/24",
+      "example_1": "10.4.102.0/24"
+    },
+    "network/private_domain" = {
+      "name" = "private_domain",
+      "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
+      "default": "main.openfirehawk.com",
+      "example_1": "main.openfirehawk.com"
+    }
   } )
 }

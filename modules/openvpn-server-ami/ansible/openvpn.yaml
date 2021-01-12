@@ -3,28 +3,28 @@
 # to update routes only for the deployuser host, execute 
 # ansible-playbook -i ansible/inventory ansible/openvpn.yaml -v --extra-vars "" --tags add-routes
 
-- hosts: firehawkgateway
-  remote_user: deployuser
-  gather_facts: "{{ variable_gather_facts | default('false') }}"
-  become: true
+# - hosts: firehawkgateway
+#   remote_user: deployuser
+#   gather_facts: "{{ variable_gather_facts | default('false') }}"
+#   become: true
 
-  tasks:
-  - name: Test connection.
-    debug:
-      msg: "test connection"
+#   tasks:
+#   - name: Test connection.
+#     debug:
+#       msg: "test connection"
 
-  - set_fact:
-      hosts_confirmed: true
-    delegate_to: localhost
-    delegate_facts: true
+#   - set_fact:
+#       hosts_confirmed: true
+#     delegate_to: localhost
+#     delegate_facts: true
 
-- name: Verify hosts
-  hosts: localhost
-  gather_facts: no
-  tasks:
+# - name: Verify hosts
+#   hosts: localhost
+#   gather_facts: no
+#   tasks:
 
-  - assert:
-      that: hosts_confirmed | default(false) # A method that verifies the host was reached.
+#   - assert:
+#       that: hosts_confirmed | default(false) # A method that verifies the host was reached.
 
 - hosts: "{{ variable_host | default('openvpnip_private') }}"
   remote_user: openvpnas
@@ -45,8 +45,9 @@
   become: true
 
   vars:
+    openvpn_user: openvpnas
     # ansible_python_interpreter: "/usr/bin/python3"
-    my_password: "{{ openvpn_user_pw | string | password_hash('sha512') }}"
+    # my_password: "{{ openvpn_user_pw | string | password_hash('sha512') }}"
 
   # install pexpect and its dependencies to use passwd
   roles:
@@ -64,12 +65,12 @@
       debug:
         var: getent_passwd[ openvpn_user ]
 
-    - name: "Set login user password - {{ openvpn_user }}"
-      user:
-        name: "{{ openvpn_user }}"
-        password: "{{ my_password }}"
-      when: getent_passwd[ openvpn_user ] is defined
-      no_log: true
+    # - name: "Set login user password - {{ openvpn_user }}"
+    #   user:
+    #     name: "{{ openvpn_user }}"
+    #     password: "{{ my_password }}"
+    #   when: getent_passwd[ openvpn_user ] is defined
+    #   no_log: true
 
 - hosts: "{{ variable_host | default('openvpnip_private') }}"
   remote_user: openvpnas
@@ -152,17 +153,51 @@
   roles:
     - role: openvpn
 
-- hosts: firehawkgateway
-  remote_user: deployuser
+- hosts: "{{ variable_host | default('openvpnip_private') }}"
+  remote_user: openvpnas
   gather_facts: "{{ variable_gather_facts | default('false') }}"
   become: true
-
+  any_errors_fatal: true
+  
   vars:
-    client_network: None
-    client_netmask_bits: None
+    remove_file: true
+    certificates_location: /usr/local/openvpn_as/scripts/seperate
+    secrets:
+      secret1:
+        location: "{{ certificates_location }}/ca.crt"
+        target: "{{ certificates_location }}/ca.crt"
+      secret2:
+        location: "{{ certificates_location }}/client.crt"
+        target: "{{ certificates_location }}/client.crt"
+      secret3:
+        location: "{{ certificates_location }}/client.key"
+        target: "{{ certificates_location }}/client.key"
+      secret4:
+        location: "{{ certificates_location }}/ta.key"
+        target: "{{ certificates_location }}/ta.key"
+      secret5:
+        location: "{{ certificates_location }}/openvpn.conf"
+        target: "{{ certificates_location }}/openvpn.conf"
+        
+  tasks:
+  - name: firehawkvfx.core.vault_store_secret
+    with_items:
+      - "{{ lookup('dict', secrets) }}"
+    include_role:
+      name: firehawkvfx.core.vault_store_secret # you must provide resourcetier at the commandline to seperate the namespace for different environments
 
-  roles:
-  - role: openvpn_gateway
+
+# - hosts: firehawkgateway
+#   remote_user: deployuser
+#   gather_facts: "{{ variable_gather_facts | default('false') }}"
+#   become: true
+
+#   vars:
+#     client_network: None
+#     client_netmask_bits: None
+
+#   roles:
+#   - role: openvpn_gateway
 
 # see manual dns https://www.tecmint.com/set-permanent-dns-nameservers-in-ubuntu-debian/
 

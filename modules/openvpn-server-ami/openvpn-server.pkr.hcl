@@ -73,6 +73,10 @@ variable "openvpn_server_base_ami" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
+  private_subnet1 = vault("/${var.resourcetier}/data/network/private_subnet1", "value")
+  public_subnet1 = vault("/${var.resourcetier}/data/network/public_subnet1", "value")
+  remote_subnet_cidr = vault("/${var.resourcetier}/data/network/remote_subnet_cidr", "value")
+  vpn_cidr = vault("/${var.resourcetier}/data/network/vpn_cidr", "value")
 }
 
 source "amazon-ebs" "openvpn-server-ami" {
@@ -358,6 +362,29 @@ build {
     expect_disconnect = true
     inline            = ["sudo reboot"]
     # only              = ["amazon-ebs.centos7-ami"]
+  }
+
+# gateway vars
+# vpn_address=${local.vpn_address} private_domain_name=${var.private_domain_name} 
+# private_ip=${local.private_ip} 
+
+# server vars, try to handle this with user data instead.
+
+  
+  provisioner "ansible" {
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${element(split('/', local.vpn_cidr), 0)} client_netmask_bits=${element(split('/', local.vpn_cidr), 1)}",
+      "--skip-tags",
+      "user_access"
+    ]
+    playbook_file = "./ansible/openvpn.yaml"
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
   post-processor "manifest" {
