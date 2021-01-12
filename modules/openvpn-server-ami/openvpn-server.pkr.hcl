@@ -77,6 +77,8 @@ locals {
   public_subnet1 = vault("/${var.resourcetier}/data/network/public_subnet1", "value")
   remote_subnet_cidr = vault("/${var.resourcetier}/data/network/remote_subnet_cidr", "value")
   vpn_cidr = vault("/${var.resourcetier}/data/network/vpn_cidr", "value")
+  client_network = element(split("/", local.vpn_cidr), 0)
+  client_netmask_bits= element(split("/", local.vpn_cidr), 1)
 }
 
 source "amazon-ebs" "openvpn-server-ami" {
@@ -375,7 +377,7 @@ build {
     extra_arguments = [
       "-v",
       "--extra-vars",
-      "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${element(split(\"/\", local.vpn_cidr), 0)} client_netmask_bits=${element(split(\"/\", local.vpn_cidr), 1)}",
+      "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${local.client_network} client_netmask_bits=${local.client_netmask_bits}",
       "--skip-tags",
       "user_access"
     ]
