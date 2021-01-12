@@ -13,20 +13,20 @@
   debug:
     var: ansible_distribution
 
-- name: install mkpasswd, pip, pexpect, passlib, fping
+- name: install mkpasswd, pip, pexpect, passlib, fping.  some of these may need to be reenabled with care.
   package:
     name:
-    - python-pip
-    - python-apt
-    - python-netaddr # For jinja ip address filtering 
+    # - python-pip
+    # - python-apt
+    # - python-netaddr # For jinja ip address filtering 
     - whois
-    - python-passlib
+    # - python-passlib
     - zip
     - rng-tools
     - gpgv2
     - jq
     - inotify-tools # Used to catch existance of interrupt file https://stackoverflow.com/questions/18893283/how-to-proceed-in-the-script-if-file-exists
-    - dnsmasq # For open vpn server,
+    # - dnsmasq # For open vpn server,
     state: present
   become: true
   vars:
