@@ -136,6 +136,22 @@ build {
     ]
   }
 
+  provisioner "shell" {
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline         = [ 
+      "sudo apt-get -y install python3",
+      "sudo apt-get -y install python-apt",
+      "sudo apt install -y python3-pip",
+      "python3 -m pip install --upgrade pip",
+      "python3 -m pip install boto3",
+      "python3 -m pip --version",
+      "sudo apt-get install -y git",
+      "echo '...Finished bootstrapping'"
+    ]
+  }
+
   post-processor "manifest" {
       output = "${local.template_dir}/manifest.json"
       strip_path = true
