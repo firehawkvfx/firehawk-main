@@ -14,4 +14,4 @@ exit_if_error() {
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-terraform apply "tfplan" -input=false
+terraform apply -input=false tfplan
