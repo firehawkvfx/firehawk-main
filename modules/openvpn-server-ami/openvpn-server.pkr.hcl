@@ -386,6 +386,28 @@ build {
     extra_arguments = [
       "-vvvv",
       "--extra-vars",
+      "ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
+      "--skip-tags",
+      "user_access"
+    ]
+    playbook_file    = "./ansible/init-packages.yaml"
+    collections_path = "./ansible/collections"
+    roles_path       = "./ansible/roles"
+    ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
+    galaxy_file      = "./requirements.yml"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+  }
+
+  provisioner "shell" {
+    expect_disconnect = true
+    inline            = ["sudo reboot"]
+    # only              = ["amazon-ebs.centos7-ami"]
+  }
+
+  provisioner "ansible" {
+    extra_arguments = [
+      "-vvvv",
+      "--extra-vars",
       "ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${local.client_network} client_netmask_bits=${local.client_netmask_bits}",
       "--skip-tags",
       "user_access"
