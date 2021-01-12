@@ -3,7 +3,7 @@
 # The base-ami is used to build this ami.
 
 variable "aws_region" {
-  type = string
+  type    = string
   default = null
 }
 
@@ -13,7 +13,7 @@ variable "ca_public_key_path" {
 }
 
 variable "resourcetier" {
-  type    = string
+  type = string
 }
 
 variable "consul_download_url" {
@@ -47,7 +47,7 @@ variable "vault_version" {
 }
 
 variable "vpc_id" {
-  type    = string
+  type = string
 }
 
 variable "security_group_id" {
@@ -55,7 +55,7 @@ variable "security_group_id" {
 }
 
 variable "subnet_id" {
-  type    = string
+  type = string
 }
 
 variable "consul_cluster_tag_key" {
@@ -71,32 +71,32 @@ variable "openvpn_server_base_ami" {
 }
 
 locals {
-  timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
-  template_dir = path.root
-  private_subnet1 = vault("/${var.resourcetier}/data/network/private_subnet1", "value")
-  public_subnet1 = vault("/${var.resourcetier}/data/network/public_subnet1", "value")
-  remote_subnet_cidr = vault("/${var.resourcetier}/data/network/remote_subnet_cidr", "value")
-  vpn_cidr = vault("/${var.resourcetier}/data/network/vpn_cidr", "value")
-  client_network = element(split("/", local.vpn_cidr), 0)
-  client_netmask_bits= element(split("/", local.vpn_cidr), 1)
+  timestamp           = regex_replace(timestamp(), "[- TZ:]", "")
+  template_dir        = path.root
+  private_subnet1     = vault("/${var.resourcetier}/data/network/private_subnet1", "value")
+  public_subnet1      = vault("/${var.resourcetier}/data/network/public_subnet1", "value")
+  remote_subnet_cidr  = vault("/${var.resourcetier}/data/network/remote_subnet_cidr", "value")
+  vpn_cidr            = vault("/${var.resourcetier}/data/network/vpn_cidr", "value")
+  client_network      = element(split("/", local.vpn_cidr), 0)
+  client_netmask_bits = element(split("/", local.vpn_cidr), 1)
 }
 
 source "amazon-ebs" "openvpn-server-ami" {
-  ami_description = "An Open VPN Access Server AMI configured for Firehawk"
-  ami_name        = "firehawk-openvpn-server-${local.timestamp}-{{uuid}}"
-  instance_type   = "t2.micro"
-  region          = "${var.aws_region}"
+  ami_description      = "An Open VPN Access Server AMI configured for Firehawk"
+  ami_name             = "firehawk-openvpn-server-${local.timestamp}-{{uuid}}"
+  instance_type        = "t2.micro"
+  region               = "${var.aws_region}"
   iam_instance_profile = "provisioner_instance_role_pipeid0"
-  source_ami      = "${var.openvpn_server_base_ami}"
-  user_data = <<EOF
+  source_ami           = "${var.openvpn_server_base_ami}"
+  user_data            = <<EOF
 #! /bin/bash
 admin_user=openvpnas
 admin_pw=''
 EOF
-  ssh_username = "openvpnas"
-  vpc_id = "${var.vpc_id}"
-  subnet_id = "${var.subnet_id}"
-  security_group_id = "${var.security_group_id}"
+  ssh_username         = "openvpnas"
+  vpc_id               = "${var.vpc_id}"
+  subnet_id            = "${var.subnet_id}"
+  security_group_id    = "${var.security_group_id}"
 }
 
 # source "amazon-ebs" "openvpn-server-ami" { # Open vpn server requires vault and consul, so we build it here as well.
@@ -125,9 +125,9 @@ EOF
 build {
   sources = [
     "source.amazon-ebs.openvpn-server-ami"
-    ]
+  ]
   provisioner "shell" {
-    inline         = [
+    inline = [
       "echo 'init success'",
       "sudo echo 'sudo echo test'",
       "unset HISTFILE",
@@ -137,11 +137,11 @@ build {
       "echo === System Packages ===",
       "echo 'Connected success. Wait for updates to finish...'", # Open VPN AMI runs apt daily update which must end before we continue.
       "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\""
-      ]
+    ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
-    inline_shebang = "/bin/bash -e"
+    inline_shebang   = "/bin/bash -e"
   }
-  
+
   # provisioner "shell" {
   #   inline_shebang = "/bin/bash -e"
   #   # only           = ["amazon-ebs.openvpn-server-ami"]
@@ -208,17 +208,17 @@ build {
     source      = "${var.ca_public_key_path}"
   }
   provisioner "shell" {
-    inline         = [
+    inline = [
       "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
       "sudo mkdir -p /opt/vault/scripts/",
       "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
       "else",
-      "sudo rm /tmp/sign-request.py", 
+      "sudo rm /tmp/sign-request.py",
       "fi",
-      "sudo mkdir -p /opt/vault/tls/", 
-      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/", 
-      "sudo chmod -R 600 /opt/vault/tls", 
-      "sudo chmod 700 /opt/vault/tls", 
+      "sudo mkdir -p /opt/vault/tls/",
+      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
+      "sudo chmod -R 600 /opt/vault/tls",
+      "sudo chmod 700 /opt/vault/tls",
       "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
     ]
     inline_shebang = "/bin/bash -e"
@@ -278,11 +278,11 @@ build {
       "--skip-tags",
       "user_access"
     ]
-    playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+    playbook_file    = "./ansible/aws_cli_ec2_install.yaml"
     collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
+    roles_path       = "./ansible/roles"
+    ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
+    galaxy_file      = "./requirements.yml"
     # only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
@@ -313,16 +313,16 @@ build {
       "else",
       " /tmp/terraform-aws-vault/modules/install-vault/install-vault --version ${var.vault_version};",
       "fi"
-      ]
+    ]
   }
 
   provisioner "shell" {
-    inline         = [
+    inline = [
       "sudo apt-get install -y git",
       "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
       "sudo apt-get install -y python-pip",
       "LC_ALL=C && sudo pip install boto3",
-      "fi"]
+    "fi"]
     inline_shebang = "/bin/bash -e"
     # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
@@ -334,7 +334,7 @@ build {
       " /tmp/terraform-aws-consul/modules/install-consul/install-consul --download-url ${var.consul_download_url};",
       "else",
       " /tmp/terraform-aws-consul/modules/install-consul/install-consul --version ${var.consul_version};",
-      "fi"]
+    "fi"]
   }
 
   provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
@@ -356,7 +356,7 @@ build {
       "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
       "sudo cat /etc/hostname",
       "sudo cat /etc/hosts"
-      ]
+    ]
     # only   = ["amazon-ebs.ubuntu18-ami"]
   }
 
@@ -366,13 +366,13 @@ build {
     # only              = ["amazon-ebs.centos7-ami"]
   }
 
-# gateway vars
-# vpn_address=${local.vpn_address} private_domain_name=${var.private_domain_name} 
-# private_ip=${local.private_ip} 
+  # gateway vars
+  # vpn_address=${local.vpn_address} private_domain_name=${var.private_domain_name} 
+  # private_ip=${local.private_ip} 
 
-# server vars, try to handle this with user data instead.
+  # server vars, try to handle this with user data instead.
 
-  
+
   provisioner "ansible" {
     extra_arguments = [
       "-v",
@@ -381,19 +381,19 @@ build {
       "--skip-tags",
       "user_access"
     ]
-    playbook_file = "./ansible/openvpn.yaml"
+    playbook_file    = "./ansible/openvpn.yaml"
     collections_path = "./ansible/collections"
-    roles_path = "./ansible/roles"
-    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
-    galaxy_file = "./requirements.yml"
+    roles_path       = "./ansible/roles"
+    ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
+    galaxy_file      = "./requirements.yml"
     # only           = ["amazon-ebs.openvpn-server-ami"]
   }
 
   post-processor "manifest" {
-      output = "${local.template_dir}/manifest.json"
-      strip_path = true
-      custom_data = {
-        timestamp = "${local.timestamp}"
-      }
+    output     = "${local.template_dir}/manifest.json"
+    strip_path = true
+    custom_data = {
+      timestamp = "${local.timestamp}"
+    }
   }
 }
