@@ -367,9 +367,17 @@ build {
   }
 
 
-  provisioner "shell" {
+  provisioner "shell" { # We install with bash instead of ansible due to some permissions and connections issues, probably to do with ansible tmp dir on the official open vpn AMI.
     inline = [
-      "sudo apt install -y fping"
+      "sudo apt install -y fping",
+      "python3 -m pip install apt",
+      "python3 -m pip install netaddr",
+      "python3 -m pip install passlib",
+      "python3 -m pip install requests",
+      "python3 -m pip install pexpect",
+      "sudo apt-get install -y whois zip rng-tools gpgv2 jq nfs-common",
+      "sudo apt-get install -y inotify-tools", # Used to catch existance of interrupt file https://stackoverflow.com/questions/18893283/how-to-proceed-in-the-script-if-file-exists
+      "sudo apt-get install -y dnsmasq" # not for ubuntu 18 - we now use systemd-resolvd
     ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang   = "/bin/bash -e"
@@ -382,21 +390,21 @@ build {
   # server vars, try to handle this with user data instead.
 
 
-  provisioner "ansible" {
-    extra_arguments = [
-      "-vvvv",
-      "--extra-vars",
-      "ansible_distribution=Ubuntu ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
-      "--skip-tags",
-      "user_access"
-    ]
-    playbook_file    = "./ansible/init-packages.yaml"
-    collections_path = "./ansible/collections"
-    roles_path       = "./ansible/roles"
-    ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
-    galaxy_file      = "./requirements.yml"
-    # only           = ["amazon-ebs.openvpn-server-ami"]
-  }
+  # provisioner "ansible" {
+  #   extra_arguments = [
+  #     "-vvvv",
+  #     "--extra-vars",
+  #     "ansible_distribution=Ubuntu ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   playbook_file    = "./ansible/init-packages.yaml"
+  #   collections_path = "./ansible/collections"
+  #   roles_path       = "./ansible/roles"
+  #   ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
+  #   galaxy_file      = "./requirements.yml"
+  #   # only           = ["amazon-ebs.openvpn-server-ami"]
+  # }
 
   provisioner "shell" {
     expect_disconnect = true
