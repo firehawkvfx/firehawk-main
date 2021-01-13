@@ -370,14 +370,34 @@ build {
   provisioner "shell" { # We install with bash instead of ansible due to some permissions and connections issues, probably to do with ansible tmp dir on the official open vpn AMI.
     inline = [
       "set -x; sudo apt install -y fping",
+      "sleep 60",
       # "python3 -m pip install apt",
       "set -x; python3 -m pip install netaddr",
-      "python3 -m pip install passlib",
-      "python3 -m pip install requests",
-      "python3 -m pip install pexpect",
-      "sudo apt-get install -y whois zip rng-tools gpgv2 jq nfs-common",
-      "sudo apt-get install -y inotify-tools", # Used to catch existance of interrupt file https://stackoverflow.com/questions/18893283/how-to-proceed-in-the-script-if-file-exists
-      "sudo apt-get install -y dnsmasq" # not for ubuntu 18 - we now use systemd-resolvd
+      "sleep 60",
+      "set -x; python3 -m pip install passlib",
+      "sleep 60",
+      "set -x; python3 -m pip install requests",
+      "sleep 60",
+      "set -x; python3 -m pip install pexpect",
+      "sleep 60",
+      "set -x; sudo apt-get install -y whois",
+      "sleep 60",
+      "set -x; sudo apt-get install -y zip",
+      "sleep 60",
+      "set -x; sudo apt-get install -y rng-tools ",
+      "sleep 60",
+      "set -x; sudo apt-get install -y gpgv2",
+      "sleep 60",
+      "set -x; sudo apt-get install -y jq",
+      "sleep 60",
+      "set -x; sudo apt-get install -y nfs-common",
+      "sleep 60",
+      # "set -x; sudo apt-get install -y whois zip rng-tools gpgv2 jq nfs-common",
+      # "sleep 60",
+      "set -x; sudo apt-get install -y inotify-tools", # Used to catch existance of interrupt file https://stackoverflow.com/questions/18893283/how-to-proceed-in-the-script-if-file-exists
+      "sleep 60",
+      # "set -x; sudo apt-get install -y dnsmasq", # not for ubuntu 18 - we now use systemd-resolvd
+      # "sleep 60"
     ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang   = "/bin/bash -e"
