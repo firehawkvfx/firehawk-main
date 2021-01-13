@@ -362,46 +362,47 @@ build {
 
   provisioner "shell" {
     expect_disconnect = true
-    inline            = ["sudo reboot; sleep 60"]
-    # only              = ["amazon-ebs.centos7-ami"]
-  }
-
-
-  provisioner "shell" { # We install with bash instead of ansible due to some permissions and connections issues, probably to do with ansible tmp dir on the official open vpn AMI.
-    inline = [
-      "set -x; sudo apt install -y fping",
-      "sleep 60",
-      # "python3 -m pip install apt",
-      # "set -x; python3 -m pip install netaddr",
-      # "sleep 60",
-      "set -x; python3 -m pip install passlib",
-      "sleep 60",
-      "set -x; python3 -m pip install requests",
-      "sleep 60",
-      "set -x; python3 -m pip install pexpect",
-      "sleep 60",
-      "set -x; sudo apt-get install -y whois",
-      "sleep 60",
-      "set -x; sudo apt-get install -y zip",
-      "sleep 60",
-      "set -x; sudo apt-get install -y rng-tools ",
-      "sleep 60",
-      "set -x; sudo apt-get install -y gpgv2",
-      "sleep 60",
-      "set -x; sudo apt-get install -y jq",
-      "sleep 60",
-      "set -x; sudo apt-get install -y nfs-common",
-      "sleep 60",
-      # "set -x; sudo apt-get install -y whois zip rng-tools gpgv2 jq nfs-common",
-      # "sleep 60",
-      "set -x; sudo apt-get install -y inotify-tools", # Used to catch existance of interrupt file https://stackoverflow.com/questions/18893283/how-to-proceed-in-the-script-if-file-exists
-      "sleep 60",
-      # "set -x; sudo apt-get install -y dnsmasq", # not for ubuntu 18 - we now use systemd-resolvd
-      # "sleep 60"
-    ]
+    inline            = ["set -x; sudo reboot; sleep 60"]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang   = "/bin/bash -e"
   }
+
+
+  # provisioner "shell" { # We install with bash instead of ansible due to some permissions and connections issues, probably to do with ansible tmp dir on the official open vpn AMI.
+  #   inline = [
+  #     "set -x; sudo apt install -y fping",
+  #     "sleep 60",
+  #     # "python3 -m pip install apt",
+  #     # "set -x; python3 -m pip install netaddr",
+  #     # "sleep 60",
+  #     "set -x; python3 -m pip install passlib",
+  #     "sleep 60",
+  #     "set -x; python3 -m pip install requests",
+  #     "sleep 60",
+  #     "set -x; python3 -m pip install pexpect",
+  #     "sleep 60",
+  #     "set -x; sudo apt-get install -y whois",
+  #     "sleep 60",
+  #     "set -x; sudo apt-get install -y zip",
+  #     "sleep 60",
+  #     "set -x; sudo apt-get install -y rng-tools ",
+  #     "sleep 60",
+  #     "set -x; sudo apt-get install -y gpgv2",
+  #     "sleep 60",
+  #     "set -x; sudo apt-get install -y jq",
+  #     "sleep 60",
+  #     "set -x; sudo apt-get install -y nfs-common",
+  #     "sleep 60",
+  #     # "set -x; sudo apt-get install -y whois zip rng-tools gpgv2 jq nfs-common",
+  #     # "sleep 60",
+  #     "set -x; sudo apt-get install -y inotify-tools", # Used to catch existance of interrupt file https://stackoverflow.com/questions/18893283/how-to-proceed-in-the-script-if-file-exists
+  #     "sleep 60",
+  #     # "set -x; sudo apt-get install -y dnsmasq", # not for ubuntu 18 - we now use systemd-resolvd
+  #     # "sleep 60"
+  #   ]
+  #   environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+  #   inline_shebang   = "/bin/bash -e"
+  # }
 
   # gateway vars
   # vpn_address=${local.vpn_address} private_domain_name=${var.private_domain_name} 
@@ -410,26 +411,41 @@ build {
   # server vars, try to handle this with user data instead.
 
 
-  # provisioner "ansible" {
-  #   extra_arguments = [
-  #     "-vvvv",
-  #     "--extra-vars",
-  #     "ansible_distribution=Ubuntu ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
-  #     "--skip-tags",
-  #     "user_access"
-  #   ]
-  #   playbook_file    = "./ansible/init-packages.yaml"
-  #   collections_path = "./ansible/collections"
-  #   roles_path       = "./ansible/roles"
-  #   ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
-  #   galaxy_file      = "./requirements.yml"
-  #   # only           = ["amazon-ebs.openvpn-server-ami"]
-  # }
+  provisioner "ansible" {
+    extra_arguments = [
+      "-vvvv",
+      "--extra-vars",
+      "ansible_distribution=Ubuntu ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
+      "--skip-tags",
+      "user_access"
+    ]
+    playbook_file    = "./ansible/init-packages.yaml"
+    collections_path = "./ansible/collections"
+    roles_path       = "./ansible/roles"
+    ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
+    galaxy_file      = "./requirements.yml"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+  }
 
   provisioner "shell" {
     expect_disconnect = true
     inline            = ["sudo reboot"]
     # only              = ["amazon-ebs.centos7-ami"]
+  }
+  provisioner "shell" {
+    inline = [
+      "echo 'init success'",
+      "sudo echo 'sudo echo test'",
+      "unset HISTFILE",
+      "history -cw",
+      "echo === Waiting for Cloud-Init ===",
+      "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
+      "echo === System Packages ===",
+      "echo 'Connected success. Wait for updates to finish...'", # Open VPN AMI runs apt daily update which must end before we continue.
+      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\""
+    ]
+    environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
+    inline_shebang   = "/bin/bash -e"
   }
 
   provisioner "ansible" {
