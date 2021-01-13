@@ -369,8 +369,8 @@ build {
 
   provisioner "shell" { # We install with bash instead of ansible due to some permissions and connections issues, probably to do with ansible tmp dir on the official open vpn AMI.
     inline = [
-      "sudo apt install -y fping",
-      "python3 -m pip install apt",
+      "set -x; sudo apt install -y fping",
+      # "python3 -m pip install apt",
       "python3 -m pip install netaddr",
       "python3 -m pip install passlib",
       "python3 -m pip install requests",
