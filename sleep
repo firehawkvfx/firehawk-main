@@ -13,5 +13,6 @@ terraform apply -input=false tfplan
 
 cd $SCRIPTDIR/modules/vpc
 terraform init -input=false
-terraform plan -out=tfplan -input=false -var "sleep=true"
+# terraform plan -out=tfplan -input=false -var "sleep=true"
+terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan # Stop bastion hosts.
