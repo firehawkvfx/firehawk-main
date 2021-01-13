@@ -371,7 +371,7 @@ build {
     inline = [
       "set -x; sudo apt install -y fping",
       # "python3 -m pip install apt",
-      "python3 -m pip install netaddr",
+      "set -x; python3 -m pip install netaddr",
       "python3 -m pip install passlib",
       "python3 -m pip install requests",
       "python3 -m pip install pexpect",
