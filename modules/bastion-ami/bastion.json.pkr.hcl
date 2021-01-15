@@ -143,6 +143,8 @@ build {
   }
   provisioner "shell" {
     inline         = [
+      "echo \"hostname: $(sudo hostnamectl)\"",
+      "sudo cat /etc/hostname",
       "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
       "sudo mkdir -p /opt/vault/scripts/",
       "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
