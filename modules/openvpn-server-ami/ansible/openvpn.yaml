@@ -130,8 +130,8 @@
         location: "{{ certificates_location }}/ta.key"
         target: "{{ certificates_location }}/ta.key"
       secret5:
-        location: "{{ certificates_location }}/openvpn.conf"
-        target: "{{ certificates_location }}/openvpn.conf"
+        location: "{{ certificates_location }}/client.ovpn"
+        target: "{{ certificates_location }}/client.ovpn"
         
   tasks:
   - name: firehawkvfx.core.vault_store_secret

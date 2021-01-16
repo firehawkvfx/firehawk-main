@@ -51,7 +51,7 @@
       shell: |
         cd /opt/Thinkbox/DeadlineDatabase10/mongo/application/bin/
         ./{{ mongo_executable }} --sslPEMKeyPassword "avaultpassword" --eval 'printjson(db.getCollectionNames())'
-      # no_log: true
+      no_log: true
       # when: deadline_proxy_certificate_password is defined
       become: true
       retries: 5
