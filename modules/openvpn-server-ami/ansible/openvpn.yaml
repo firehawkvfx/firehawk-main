@@ -107,38 +107,38 @@
   roles:
     - role: openvpn
 
-# - hosts: "{{ variable_host | default('openvpnip_private') }}"
-#   remote_user: openvpnas
-#   gather_facts: "{{ variable_gather_facts | default('false') }}"
-#   become: true
-#   any_errors_fatal: true
+- hosts: "{{ variable_host | default('openvpnip_private') }}"
+  remote_user: openvpnas
+  gather_facts: "{{ variable_gather_facts | default('false') }}"
+  become: true
+  any_errors_fatal: true
   
-#   vars:
-#     remove_file: true
-#     certificates_location: /usr/local/openvpn_as/scripts/seperate
-#     secrets:
-#       secret1:
-#         location: "{{ certificates_location }}/ca.crt"
-#         target: "{{ certificates_location }}/ca.crt"
-#       secret2:
-#         location: "{{ certificates_location }}/client.crt"
-#         target: "{{ certificates_location }}/client.crt"
-#       secret3:
-#         location: "{{ certificates_location }}/client.key"
-#         target: "{{ certificates_location }}/client.key"
-#       secret4:
-#         location: "{{ certificates_location }}/ta.key"
-#         target: "{{ certificates_location }}/ta.key"
-#       secret5:
-#         location: "{{ certificates_location }}/openvpn.conf"
-#         target: "{{ certificates_location }}/openvpn.conf"
+  vars:
+    remove_file: true
+    certificates_location: /usr/local/openvpn_as/scripts/seperate
+    secrets:
+      secret1:
+        location: "{{ certificates_location }}/ca.crt"
+        target: "{{ certificates_location }}/ca.crt"
+      secret2:
+        location: "{{ certificates_location }}/client.crt"
+        target: "{{ certificates_location }}/client.crt"
+      secret3:
+        location: "{{ certificates_location }}/client.key"
+        target: "{{ certificates_location }}/client.key"
+      secret4:
+        location: "{{ certificates_location }}/ta.key"
+        target: "{{ certificates_location }}/ta.key"
+      secret5:
+        location: "{{ certificates_location }}/openvpn.conf"
+        target: "{{ certificates_location }}/openvpn.conf"
         
-#   tasks:
-#   - name: firehawkvfx.core.vault_store_secret
-#     with_items:
-#       - "{{ lookup('dict', secrets) }}"
-#     include_role:
-#       name: firehawkvfx.core.vault_store_secret # you must provide resourcetier at the commandline to seperate the namespace for different environments
+  tasks:
+  - name: firehawkvfx.core.vault_store_secret
+    with_items:
+      - "{{ lookup('dict', secrets) }}"
+    include_role:
+      name: firehawkvfx.core.vault_store_secret # you must provide resourcetier at the commandline to seperate the namespace for different environments
 
 
 # - hosts: firehawkgateway
