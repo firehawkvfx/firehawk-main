@@ -331,9 +331,12 @@ build {
     inline = [
       # "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config", # ubuntu requires a fix for dns to forward lookups outside of consul domain to 127.0.0.53
       "set -x; sudo cat /etc/resolv.conf",
-      "sudo sed -i \"s/#DNS=/DNS=127.0.0.1 127.0.0.53/g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
+      # "sudo sed -i \"s/#DNS=/DNS=127.0.0.1 127.0.0.53/g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
+      # "sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
+      # "sudo sed -i \"s/#FallbackDNS=/FallbackDNS=127.0.0.53/g\" /etc/systemd/resolved.conf",
+      # "sudo sed -i \"s/#DNS=/DNS=127.0.0.1 127.0.0.53/g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
       "sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
-      "sudo sed -i \"s/#FallbackDNS=/FallbackDNS=127.0.0.53/g\" /etc/systemd/resolved.conf",
+      # "sudo sed -i \"s/#FallbackDNS=/FallbackDNS=127.0.0.53/g\" /etc/systemd/resolved.conf",
       "set -x; sudo cat /etc/systemd/resolved.conf",
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved --consul-ip \"127.0.0.1 127.0.0.53\"",
       "set -x; sudo cat /etc/systemd/resolved.conf",
