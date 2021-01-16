@@ -196,7 +196,7 @@ locals {
       "example_1": "green.openfirehawk.com"
     }
   } ) )
-  main = tomap( {
+  main = merge(local.defaults, tomap( {
     "aws/installers_bucket" = {
       "name" = "installers_bucket",
       "description" = "The S3 bucket name in the main account to store installers and software for all your AWS accounts.  The name must be globally unique.",
