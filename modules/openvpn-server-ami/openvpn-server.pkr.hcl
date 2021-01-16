@@ -362,21 +362,18 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
+      "set -x; sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf",
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
+      "set -x; sudo cat /etc/systemd/resolved.conf",
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
-      "set -x; sudo systemctl daemon-reload",
-      "set -x; sudo systemctl restart systemd-resolved",
-
       "set -x; consul members list",
       "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
+      # test=$(ls -A); if [[ $? != 0 ]]; then; echo "Command failed."; fi
       "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
-      "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check local host will resolve vault
+      "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
       "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check default lookup will resolve vault
-      "echo '\nis the host name in /etc/hostname and /etc/hosts ?'",
-      "sudo cat /etc/hostname",
-      "sudo cat /etc/hosts"
       ]
   }
 
