@@ -10,8 +10,37 @@ path "dev/*"
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-
 path "dev/data/user"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "green/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "green/data/user"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/data/user"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/data/user"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
