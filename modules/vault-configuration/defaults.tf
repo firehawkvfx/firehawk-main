@@ -246,5 +246,5 @@ locals {
       "default": "main.openfirehawk.com",
       "example_1": "main.openfirehawk.com"
     }
-  } )
+  } ) )
 }
