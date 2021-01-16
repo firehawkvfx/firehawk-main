@@ -332,7 +332,7 @@ build {
       "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config", # ubuntu requires a fix for dns to forward lookups outside of consul domain to 127.0.0.53
       # "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
       "set -x; sudo cat /etc/resolv.conf",
-      "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
+      "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved --consul-ip=\"127.0.0.1 127.0.0.53\"",
       "set -x; sudo cat /etc/resolv.conf",
 
       "set -x; sudo systemctl daemon-reload",
@@ -347,12 +347,10 @@ build {
       "set -x; sudo systemctl restart systemd-resolved",
 
       "set -x; consul members list",
+      "set -x; dig $(hostname)", # check localhost resolve's
       "set -x; dig @127.0.0.1 vault.service.consul", # check consul will resolve vault
-      "set -x; dig vault.service.consul",
-
-      "set -x; consul members list",
-      "set -x; dig @localhost vault.service.consul", # check default lookup will resolve vault
-      "set -x; dig vault.service.consul",
+      "set -x; dig @localhost vault.service.consul", # check local host will resolve vault
+      "set -x; dig vault.service.consul", # check default lookup will resolve vault
       ]
   }
 
