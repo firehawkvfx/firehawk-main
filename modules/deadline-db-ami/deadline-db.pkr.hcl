@@ -57,7 +57,7 @@ variable "consul_cluster_tag_value" {
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
-  bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
+  # bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
   deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
   # syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
   # deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
