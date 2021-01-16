@@ -317,19 +317,8 @@ build {
       "fi"]
   }
 
-  # provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
-  #   destination = "/tmp/resolv.conf"
-  #   source      = "${local.template_dir}/resolv.conf"
-  # }
-
-  # provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
-  #   destination = "/tmp/ubuntu.json"
-  #   source      = "${local.template_dir}/ubuntu.json"
-  # }
-
   provisioner "shell" { # Generate certificates with vault.
     inline = [
-      # "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config", # ubuntu requires a fix for dns to forward lookups outside of consul domain to 127.0.0.53
       "set -x; sudo cat /etc/resolv.conf",
       # "sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
       "set -x; sudo cat /etc/systemd/resolved.conf",
