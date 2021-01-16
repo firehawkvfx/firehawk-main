@@ -114,7 +114,7 @@ build {
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       "set -x; sudo systemctl status consul.service",
-      "set -x; sleep 30; sudo systemctl status consul.service",
+      # "set -x; sleep 30; sudo systemctl status consul.service",
       "set -x; sudo systemctl restart consul.service",
       "set -x; sudo systemctl status consul.service",
       "set -x; sudo cat /etc/resolv.conf",
