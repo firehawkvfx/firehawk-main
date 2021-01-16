@@ -355,6 +355,9 @@ build {
       "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
       "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check local host will resolve vault
       "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check default lookup will resolve vault
+      "echo '\nis the host name in /etc/hostname and /etc/hosts ?'",
+      "sudo cat /etc/hostname",
+      "sudo cat /etc/hosts"
       ]
   }
 
