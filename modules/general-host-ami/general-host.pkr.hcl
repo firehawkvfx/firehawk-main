@@ -319,11 +319,7 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
-      "set -x; sudo cat /etc/resolv.conf",
-      # "sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
-      "set -x; sudo cat /etc/systemd/resolved.conf",
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
-      "set -x; sudo cat /etc/systemd/resolved.conf",
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
       
