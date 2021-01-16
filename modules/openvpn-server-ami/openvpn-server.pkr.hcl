@@ -472,7 +472,7 @@ build {
       "timeout 180 /bin/bash -c 'until stat /var/lib/cloud/instance/boot-finished &>/dev/null; do echo waiting...; sleep 6; done'",
       "echo === System Packages ===",
       "echo 'Connected success. Wait for updates to finish...'", # Open VPN AMI runs apt daily update which must end before we continue.
-      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"exit $?\""
+      "sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true; echo \"Done: exit code $?\""
     ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang   = "/bin/bash -e"
@@ -482,21 +482,21 @@ build {
     # only              = ["amazon-ebs.centos7-ami"]
   }
 
-  # provisioner "ansible" {
-  #   extra_arguments = [
-  #     "-v",
-  #     "--extra-vars",
-  #     "ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${local.client_network} client_netmask_bits=${local.client_netmask_bits}",
-  #     "--skip-tags",
-  #     "user_access"
-  #   ]
-  #   playbook_file    = "./ansible/openvpn.yaml"
-  #   collections_path = "./ansible/collections"
-  #   roles_path       = "./ansible/roles"
-  #   ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
-  #   galaxy_file      = "./requirements.yml"
-  #   # only           = ["amazon-ebs.openvpn-server-ami"]
-  # }
+  provisioner "ansible" {
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      "ansible_distribution=Ubuntu ansible_python_interpreter=/usr/bin/python package_python_interpreter=/usr/bin/python variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost private_subnet1=${local.private_subnet1} public_subnet1=${local.public_subnet1} remote_subnet_cidr=${local.remote_subnet_cidr} client_network=${local.client_network} client_netmask_bits=${local.client_netmask_bits}",
+      "--skip-tags",
+      "user_access"
+    ]
+    playbook_file    = "./ansible/openvpn.yaml"
+    collections_path = "./ansible/collections"
+    roles_path       = "./ansible/roles"
+    ansible_env_vars = ["ANSIBLE_CONFIG=ansible/ansible.cfg"]
+    galaxy_file      = "./requirements.yml"
+    # only           = ["amazon-ebs.openvpn-server-ami"]
+  }
 
   post-processor "manifest" {
     output     = "${local.template_dir}/manifest.json"
