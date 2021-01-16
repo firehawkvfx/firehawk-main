@@ -272,7 +272,7 @@ build {
 
   provisioner "ansible" {
     extra_arguments = [
-      "-vvvv",
+      "-v",
       "--extra-vars",
       "variable_host=default variable_connect_as_user=openvpnas variable_user=openvpnas variable_become_user=openvpnas delegate_host=localhost",
       "--skip-tags",
@@ -455,6 +455,11 @@ build {
   provisioner "shell" {
     expect_disconnect = true
     inline            = ["sudo reboot; sleep 60"]
+    # only              = ["amazon-ebs.centos7-ami"]
+  }
+  provisioner "shell" {
+    expect_disconnect = true
+    inline            = ["set -x; sleep 120"]
     # only              = ["amazon-ebs.centos7-ami"]
   }
   provisioner "shell" {
