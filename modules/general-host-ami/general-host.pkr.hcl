@@ -335,10 +335,9 @@ build {
       "set -x; sudo unlink /etc/resolv.conf",
       "set -x; sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
       "set -x; sudo cat /etc/resolv.conf",
+      "sudo sed -i \"s/#DNS=/DNS=127.0.0.1 127.0.0.53/g\" /etc/systemd/resolved.conf", # we do this ahead of the script. needed for ubuntu.
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved --consul-ip \"127.0.0.1 127.0.0.53\"",
       "set -x; sudo cat /etc/systemd/resolved.conf",
-      "sudo sed -i \"s/DNS=/DNS=127.0.0.1 127.0.0.53/g\" /etc/systemd/resolved.conf",
-      
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
       
@@ -352,10 +351,10 @@ build {
       "set -x; sudo systemctl restart systemd-resolved",
 
       "set -x; consul members list",
-      "set -x; dig $(hostname)", # check localhost resolve's
-      "set -x; dig @127.0.0.1 vault.service.consul", # check consul will resolve vault
-      "set -x; dig @localhost vault.service.consul", # check local host will resolve vault
-      "set -x; dig vault.service.consul", # check default lookup will resolve vault
+      "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
+      "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
+      "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check local host will resolve vault
+      "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check default lookup will resolve vault
       ]
   }
 
