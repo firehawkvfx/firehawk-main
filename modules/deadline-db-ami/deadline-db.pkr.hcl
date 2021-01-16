@@ -114,7 +114,7 @@ build {
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       "set -x; sudo cat /etc/resolv.conf",
-      "set -x; sudo systemctl status consul.service"
+      "set -x; sudo systemctl status consul.service",
       # "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
       "consul members list",
       "dig @localhost vault.service.consul",
