@@ -314,8 +314,14 @@ build {
     source      = "${local.template_dir}/resolv.conf"
   }
 
+  provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
+    destination = "/tmp/ubuntu.json"
+    source      = "${local.template_dir}/ubuntu.json"
+  }
+
   provisioner "shell" {
     inline = [
+      "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config" # ubuntu requires a fix for dns
       "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
       "set -x; sudo cat /etc/resolv.conf",
       "set -x; sudo cat /run/systemd/resolve/resolv.conf",
