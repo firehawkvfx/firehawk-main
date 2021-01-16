@@ -59,6 +59,14 @@ variable "vault_version" {
   default = "1.5.5"
 }
 
+variable "consul_cluster_tag_key" {
+  type = string
+}
+
+variable "consul_cluster_tag_value" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -319,25 +327,50 @@ build {
     source      = "${local.template_dir}/ubuntu.json"
   }
 
-  provisioner "shell" {
+  provisioner "shell" { # Generate certificates with vault.
     inline = [
-      "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config", # ubuntu requires a fix for dns
-      "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
+      "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config", # ubuntu requires a fix for dns to forward lookups outside of consul domain to 127.0.0.53
+      # "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
       "set -x; sudo cat /etc/resolv.conf",
-      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
-      "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
-      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
-      "sudo ls -ltriah /etc/resolv.conf",
-      "sudo unlink /etc/resolv.conf",
-      "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
+      "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
       "set -x; sudo cat /etc/resolv.conf",
-      "sudo systemctl daemon-reload",
-      "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
-      "sudo cat /etc/hostname",
-      "sudo cat /etc/hosts"
+
+      "set -x; sudo systemctl daemon-reload",
+      "set -x; sudo systemctl restart systemd-resolved",
+
+      "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
+      "set -x; sudo unlink /etc/resolv.conf",
+      "set -x; sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
+      "set -x; sudo cat /etc/resolv.conf",
+
+      "set -x; sudo systemctl daemon-reload",
+      "set -x; sudo systemctl restart systemd-resolved",
+
+      "set -x; consul members list",
+      "set -x; dig @localhost vault.service.consul",
+      "set -x; dig vault.service.consul",
       ]
-    # only   = ["amazon-ebs.ubuntu18-ami"]
   }
+  
+  # provisioner "shell" {
+  #   inline = [
+  #     "set -x; sudo mv /tmp/ubuntu.json /opt/consul/config", # ubuntu requires a fix for dns
+  #     "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
+  #     "set -x; sudo cat /etc/resolv.conf",
+  #     "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+  #     "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
+  #     "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+  #     "sudo ls -ltriah /etc/resolv.conf",
+  #     "sudo unlink /etc/resolv.conf",
+  #     "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
+  #     "set -x; sudo cat /etc/resolv.conf",
+  #     "sudo systemctl daemon-reload",
+  #     "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
+  #     "sudo cat /etc/hostname",
+  #     "sudo cat /etc/hosts"
+  #     ]
+  #   # only   = ["amazon-ebs.ubuntu18-ami"]
+  # }
 
   post-processor "manifest" {
       output = "${local.template_dir}/manifest.json"
