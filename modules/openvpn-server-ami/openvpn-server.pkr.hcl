@@ -386,6 +386,11 @@ build {
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang   = "/bin/bash -e"
   }
+  provisioner "shell" {
+    expect_disconnect = true
+    inline            = ["set -x; sleep 120"]
+    # only              = ["amazon-ebs.centos7-ami"]
+  }
 
 
   # provisioner "shell" { # We install with bash instead of ansible due to some permissions and connections issues, probably to do with ansible tmp dir on the official open vpn AMI.
