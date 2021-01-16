@@ -69,4 +69,4 @@ export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key" # these inputs s
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
 
-export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
+export TF_VAR_bucket_extension="dev.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
