@@ -1,5 +1,19 @@
 ---
 # tasks file for roles/deadlinercs
+
+- name: install xdg-utils
+  package:
+    name: xdg-utils
+    state: present
+  become: yes
+
+- name: Ensures dir exists to avoid log error
+  file:
+    path: "/usr/share/desktop-directories"
+    state: directory
+    owner: "{{ user_deadlineuser_name }}"
+  become: yes
+
 - name: Ensures dir exists
   file:
     path: "/home/{{ user_deadlineuser_name }}/Downloads/Deadline-{{ deadline_version }}-linux-installers/"
