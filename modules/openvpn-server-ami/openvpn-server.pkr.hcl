@@ -337,27 +337,47 @@ build {
     "fi"]
   }
 
-  provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
-    destination = "/tmp/resolv.conf"
-    source      = "${local.template_dir}/resolv.conf"
-  }
+  # provisioner "file" { # the default resolv conf may not be configured correctly since it has a ref to non FQDN hostname.  this may break again if it is being misconfigured on boot which has been observed in ubuntu 18
+  #   destination = "/tmp/resolv.conf"
+  #   source      = "${local.template_dir}/resolv.conf"
+  # }
 
-  provisioner "shell" {
+  # provisioner "shell" {
+  #   inline = [
+  #     "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
+  #     "set -x; sudo cat /etc/resolv.conf",
+  #     "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+  #     "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
+  #     "set -x; sudo cat /run/systemd/resolve/resolv.conf",
+  #     "sudo unlink /etc/resolv.conf",
+  #     "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
+  #     "set -x; sudo cat /etc/resolv.conf",
+  #     "sudo systemctl daemon-reload",
+  #     "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
+  #     "sudo cat /etc/hostname",
+  #     "sudo cat /etc/hosts"
+  #   ]
+  #   # only   = ["amazon-ebs.ubuntu18-ami"]
+  # }
+
+  provisioner "shell" { # Generate certificates with vault.
     inline = [
-      "set -x; sudo mv /tmp/resolv.conf /run/systemd/resolve/resolv.conf",
-      "set -x; sudo cat /etc/resolv.conf",
-      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
-      "/tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
-      "set -x; sudo cat /run/systemd/resolve/resolv.conf",
-      "sudo unlink /etc/resolv.conf",
-      "sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf", # resolve.conf initial link isn't configured with a sane default.
-      "set -x; sudo cat /etc/resolv.conf",
-      "sudo systemctl daemon-reload",
-      "echo 'is the host name in /etc/hostname and /etc/hosts ?'",
+      "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
+      "set -x; sudo systemctl daemon-reload",
+      "set -x; sudo systemctl restart systemd-resolved",
+      "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
+      "set -x; sudo systemctl daemon-reload",
+      "set -x; sudo systemctl restart systemd-resolved",
+
+      "set -x; consul members list",
+      "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
+      "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
+      "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check local host will resolve vault
+      "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check default lookup will resolve vault
+      "echo '\nis the host name in /etc/hostname and /etc/hosts ?'",
       "sudo cat /etc/hostname",
       "sudo cat /etc/hosts"
-    ]
-    # only   = ["amazon-ebs.ubuntu18-ami"]
+      ]
   }
 
   provisioner "shell" {

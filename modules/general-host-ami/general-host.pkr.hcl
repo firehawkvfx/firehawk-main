@@ -322,13 +322,7 @@ build {
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
-      
-      "set -x; sudo cat /etc/systemd/resolved.conf",
-      "set -x; sudo cat /etc/resolv.conf",
-
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
-      "set -x; sudo cat /etc/resolv.conf",
-
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
 
