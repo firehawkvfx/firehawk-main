@@ -6,7 +6,7 @@
     name: xdg-utils
     state: present
   become: yes
-
+  
 - name: Ensures dir exists to avoid log error
   file:
     path: "/usr/share/desktop-directories"
