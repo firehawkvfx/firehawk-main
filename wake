@@ -6,8 +6,12 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 source $SCRIPTDIR/update_vars.sh
 
 cd $SCRIPTDIR/modules/vpc
-./s3-backend-template/generate-s3-backend
-terraform init -input=false
+terraform init \
+    -input=false \
+    -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
+    -backend-config="key=main/vpc/terraform.tfstate" \
+    -backend-config="region=$AWS_DEFAULT_REGION"
+    -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
 terraform plan -out=tfplan -input=false -var "sleep=true"
 terraform apply -input=false tfplan # Ensure Main VPC exists
 
