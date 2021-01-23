@@ -14,7 +14,8 @@ if [[ -z "$TF_VAR_bucket_extension" ]]; then
 fi
 
 cd $SCRIPTDIR/modules/vpc
-terraform init \ # init the s3 backend if it doesn't exist.
+# init the s3 backend if it doesn't exist.
+terraform init \
     -input=false \
     -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
     -backend-config="key=main/vpc/terraform.tfstate" \
