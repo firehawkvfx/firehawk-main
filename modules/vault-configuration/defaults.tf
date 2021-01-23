@@ -39,6 +39,24 @@ locals {
       "default": "",
       "example_1": "192.168.29.0/24",
     },
+    "network/remote_public_ip" = {
+      "name" = "remote_public_ip",
+      "description": "Your remote public IP address you will use to access the VPN / Bastion hosts from.",
+      "default": "",
+      "example_1": "180.150.117.212",
+    },
+    "network/openvpn_admin_pw" = {
+      "name" = "openvpn_admin_pw",
+      "description": "The password for the admin to configure OpenVPN Access Server (at least 8 characters).",
+      "default": "",
+      "example_1": "MySecretAdminPassword",
+    },
+    "network/openvpn_user_pw" = {
+      "name" = "openvpn_user_pw",
+      "description": "The password for the user to establish a vpn connection (at least 8 characters).",
+      "default": "",
+      "example_1": "MySecretUserPassword",
+    }    
   } )
   dev = merge(local.defaults, tomap( {
     "aws/bucket_extension" = {
