@@ -144,6 +144,10 @@ module "vault_client_provisioner_iam" { # the arn of a role will turn into an id
   source = "../../modules/vault-client-iam"
   role_name = "ProvisionerRole"
 }
+resource "aws_iam_instance_profile" "provisioner_instance_profile" {
+  name = "ProvisionerProfile"
+  role = "ProvisionerRole"
+}
 resource "vault_aws_auth_backend_role" "provisioner" {
   backend                         = vault_auth_backend.aws.path
   token_ttl                       = 60
