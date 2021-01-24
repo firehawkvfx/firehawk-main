@@ -148,7 +148,7 @@ resource "vault_aws_auth_backend_role" "provisioner" {
   backend                         = vault_auth_backend.aws.path
   token_ttl                       = 60
   token_max_ttl                   = 120
-  token_policies                  = ["provisioner"]
+  token_policies                  = [ "provisioner" ]
   role                            = "provisioner-vault-role"
   auth_type                       = "iam"
   # bound_ami_ids                   = ["ami-8c1be5f6"]
@@ -165,6 +165,11 @@ resource "vault_aws_auth_backend_role" "provisioner" {
 module "vault_client_vpn_server_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
   source = "../../modules/vault-client-iam"
   role_name = "VPNServerRole"
+}
+
+resource "aws_iam_instance_profile" "provisioner_instance_profile" {
+  name = "VPNServerProfile"
+  role = "VPNServerRole"
 }
 resource "vault_aws_auth_backend_role" "vpn_server" {
   backend                         = vault_auth_backend.aws.path
