@@ -16,7 +16,8 @@ resource "aws_iam_role" "vault_client_role" {
 #   policy = data.aws_iam_policy_document.vault_client_assume_role.json
 # }
 
-data "aws_iam_policy_document" "vault_client_assume_role" { # Determines the services able to assume the role.  Any entity assuming this role will be able to authenticate to vault.
+data "aws_iam_policy_document" "vault_client_assume_role" { 
+  # Determines the services able to assume the role.  Any entity assuming this role will be able to authenticate to vault.
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
