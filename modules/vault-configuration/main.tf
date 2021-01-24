@@ -171,7 +171,7 @@ module "vault_client_vpn_server_iam" { # the arn of a role will turn into an id 
   role_name = "VPNServerRole"
 }
 
-resource "aws_iam_instance_profile" "provisioner_instance_profile" {
+resource "aws_iam_instance_profile" "vpn_server_instance_profile" {
   name = "VPNServerProfile"
   role = "VPNServerRole"
 }
