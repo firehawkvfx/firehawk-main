@@ -15,16 +15,15 @@ path "blue/network/*"
   capabilities = ["list", "read"]
 }
 
-
-# path "main/network/*"
-# {
-#   capabilities = ["list", "read"]
-# }
-
-path "main/*"
+path "main/network/*"
 {
-  capabilities = ["create", "read", "update", "delete", "list"]
+  capabilities = ["list", "read"]
 }
+
+# path "main/*"
+# {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
 path "main/data/user"
 {
