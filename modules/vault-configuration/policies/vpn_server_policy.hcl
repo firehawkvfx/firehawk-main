@@ -15,11 +15,14 @@ path "blue/network/*"
   capabilities = ["list", "read"]
 }
 
+path "main/data/network/*"
+{
+  capabilities = ["list", "read"]
+}
 path "main/network/*"
 {
   capabilities = ["list", "read"]
 }
-
 # path "main/*"
 # {
 #   capabilities = ["create", "read", "update", "delete", "list"]
@@ -47,6 +50,10 @@ path "blue/files/*"
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
+path "main/data/files/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
 path "main/files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
