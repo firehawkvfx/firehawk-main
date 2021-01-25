@@ -15,9 +15,20 @@ path "blue/network/*"
   capabilities = ["list", "read"]
 }
 
-path "main/network/*"
+
+# path "main/network/*"
+# {
+#   capabilities = ["list", "read"]
+# }
+
+path "main/*"
 {
-  capabilities = ["list", "read"]
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/data/user"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 # target="{{ resourcetier }}/files{{ item.value.target }}"
