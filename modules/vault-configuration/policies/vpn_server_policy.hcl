@@ -1,3 +1,14 @@
+# when using the vault_token terraform resource we need to be able to renew and revoke tokens
+
+path "auth/token/lookup-accessor" {
+  capabilities = ["update"]
+}
+
+path "auth/token/revoke-accessor" {
+  capabilities = ["update"]
+}
+
+
 # The provisioner policy is for packer instances and other automation that requires read access to vault
 
 path "dev/network/*"
