@@ -135,7 +135,8 @@ resource "vault_auth_backend" "example" {
   type = "userpass"
 }
 
-resource "vault_aws_secret_backend" "aws" { # Enable dynamic generation of aws IAM user id's and secret keys
+resource "vault_aws_secret_backend" "aws" {
+  # Enable dynamic generation of aws IAM user id's and secret keys
   path = "aws"
   region = data.aws_region.current.name
   default_lease_ttl_seconds = 600
@@ -170,6 +171,7 @@ resource "vault_aws_auth_backend_role" "vpn_server_aws_secret_based" {
   role                            = "vpn-server-vault-iam-creds-role"
   auth_type                       = "iam"
   bound_account_ids               = [ data.aws_caller_identity.current.account_id ]
+  bound_iam_role_arns             = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/vpn-server-vault-iam-creds-role"]
   # bound_iam_role_arns             = [ module.vault_client_vpn_server_iam.vault_client_role_arn ] # Only instances with this Role ARN May read vault data.
   # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
   # inferred_entity_type            = "ec2_instance"
