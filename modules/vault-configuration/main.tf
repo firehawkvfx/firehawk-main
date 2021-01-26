@@ -143,7 +143,7 @@ resource "vault_aws_secret_backend" "aws" { # Enable dynamic generation of aws I
 }
 
 resource "vault_aws_secret_backend_role" "vault_vpn_role" {
-  backend = "${vault_aws_secret_backend.aws.path}"
+  backend = vault_aws_secret_backend.aws.path
   name    = "vpn-server-vault-iam-creds-role"
   credential_type = "iam_user"
 
