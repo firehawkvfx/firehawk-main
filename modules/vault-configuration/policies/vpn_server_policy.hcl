@@ -8,6 +8,13 @@ path "auth/token/revoke-accessor" {
   capabilities = ["update"]
 }
 
+path "auth/token/renew" {
+  capabilities = ["update"]
+}
+
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}
 
 # The provisioner policy is for packer instances and other automation that requires read access to vault
 
