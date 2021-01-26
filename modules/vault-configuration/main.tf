@@ -9,10 +9,6 @@ provider "aws" {
   version = "~> 3.15.0"
 }
 
-resource "vault_auth_backend" "example" {
-  type = "userpass"
-}
-
 resource "vault_policy" "admin_policy" {
   name   = "admins"
   policy = file("policies/admin_policy.hcl")
@@ -128,13 +124,63 @@ resource "vault_auth_backend" "aws" {
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
-
-
 resource "vault_aws_auth_backend_client" "provisioner" { 
   # Sets the access key and secret key that Vault will use when making API requests on behalf of an AWS Auth Backend
   backend    = vault_auth_backend.aws.path
   iam_server_id_header_value = "vault.service.consul"
 }
+
+### Auth methods ###
+resource "vault_auth_backend" "example" {
+  type = "userpass"
+}
+
+resource "vault_aws_secret_backend" "aws" { # Enable dynamic generation of aws IAM user id's and secret keys
+  path = "aws"
+  region = data.aws_region.current.name
+  default_lease_ttl_seconds = 600
+  # max_lease_ttl_seconds = 60*60*24 # 1 day. Note vault must be running to revoke the credentials
+}
+
+resource "vault_aws_secret_backend_role" "vault_vpn_role" {
+  backend = "${vault_aws_secret_backend.aws.path}"
+  name    = "vpn-server-vault-iam-creds-role"
+  credential_type = "iam_user"
+
+  policy_document = <<EOT
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "iam:*",
+      "Resource": "*"
+    }
+  ]
+}
+EOT
+}
+
+resource "vault_aws_auth_backend_role" "vpn_server_aws_secret_based" {
+  # using generated aws key based creds, allows acces to vault.
+  backend                         = vault_auth_backend.aws.path
+  token_ttl                       = 600
+  token_max_ttl                   = 600
+  token_policies                  = ["vpn_server"]
+  role                            = "vpn-server-vault-iam-creds-role"
+  auth_type                       = "iam"
+  bound_account_ids               = [ data.aws_caller_identity.current.account_id ]
+  # bound_iam_role_arns             = [ module.vault_client_vpn_server_iam.vault_client_role_arn ] # Only instances with this Role ARN May read vault data.
+  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  # inferred_entity_type            = "ec2_instance"
+  # inferred_aws_region             = data.aws_region.current.name
+  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+}
+
+# data "vault_aws_access_credentials" "creds" {
+#   backend = "aws"
+#   role    = "vpn-server-vault-iam-creds-role"
+# }
 
 # Once vault is configured below with the provisioner-vault-role, it is possible for any instance with the correct IAM profile to authenticate.
 # export VAULT_ADDR=https://vault.service.consul:8200
@@ -166,7 +212,8 @@ resource "vault_aws_auth_backend_role" "provisioner" {
   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
 }
 
-module "vault_client_vpn_server_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
+module "vault_client_vpn_server_iam" { 
+  # The arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
   source = "../../modules/vault-client-iam"
   role_name = "VPNServerRole"
 }
@@ -175,20 +222,20 @@ resource "aws_iam_instance_profile" "vpn_server_instance_profile" {
   name = "VPNServerProfile"
   role = "VPNServerRole"
 }
-resource "vault_aws_auth_backend_role" "vpn_server" {
-  backend                         = vault_auth_backend.aws.path
-  token_ttl                       = 60
-  token_max_ttl                   = 120
-  token_policies                  = ["vpn_server"]
-  role                            = "vpn-server-vault-role"
-  auth_type                       = "iam"
-  bound_account_ids               = [ data.aws_caller_identity.current.account_id ]
-  bound_iam_role_arns             = [ module.vault_client_vpn_server_iam.vault_client_role_arn ] # Only instances with this Role ARN May read vault data.
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-  inferred_entity_type            = "ec2_instance"
-  inferred_aws_region             = data.aws_region.current.name
-  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
-}
+# resource "vault_aws_auth_backend_role" "vpn_server" {
+#   backend                         = vault_auth_backend.aws.path
+#   token_ttl                       = 60
+#   token_max_ttl                   = 120
+#   token_policies                  = ["vpn_server"]
+#   role                            = "vpn-server-vault-role"
+#   auth_type                       = "iam"
+#   bound_account_ids               = [ data.aws_caller_identity.current.account_id ]
+#   bound_iam_role_arns             = [ module.vault_client_vpn_server_iam.vault_client_role_arn ] # Only instances with this Role ARN May read vault data.
+#   # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+#   inferred_entity_type            = "ec2_instance"
+#   inferred_aws_region             = data.aws_region.current.name
+#   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+# }
 
 
 
