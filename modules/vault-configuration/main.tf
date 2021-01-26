@@ -140,7 +140,7 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
   allowed_policies = ["vpn_server"]
   # disallowed_policies = ["default"]
   # token_bound_cidrs = ["10.0.0.0/16"]
-  # token_num_uses   = 1
+  token_num_uses   = 1
   token_period     = 600
   renewable        = true
   token_explicit_max_ttl = 86400

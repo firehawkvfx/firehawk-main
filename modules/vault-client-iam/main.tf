@@ -35,3 +35,22 @@ module "consul_iam_policies_for_client" {
 
   iam_role_id = aws_iam_role.vault_client_role.id
 }
+
+# allow permision to set instance health.
+resource "aws_iam_role_policy" "set_instance_health" {
+  name   = "set-instance-health"
+  role   = aws_iam_role.vault_client_role.id
+  policy = data.aws_iam_policy_document.set_instance_health.json
+}
+
+data "aws_iam_policy_document" "set_instance_health" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "autoscaling:SetInstanceHealth",
+    ]
+
+    resources = ["*"]
+  }
+}
