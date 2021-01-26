@@ -143,10 +143,15 @@ resource "vault_aws_secret_backend" "aws" {
   # max_lease_ttl_seconds = 60*60*24 # 1 day. Note vault must be running to revoke the credentials
 }
 
+module "vault_client_provisioner_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
+  source = "../../modules/vault-client-iam"
+  role_name = "VaultUserRole"
+}
 resource "vault_aws_secret_backend_role" "vault_vpn_role" {
   backend = vault_aws_secret_backend.aws.path
   name    = "vpn-server-vault-iam-creds-role"
   credential_type = "iam_user"
+  # role_arns             = [ module.vault_client_provisioner_iam.vault_client_role_arn ]
 
   policy_document = <<EOT
 {
@@ -163,7 +168,7 @@ EOT
 }
 
 resource "vault_aws_auth_backend_role" "vpn_server_aws_secret_based" {
-  # using generated aws key based creds, allows acces to vault.
+  # using generated aws key based creds, allows acces to vault.  see https://discuss.hashicorp.com/t/generating-dynamic-access-keys-across-multiple-aws-accounts/5931
   backend                         = vault_auth_backend.aws.path
   token_ttl                       = 600
   token_max_ttl                   = 600
@@ -171,12 +176,8 @@ resource "vault_aws_auth_backend_role" "vpn_server_aws_secret_based" {
   role                            = "vpn-server-vault-iam-creds-role"
   auth_type                       = "iam"
   bound_account_ids               = [ data.aws_caller_identity.current.account_id ]
-  bound_iam_role_arns             = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/vpn-server-vault-iam-creds-role"]
-  # bound_iam_role_arns             = [ module.vault_client_vpn_server_iam.vault_client_role_arn ] # Only instances with this Role ARN May read vault data.
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-  # inferred_entity_type            = "ec2_instance"
-  # inferred_aws_region             = data.aws_region.current.name
-  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+  bound_iam_role_arns             = [ module.vault_client_provisioner_iam.vault_client_role_arn ]
+  # bound_iam_principal_arn = "arn:aws:iam::123456789012:role/*"
 }
 
 # data "vault_aws_access_credentials" "creds" {
