@@ -141,8 +141,8 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
   # disallowed_policies = ["default"]
   # token_bound_cidrs = ["10.0.0.0/16"]
   # token_num_uses   = 1
-  token_period     = 600
-  renewable        = true
+  token_period           = 600
+  renewable              = true
   token_explicit_max_ttl = 86400
   # orphan           = true
   # path_suffix         = "path-suffix"
@@ -363,3 +363,59 @@ resource "vault_pki_secret_backend_role" "firehawkvfx-dot-com" {
 # >(jq -r .data.certificate > ca.pem) \
 # >(jq -r .data.issuing_ca > issuing_ca.pem) \
 # >(jq -r .data.private_key > ca-key.pem)
+
+
+### SSH key signing for machines that wish to ssh to other known hosts ###
+
+resource "vault_mount" "ssh_signer" {
+  path        = "ssh-client-signer"
+  type        = "ssh"
+  description = "The SSH key signer certifying machines to authenticate ssh sessions"
+}
+
+resource "vault_ssh_secret_backend_ca" "ssh_signer_ca" {
+  backend              = vault_mount.ssh_signer.path
+  generate_signing_key = true
+}
+
+resource "vault_ssh_secret_backend_role" "ssh_role" {
+  name                    = "ssh-role"
+  backend                 = vault_mount.ssh_signer.path
+  allow_user_certificates = true
+  allowed_users           = "*"
+  allowed_extensions      = "permit-pty,permit-port-forwarding"
+  default_extensions = [
+    {
+      "permit-pty" : ""
+    }
+  ]
+  key_type     = "ca"
+  default_user = "ubuntu"
+  # ttl = "30m0s"
+  ttl = "30d"
+  # cidr_list     = "0.0.0.0/0"
+}
+
+### SSH key signing for machines to be recognised as known hosts ###
+
+resource "vault_mount" "ssh_host_signer" {
+  path        = "ssh-host-signer"
+  type        = "ssh"
+  description = "The SSH host key signer enabling machines to be recognised certified known hosts"
+}
+
+resource "vault_ssh_secret_backend_ca" "ssh_host_signer_ca" {
+  backend              = vault_mount.ssh_host_signer.path
+  generate_signing_key = true
+}
+
+resource "vault_ssh_secret_backend_role" "host_role" {
+  name                    = "hostrole"
+  backend                 = vault_mount.ssh_host_signer.path
+  key_type                = "ca"
+  ttl                     = "87600h"
+  max_ttl                 = "87600h"
+  allow_host_certificates = true
+  allowed_domains         = "localdomain,consul"
+  allow_subdomains        = true
+}
