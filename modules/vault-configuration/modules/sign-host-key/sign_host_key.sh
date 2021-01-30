@@ -47,5 +47,8 @@ sudo sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.
 # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
 key=$(vault read -field=public_key ssh-host-signer/config/ca)
 
+if sudo test ! -f $HOME/.ssh/known_hosts; then
+    touch $HOME/.ssh/known_hosts # ensure known hosts file exists
+fi
 sudo grep -q "^@cert-authority \*\.consul" $HOME/.ssh/known_hosts || echo '@cert-authority *.consul' | sudo tee --append $HOME/.ssh/known_hosts
 sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $HOME/.ssh/known_hosts
