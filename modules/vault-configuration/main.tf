@@ -390,7 +390,7 @@ resource "vault_ssh_secret_backend_role" "ssh_role" {
   key_type     = "ca"
   default_user = "ubuntu"
   # ttl = "30m0s"
-  ttl = "30d"
+  ttl = "720h"
   # cidr_list     = "0.0.0.0/0"
 }
 
