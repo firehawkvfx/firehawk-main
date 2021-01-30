@@ -1,5 +1,68 @@
 #!/bin/bash
+# This script is meant to be run in the User Data of each EC2 Instance while it's booting. The script uses the
+# run-consul script to configure and start Consul in client mode. Note that this script assumes it's running in an AMI
+# built from the Packer template in examples/vault-consul-ami/vault-consul.json.
+
 set -e
+
+admin_user="${openvpn_admin_user}" 
+admin_pw="${openvpn_admin_pw}"
+# TODO these will be replaced with calls to vault.
+
+# Send the log output from this script to user-data.log, syslog, and the console
+# From: https://alestic.com/2010/12/ec2-user-data-output/
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+# These variables are passed in via Terraform template interpolation
+/opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
+
+# Log the given message. All logs are written to stderr with a timestamp.
+function log {
+ local -r message="$1"
+ local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+ >&2 echo -e "$timestamp $message"
+}
+
+# A retry function that attempts to run a command a number of times and returns the output
+function retry {
+  local -r cmd="$1"
+  local -r description="$2"
+
+  for i in $(seq 1 30); do
+    log "$description"
+
+    # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
+    # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
+    output=$(eval "$cmd") && exit_status=0 || exit_status=$?
+    errors=$(echo "$output") | grep '^{' | jq -r .errors
+
+    log "$output"
+
+    if [[ $exit_status -eq 0 && -z "$errors" ]]; then
+      echo "$output"
+      return
+    fi
+    log "$description failed. Will sleep for 10 seconds and try again."
+    sleep 10
+  done;
+
+  log "$description failed after 30 attempts."
+  exit $exit_status
+}
+
+# If vault cli is installed we can also perform these operations with vault cli
+# The necessary environment variables have to be set
+# export VAULT_TOKEN=$token
+export VAULT_ADDR=https://vault.service.consul:8200
+
+# Retry and wait for the Vault Agent to write the token out to a file.  This could be
+# because the Vault server is still booting and unsealing, or because run-consul
+# running on the background didn't finish yet
+retry \
+  "vault login  --no-print ${vault_token}" \
+  "Waiting for Vault login"
+
+echo "Aquiring vault data..."
 
 ### Request Vault sign's the SSH host key and becomes a known host for other machines ###
 
@@ -71,3 +134,12 @@ echo "Added CA to /etc/ssh/ssh_known_hosts."
 echo "Signing SSH host key done."
 
 ### End sign SSH host key
+
+echo "Done."
+# if this script fails, we can set the instance health status but we need to capture a fault
+# aws autoscaling set-instance-health --instance-id i-0b03e12682e74746e --health-status Unhealthy
+
+# # Serves the answer in a web server so we can test that this auth client is
+# # authenticating to vault and fetching data correctly
+# echo $response | jq -r .data.the_answer > index.html
+# python -m SimpleHTTPServer 8080 &

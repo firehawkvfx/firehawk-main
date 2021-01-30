@@ -77,7 +77,7 @@ resource "aws_security_group" "bastion" {
 }
 
 locals {
-  extra_tags = { 
+  extra_tags = {
     role  = "bastion"
     route = "public"
   }
@@ -86,7 +86,7 @@ resource "aws_eip" "bastionip" {
   count    = var.create_vpc ? 1 : 0
   vpc      = true
   instance = aws_instance.bastion[count.index].id
-  tags = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
+  tags     = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
 }
 
 resource "aws_instance" "bastion" {
@@ -103,80 +103,97 @@ resource "aws_instance" "bastion" {
   }
   tags = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
 
-  # `admin_user` and `admin_pw` need to be passed in to the appliance through `user_data`, see docs -->
-  # https://docs.openvpn.net/how-to-tutorialsguides/virtual-platforms/amazon-ec2-appliance-ami-quick-start-guide/
-  user_data = <<USERDATA
-
-USERDATA
+  user_data = data.template_file.user_data_auth_client.rendered
 
 }
 
+resource "vault_token" "ssh_host" {
+  # dynamically generate a token with constrained permisions for the host role.
+  role_name = "host-vault-token-creds-role"
+
+  policies = ["ssh_host"]
+
+  renewable = true
+  ttl       = "600s"
+  period    = "300s"
+}
+
+data "template_file" "user_data_auth_client" {
+  template = file("${path.module}/user-data-auth-ssh-host-vault-token.sh")
+
+  vars = {
+    consul_cluster_tag_key   = var.consul_cluster_tag_key
+    consul_cluster_tag_value = var.consul_cluster_name
+    vault_token              = vault_token.vpn_admin.client_token
+  }
+}
+
 locals {
-  public_ip = element(concat(aws_eip.bastionip.*.public_ip, list("")), 0)
-  private_ip = element(concat(aws_instance.bastion.*.private_ip, list("")), 0)
-  id = element(concat(aws_instance.bastion.*.id, list("")), 0)
-  bastion_security_group_id = element(concat(aws_security_group.bastion.*.id, list("")), 0)
+  public_ip                     = element(concat(aws_eip.bastionip.*.public_ip, list("")), 0)
+  private_ip                    = element(concat(aws_instance.bastion.*.private_ip, list("")), 0)
+  id                            = element(concat(aws_instance.bastion.*.id, list("")), 0)
+  bastion_security_group_id     = element(concat(aws_security_group.bastion.*.id, list("")), 0)
   bastion_vpn_security_group_id = element(concat(aws_security_group.bastion_vpn.*.id, list("")), 0)
-  vpc_security_group_ids = var.create_vpn ? [local.bastion_security_group_id, local.bastion_vpn_security_group_id] : [local.bastion_security_group_id]
-  bastion_address = var.route_public_domain_name ? "bastion.${var.public_domain_name}" : local.public_ip
+  vpc_security_group_ids        = var.create_vpn ? [local.bastion_security_group_id, local.bastion_vpn_security_group_id] : [local.bastion_security_group_id]
+  bastion_address               = var.route_public_domain_name ? "bastion.${var.public_domain_name}" : local.public_ip
 }
 
 
-resource "null_resource" "provision_bastion" {
-  count    = var.create_vpc ? 1 : 0
-  depends_on = [
-    aws_instance.bastion,
-    aws_eip.bastionip,
-    aws_route53_record.bastion_record,
-  ]
+# resource "null_resource" "provision_bastion" {
+#   count    = var.create_vpc ? 1 : 0
+#   depends_on = [
+#     aws_instance.bastion,
+#     aws_eip.bastionip,
+#     aws_route53_record.bastion_record,
+#   ]
 
-  triggers = {
-    instanceid = local.id
-    bastion_address = local.bastion_address
-  }
+#   triggers = {
+#     instanceid = local.id
+#     bastion_address = local.bastion_address
+#   }
 
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
-      cd $TF_VAR_firehawk_path
-      echo "PWD: $PWD"
-      . scripts/exit_test.sh
-      export SHOWCOMMANDS=true; set -x
-      ansible-playbook -i "$TF_VAR_inventory" ansible/ssh-clean-public-host.yaml -v --extra-vars "variable_hosts=ansible_control variable_user=ec2-user public_ip=${local.public_ip} public_address=${local.bastion_address}"; exit_test
-EOT
-  }
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command = <<EOT
+#       cd $TF_VAR_firehawk_path
+#       echo "PWD: $PWD"
+#       . scripts/exit_test.sh
+#       export SHOWCOMMANDS=true; set -x
+#       ansible-playbook -i "$TF_VAR_inventory" ansible/ssh-clean-public-host.yaml -v --extra-vars "variable_hosts=ansible_control variable_user=ec2-user public_ip=${local.public_ip} public_address=${local.bastion_address}"; exit_test
+# EOT
+#   }
 
-  provisioner "remote-exec" {
-    connection {
-      user        = "centos"
-      host        = local.public_ip
-      private_key = var.private_key
-      type        = "ssh"
-      timeout     = "10m"
-    }
+#   provisioner "remote-exec" {
+#     connection {
+#       user        = "centos"
+#       host        = local.public_ip
+#       private_key = var.private_key
+#       type        = "ssh"
+#       timeout     = "10m"
+#     }
 
-    inline = ["echo 'Instance is up.'"]
-  }
+#     inline = ["echo 'Instance is up.'"]
+#   }
 
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
-      cd $TF_VAR_firehawk_path
-      echo "PWD: $PWD"
-      . scripts/exit_test.sh
-      export SHOWCOMMANDS=true; set -x
-      echo "inventory $TF_VAR_inventory/hosts"
-      cat $TF_VAR_inventory/hosts
-      ansible-playbook -i "$TF_VAR_inventory" ansible/ssh-add-public-host.yaml -v --extra-vars "variable_hosts=ansible_control variable_user=ec2-user public_ip=${local.public_ip} public_address=${local.bastion_address} bastion_address=${local.bastion_address} set_bastion=true"; exit_test
-      ansible-playbook -i "$TF_VAR_inventory" ansible/inventory-add.yaml -v --extra-vars "variable_user=ec2-user variable_group=ec2-user host_name=bastion host_ip=${local.public_ip} insert_ssh_key_string=ansible_ssh_private_key_file=$TF_VAR_aws_private_key_path"; exit_test
-      ansible-playbook -i "$TF_VAR_inventory" ansible/get-file.yaml -v --extra-vars "variable_user=ec2-user source=/var/log/messages dest=$TF_VAR_firehawk_path/tmp/log/cloud-init-output-bastion.log variable_user=centos variable_host=bastion"; exit_test
-EOT
-  }
-}
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command = <<EOT
+#       cd $TF_VAR_firehawk_path
+#       echo "PWD: $PWD"
+#       . scripts/exit_test.sh
+#       export SHOWCOMMANDS=true; set -x
+#       echo "inventory $TF_VAR_inventory/hosts"
+#       cat $TF_VAR_inventory/hosts
+#       ansible-playbook -i "$TF_VAR_inventory" ansible/ssh-add-public-host.yaml -v --extra-vars "variable_hosts=ansible_control variable_user=ec2-user public_ip=${local.public_ip} public_address=${local.bastion_address} bastion_address=${local.bastion_address} set_bastion=true"; exit_test
+#       ansible-playbook -i "$TF_VAR_inventory" ansible/inventory-add.yaml -v --extra-vars "variable_user=ec2-user variable_group=ec2-user host_name=bastion host_ip=${local.public_ip} insert_ssh_key_string=ansible_ssh_private_key_file=$TF_VAR_aws_private_key_path"; exit_test
+#       ansible-playbook -i "$TF_VAR_inventory" ansible/get-file.yaml -v --extra-vars "variable_user=ec2-user source=/var/log/messages dest=$TF_VAR_firehawk_path/tmp/log/cloud-init-output-bastion.log variable_user=centos variable_host=bastion"; exit_test
+# EOT
+#   }
+# }
 
-locals {
-  bastion_dependency = element(concat(null_resource.provision_bastion.*.id, list("")), 0)
-}
+# locals {
+#   bastion_dependency = element(concat(null_resource.provision_bastion.*.id, list("")), 0)
+# }
 
 variable "route_zone_id" {
 }
@@ -193,25 +210,25 @@ resource "aws_route53_record" "bastion_record" {
   records = [local.public_ip]
 }
 
-resource "null_resource" "start-bastion" {
-  depends_on = [aws_instance.bastion]
-  count = ( !var.sleep && var.create_vpc) ? 1 : 0
+# resource "null_resource" "start-bastion" {
+#   depends_on = [aws_instance.bastion]
+#   count      = (! var.sleep && var.create_vpc) ? 1 : 0
 
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = "sleep 10; aws ec2 start-instances --instance-ids ${local.id}"
-  }
-}
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command     = "sleep 10; aws ec2 start-instances --instance-ids ${local.id}"
+#   }
+# }
 
-resource "null_resource" "shutdown-bastion" {
-  depends_on = [aws_instance.bastion]
-  count = var.sleep && var.create_vpc ? 1 : 0
+# resource "null_resource" "shutdown-bastion" {
+#   depends_on = [aws_instance.bastion]
+#   count      = var.sleep && var.create_vpc ? 1 : 0
 
-  provisioner "local-exec" {
-    interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
-      aws ec2 stop-instances --instance-ids ${local.id}
-EOT
-  }
-}
+#   provisioner "local-exec" {
+#     interpreter = ["/bin/bash", "-c"]
+#     command     = <<EOT
+#       aws ec2 stop-instances --instance-ids ${local.id}
+# EOT
+#   }
+# }
 

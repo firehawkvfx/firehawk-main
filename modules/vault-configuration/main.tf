@@ -49,6 +49,11 @@ resource "vault_policy" "pki_int_policy" {
   policy = file("policies/pki_int.hcl")
 }
 
+resource "vault_policy" "ssh_host_policy" {
+  name   = "ssh_host"
+  policy = file("policies/ssh_host.hcl")
+}
+
 resource "vault_mount" "dev" {
   path        = "dev"
   type        = "kv-v2"
@@ -416,4 +421,17 @@ resource "vault_ssh_secret_backend_role" "host_role" {
   allow_host_certificates = true
   allowed_domains         = "localdomain,consul"
   allow_subdomains        = true
+}
+
+resource "vault_token_auth_backend_role" "host_vault_token_role" {
+  role_name        = "host-vault-token-creds-role"
+  allowed_policies = ["ssh_host"]
+  # disallowed_policies = ["default"]
+  # token_bound_cidrs = ["10.0.0.0/16"]
+  # token_num_uses   = 1
+  token_period           = 600
+  renewable              = true
+  token_explicit_max_ttl = 86400
+  # orphan           = true
+  # path_suffix         = "path-suffix"
 }
