@@ -384,11 +384,9 @@ resource "vault_ssh_secret_backend_role" "ssh_role" {
   allow_user_certificates = true
   allowed_users           = "*"
   allowed_extensions      = "permit-pty,permit-port-forwarding"
-  default_extensions = [
-    {
-      "permit-pty" : ""
-    }
-  ]
+  default_extensions = tomap( {
+      "permit-pty" = ""
+  } )
   key_type     = "ca"
   default_user = "ubuntu"
   # ttl = "30m0s"
