@@ -5,7 +5,7 @@ set -e
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
 # Aquire the public CA cert to approve an authority
 vault read -field=public_key ssh-client-signer/config/ca | sudo tee ${trusted_ca}
-if [[ sudo test ! -f "${trusted_ca}" ]]; then
+if sudo test ! -f "${trusted_ca}"; then
     echo "Missing ${trusted_ca}"
     exit 1
 fi
@@ -15,7 +15,7 @@ sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKey
 # Ensure the value for TrustedUserCAKeys is configured correctly
 sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys ${trusted_ca}@g" /etc/ssh/sshd_config 
 
-if [[ sudo test ! -f "/etc/ssh/ssh_host_rsa_key.pub" ]]; then
+if sudo test ! -f "/etc/ssh/ssh_host_rsa_key.pub"; then
     echo "Missing public host key /etc/ssh/ssh_host_rsa_key.pub"
     exit 1
 fi
@@ -29,7 +29,7 @@ vault write -field=signed_key ssh-host-signer/sign/hostrole \
     cert_type=host \
     public_key=@/etc/ssh/ssh_host_rsa_key.pub | sudo tee /etc/ssh/ssh_host_rsa_key-cert.pub
 
-if [[ sudo test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub" ]]; then
+if sudo test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub"; then
     echo "Failed to aquire /etc/ssh/ssh_host_rsa_key-cert.pub"
     exit 1
 fi
