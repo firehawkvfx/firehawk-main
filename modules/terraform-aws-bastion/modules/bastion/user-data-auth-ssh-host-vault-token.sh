@@ -111,7 +111,7 @@ sudo sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.
 
 # Add the CA cert to use it for known host verification
 # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
-key=$(vault read -field=public_key ssh-host-signer/config/ca)
+key="$(vault read -field=public_key ssh-host-signer/config/ca)"
 
 ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
 if sudo test ! -f $ssh_known_hosts_path; then
