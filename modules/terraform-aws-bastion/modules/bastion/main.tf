@@ -101,7 +101,7 @@ resource "aws_instance" "bastion" {
   ami           = var.bastion_ami_id
   instance_type = var.instance_type
   key_name      = var.aws_key_name
-  subnet_id     = element(concat(var.public_subnet_ids, list("")), 0)
+  subnet_id     = tolist(var.public_subnet_ids)[0]
 
   vpc_security_group_ids = local.vpc_security_group_ids
 

@@ -82,9 +82,9 @@ locals {
   vpc_id                     = data.aws_vpc.primary.id
   vpc_cidr                   = data.aws_vpc.primary.cidr_block
   aws_internet_gateway       = data.aws_internet_gateway.gw.id
-  public_subnets             = data.aws_subnet_ids.public.ids
+  public_subnets             = tolist(data.aws_subnet_ids.public.ids)
   public_subnet_cidr_blocks  = [for s in data.aws_subnet.public : s.cidr_block]
-  private_subnets            = data.aws_subnet_ids.private.ids
+  private_subnets            = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
   remote_public_ip           = lookup(data.vault_generic_secret.remote_public_ip.data, "value")
