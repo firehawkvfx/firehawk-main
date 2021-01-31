@@ -326,13 +326,14 @@ build {
     "fi"]
   }
 
-  provisioner "shell" { # configure systemd-resolved
+  provisioner "shell" { # configure systemd-resolved per https://unix.stackexchange.com/questions/442598/how-to-configure-systemd-resolved-and-systemd-networkd-to-use-local-dns-server-f
     inline = [
       "set -x; sudo sed -i \"s/#Domains=/Domains=service.consul ~consul/g\" /etc/systemd/resolved.conf",
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
       "set -x; sudo cat /etc/systemd/resolved.conf",
+      "set -x; sudo cat /etc/resolv.conf",
     ]
     only = ["amazon-ebs.ubuntu18-ami"]
   }
