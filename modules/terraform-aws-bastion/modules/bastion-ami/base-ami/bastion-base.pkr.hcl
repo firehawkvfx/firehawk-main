@@ -173,8 +173,6 @@ build {
     only = ["amazon-ebs.centos7-ami", "amazon-linux-2-ami"]
   }
 
-}
-
   post-processor "manifest" {
       output = "${local.template_dir}/manifest.json"
       strip_path = true
