@@ -13,11 +13,18 @@ resource "aws_security_group" "bastion_vpn" {
   tags = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
 
   # todo need to replace this with correct protocols for pcoip instead of all ports.description
+  # ingress {
+  #   protocol    = "-1"
+  #   from_port   = 0
+  #   to_port     = 0
+  #   cidr_blocks = [var.vpn_cidr, var.remote_subnet_cidr, "172.27.236.0/24"]
+  #   description = "all incoming traffic from remote access ip"
+  # }
   ingress {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
-    cidr_blocks = [var.vpn_cidr, var.remote_subnet_cidr, "172.27.236.0/24"]
+    cidr_blocks = [var.remote_subnet_cidr]
     description = "all incoming traffic from remote access ip"
   }
 }
