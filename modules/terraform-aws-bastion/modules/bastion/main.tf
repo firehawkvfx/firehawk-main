@@ -112,6 +112,40 @@ resource "aws_instance" "bastion" {
 
   user_data = data.template_file.user_data_auth_client.rendered
 
+  iam_instance_profile = aws_iam_instance_profile.example_instance_profile.name
+
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATES A ROLE THAT IS ATTACHED TO THE INSTANCE
+# The arn of this AWS role is what the Vault server will use create the Vault Role
+# so it can validate login requests from resources with this role
+# ---------------------------------------------------------------------------------------------------------------------
+resource "aws_iam_instance_profile" "example_instance_profile" {
+  path = "/"
+  role = aws_iam_role.example_instance_role.name
+}
+
+resource "aws_iam_role" "example_instance_role" {
+  name_prefix        = "${var.name}-role"
+  assume_role_policy = data.aws_iam_policy_document.example_instance_role.json
+}
+
+data "aws_iam_policy_document" "example_instance_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+# Adds policies necessary for running consul
+module "consul_iam_policies_for_client" {
+  source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
+  iam_role_id = aws_iam_role.example_instance_role.id
 }
 
 resource "vault_token" "ssh_host" {
