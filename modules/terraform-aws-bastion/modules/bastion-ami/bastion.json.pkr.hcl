@@ -338,7 +338,7 @@ build {
   }
   provisioner "shell" {
     inline = ["/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"]
-    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami"]
+    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }
 
   provisioner "shell" { # Generate certificates with vault.
