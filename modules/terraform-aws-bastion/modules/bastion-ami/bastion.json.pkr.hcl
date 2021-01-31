@@ -337,7 +337,10 @@ build {
     only = ["amazon-ebs.ubuntu18-ami"]
   }
   provisioner "shell" {
-    inline = ["/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"]
+    inline = [
+      "/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq",
+      "sudo systemctl restart dnsmasq"
+      ]
     only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }
 
