@@ -64,7 +64,8 @@ retry \
 
 echo "Aquiring vault data..."
 
-### Request Vault sign's the SSH host key and becomes a known host for other machines ###
+### Sign SSH host key
+echo "Request Vault sign's the SSH host key and becomes a known host for other machines."
 
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
 # Aquire the public CA cert to approve an authority
@@ -111,31 +112,32 @@ sudo sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.
 # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
 key=$(vault read -field=public_key ssh-host-signer/config/ca)
 
-if sudo test ! -f /etc/ssh/ssh_known_hosts; then
-    echo "Creating /etc/ssh/ssh_known_hosts"
-    sudo touch /etc/ssh/ssh_known_hosts # ensure known hosts file exists
+ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
+if sudo test ! -f $ssh_known_hosts_path; then
+    echo "Creating $ssh_known_hosts_path"
+    sudo touch $ssh_known_hosts_path # ensure known hosts file exists
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
-    octal_permissions=$(sudo stat -f %A $file_path | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
+    octal_permissions=$(sudo stat -f %A "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
 else
-    octal_permissions=$(sudo stat --format '%a' $file_path | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
+    octal_permissions=$(sudo stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
 fi
 octal_permissions=$( python -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
-if [[ "$octal_permissions"!="0644" ]]; then
-    echo "/etc/ssh/ssh_known_hosts octal_permissions currently $octal_permissions.  Setting to 0644"
-    sudo chmod 0644 /etc/ssh/ssh_known_hosts
+echo "$ssh_known_hosts_path octal_permissions currently $octal_permissions."
+if [[ "$octal_permissions" != "0644" ]]; then
+    echo "...Setting to 0644"
+    sudo chmod 0644 $ssh_known_hosts_path
 fi
 
-sudo grep -q "^@cert-authority \*\.consul" /etc/ssh/ssh_known_hosts || echo '@cert-authority *.consul' | sudo tee --append /etc/ssh/ssh_known_hosts
-sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" /etc/ssh/ssh_known_hosts
+sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
+sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
 
-echo "Added CA to /etc/ssh/ssh_known_hosts."
+echo "Added CA to $ssh_known_hosts_path."
 echo "Signing SSH host key done."
 
 ### End sign SSH host key
 
-echo "Done."
 # if this script fails, we can set the instance health status but we need to capture a fault
 # aws autoscaling set-instance-health --instance-id i-0b03e12682e74746e --health-status Unhealthy
 

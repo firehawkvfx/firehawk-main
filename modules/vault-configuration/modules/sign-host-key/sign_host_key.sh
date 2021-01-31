@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-### Request Vault sign's the SSH host key and becomes a known host for other machines ###
+echo "Request Vault sign's the SSH host key and becomes a known host for other machines."
 
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
 # Aquire the public CA cert to approve an authority
