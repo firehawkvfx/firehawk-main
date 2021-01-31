@@ -63,6 +63,18 @@ variable "consul_cluster_tag_value" {
   type = string
 }
 
+variable "vpc_id" {
+  type = string
+}
+
+variable "security_group_id" {
+  type = string
+}
+
+variable "subnet_id" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -91,6 +103,11 @@ source "amazon-ebs" "amazon-linux-2-ami" {
     owners      = ["amazon"]
   }
   ssh_username = "ec2-user"
+
+  vpc_id               = "${var.vpc_id}"
+  subnet_id            = "${var.subnet_id}"
+  security_group_id    = "${var.security_group_id}"
+  iam_instance_profile = "provisioner_instance_role_pipeid0"
 }
 
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
@@ -109,6 +126,11 @@ source "amazon-ebs" "centos7-ami" {
     owners      = ["679593333241"]
   }
   ssh_username = "centos"
+
+  vpc_id               = "${var.vpc_id}"
+  subnet_id            = "${var.subnet_id}"
+  security_group_id    = "${var.security_group_id}"
+  iam_instance_profile = "provisioner_instance_role_pipeid0"
 }
 
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
@@ -130,6 +152,11 @@ source "amazon-ebs" "ubuntu16-ami" {
     owners      = ["099720109477"]
   }
   ssh_username = "ubuntu"
+
+  vpc_id               = "${var.vpc_id}"
+  subnet_id            = "${var.subnet_id}"
+  security_group_id    = "${var.security_group_id}"
+  iam_instance_profile = "provisioner_instance_role_pipeid0"
 }
 
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
@@ -151,6 +178,11 @@ source "amazon-ebs" "ubuntu18-ami" {
     owners      = ["099720109477"]
   }
   ssh_username = "ubuntu"
+
+  vpc_id               = "${var.vpc_id}"
+  subnet_id            = "${var.subnet_id}"
+  security_group_id    = "${var.security_group_id}"
+  iam_instance_profile = "provisioner_instance_role_pipeid0"
 }
 
 # a build block invokes sources and runs provisioning steps on them. The
@@ -255,6 +287,14 @@ build {
   #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   # }
 
+  provisioner "shell" { # jq requires this repo on centos 7
+    inline = [
+      "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+      ]
+    only   = ["amazon-ebs.centos7-ami"]
+  }
+
+
   provisioner "shell" {
     inline = [
       "git clone --branch ${var.consul_module_version} https://github.com/hashicorp/terraform-aws-consul.git /tmp/terraform-aws-consul",
@@ -277,9 +317,9 @@ build {
   }
   provisioner "shell" {
     inline = ["/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"]
-    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazonlinux2-nicedcv-nvidia-ami"]
+    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami"]
   }
-  
+
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
