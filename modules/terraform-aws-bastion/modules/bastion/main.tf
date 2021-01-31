@@ -110,7 +110,7 @@ resource "aws_instance" "bastion" {
   }
   tags = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
 
-  user_data = data.template_file.user_data_auth_client.rendered
+  # user_data = data.template_file.user_data_auth_client.rendered
 
   iam_instance_profile = aws_iam_instance_profile.example_instance_profile.name
 
