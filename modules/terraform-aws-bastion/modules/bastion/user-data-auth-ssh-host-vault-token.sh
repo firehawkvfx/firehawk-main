@@ -67,16 +67,16 @@ echo "Request Vault sign's the SSH host key and becomes a known host for other m
 
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
 # Aquire the public CA cert to approve an authority
-vault read -field=public_key ssh-client-signer/config/ca | sudo tee ${trusted_ca}
-if sudo test ! -f "${trusted_ca}"; then
-    echo "Missing ${trusted_ca}"
+vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
+if sudo test ! -f "$trusted_ca"; then
+    echo "Missing $trusted_ca"
     exit 1
 fi
 
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
-sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys ${trusted_ca}@g" /etc/ssh/sshd_config 
+sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
 
 if sudo test ! -f "/etc/ssh/ssh_host_rsa_key.pub"; then
     echo "Missing public host key /etc/ssh/ssh_host_rsa_key.pub"

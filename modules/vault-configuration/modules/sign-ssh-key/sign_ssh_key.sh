@@ -4,12 +4,12 @@ set -e
 
 # Aquire the public CA cert to approve an authority
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
-vault read -field=public_key ssh-client-signer/config/ca | sudo tee ${trusted_ca}
+vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
 
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
-sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys ${trusted_ca}@g" /etc/ssh/sshd_config 
+sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
 
 # Sign the users public key
 vault write ssh-client-signer/sign/ssh-role \
