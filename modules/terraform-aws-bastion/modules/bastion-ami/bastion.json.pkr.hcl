@@ -265,13 +265,23 @@ build {
       "fi"]
   }
 
-  provisioner "shell" { # Generate certificates with vault.
+  provisioner "shell" { # configure systemd-resolved
     inline = [
       "set -x; sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf",
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
       "set -x; sudo cat /etc/systemd/resolved.conf",
+      ]
+    only = ["amazon-ebs.ubuntu18-ami"]
+  }
+  provisioner "shell" {
+    inline = ["/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq"]
+    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazonlinux2-nicedcv-nvidia-ami"]
+  }
+  
+  provisioner "shell" { # Generate certificates with vault.
+    inline = [
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
       "set -x; consul members list",
       "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
@@ -280,6 +290,7 @@ build {
       "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
       "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check default lookup will resolve vault
       ]
+    # only = ["amazon-ebs.ubuntu18-ami"]
   }
 
   post-processor "manifest" {
