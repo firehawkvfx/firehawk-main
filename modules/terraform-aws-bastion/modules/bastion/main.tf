@@ -144,12 +144,14 @@ data "aws_iam_policy_document" "example_instance_role" {
 }
 # Adds policies necessary for running consul
 module "consul_iam_policies_for_client" {
-  source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
+  source      = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
   iam_role_id = aws_iam_role.example_instance_role.id
 }
 
 resource "vault_token" "ssh_host" {
-  triggers = [ aws_instance.bastion.*.id ]
+  triggers = {
+    instanceid = "${join(",", aws_instance.bastion.*.id)}"
+  }
   # dynamically generate a token with constrained permisions for the host role.
   role_name = "host-vault-token-creds-role"
 
