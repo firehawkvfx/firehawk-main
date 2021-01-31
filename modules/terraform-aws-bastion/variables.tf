@@ -2,10 +2,10 @@ variable "aws_key_name" {
   default = "main-deployment"
 }
 
-variable "aws_private_key_path" {
-  description = "The private key path for the key used to ssh into the bastion for provisioning"
+variable "bastion_ami_id" {
+  description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer."
   type = string
-  default = ""
+  default = null
 }
 
 variable "sleep" {
@@ -24,4 +24,10 @@ variable "pipelineid" {
     description = "The pipelineid variable can be used to uniquely specify and identify resource names for a given deployment.  The pipeline ID could be set to a job ID in CI software for example.  The default of 0 is fine if no more than one concurrent deployment run will occur."
     type = string
     default = "0"
+}
+
+variable "route_public_domain_name" {
+  description = "Defines if a public DNS name is to be used"
+  type        = bool
+  default     = false
 }

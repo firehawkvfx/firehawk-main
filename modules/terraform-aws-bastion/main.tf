@@ -78,7 +78,6 @@ data "vault_generic_secret" "remote_subnet_cidr" { # Get the map of data at the 
 }
 
 locals {
-  private_key                = fileexists(var.aws_private_key_path) ? file(var.aws_private_key_path) : ""
   mount_path                 = var.resourcetier
   vpc_id                     = data.aws_vpc.primary.id
   vpc_cidr                   = data.aws_vpc.primary.cidr_block

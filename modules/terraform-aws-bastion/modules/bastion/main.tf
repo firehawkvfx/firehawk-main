@@ -131,7 +131,7 @@ data "template_file" "user_data_auth_client" {
   vars = {
     consul_cluster_tag_key   = var.consul_cluster_tag_key
     consul_cluster_tag_value = var.consul_cluster_name
-    vault_token              = vault_token.vpn_admin.client_token
+    vault_token              = vault_token.ssh_host.client_token
   }
 }
 
