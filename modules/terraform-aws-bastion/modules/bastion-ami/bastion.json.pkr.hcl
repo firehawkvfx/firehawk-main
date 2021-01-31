@@ -209,7 +209,7 @@ source "amazon-ebs" "ubuntu18-ami" {
 # documentation for build blocks can be found here:
 # https://www.packer.io/docs/from-1.5/blocks/build
 build {
-  sources = ["source.amazon-ebs.amazon-linux-2-ami", "source.amazon-ebs.centos7-ami", "source.amazon-ebs.ubuntu16-ami", "source.amazon-ebs.ubuntu18-ami"]
+  sources = ["source.amazon-ebs.amazon-linux-2-ami", "source.amazon-ebs.centos7-ami", "source.amazon-ebs.ubuntu18-ami"]
 
   provisioner "shell" {
     inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
@@ -307,9 +307,10 @@ build {
   #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   # }
 
-  provisioner "shell" { # jq requires this repo on centos 7
+  provisioner "shell" { # jq requires this repo on centos 7, and the dig command is also required
     inline = [
       "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+      "sudo yum -y install bind-utils jq"
     ]
     only = ["amazon-ebs.centos7-ami"]
   }
