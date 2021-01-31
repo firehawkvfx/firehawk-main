@@ -26,8 +26,8 @@ manifest="$SCRIPTDIR/modules/bastion-ami/manifest.json"
 if [[ -f "$manifest" ]]; then
     export TF_VAR_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
     echo "Found centos7_ami in manifest: TF_VAR_centos7_ami=$TF_VAR_centos7_ami"
-    export TF_VAR_bastion_ami_id=$TF_VAR_bastion_centos7_ami
-
+    export TF_VAR_bastion_ami_id=$TF_VAR_centos7_ami
+    echo "TF_VAR_bastion_ami_id=$TF_VAR_bastion_ami_id"
     # export TF_VAR_ubuntu18_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
     # echo "Found ubuntu18_ami in manifest: TF_VAR_ubuntu18_ami=$TF_VAR_ubuntu18_ami"
 
