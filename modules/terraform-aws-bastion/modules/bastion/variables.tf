@@ -24,8 +24,8 @@ variable "vpc_cidr" {
 
 # remote_ip_cidr is the ip address of the remote host / user intending to connect over vpn. eg '197.125.62.53/32'
 #example "125.254.24.255/32"
-variable "vpn_cidr" {
-}
+# variable "vpn_cidr" {
+# }
 
 variable "remote_ip_cidr" {
 }
