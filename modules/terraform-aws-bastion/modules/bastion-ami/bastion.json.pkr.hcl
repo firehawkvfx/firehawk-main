@@ -45,11 +45,6 @@ variable "consul_version" {
   default = "1.8.4"
 }
 
-variable "install_auth_signing_script" {
-  type    = string
-  default = "true"
-}
-
 variable "vault_download_url" {
   type    = string
   default = ""
