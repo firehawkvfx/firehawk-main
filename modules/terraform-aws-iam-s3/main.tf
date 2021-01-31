@@ -1,4 +1,4 @@
-### This role and profile allows instances access to S3 buckets to aquire and push back downloaded softwre to provision with.
+### This role and profile allows instances access to S3 buckets to aquire and push back downloaded softwre to provision with.  It also has prerequisites for consul and vault access.
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
