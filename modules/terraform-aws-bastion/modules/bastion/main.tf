@@ -51,27 +51,27 @@ resource "aws_security_group" "bastion" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
-    cidr_blocks = [var.remote_ip_cidr]
+    cidr_blocks = var.remote_ip_cidr_list
     description = "ssh"
   }
   ingress {
     protocol    = "tcp"
     from_port   = 443
     to_port     = 443
-    cidr_blocks = [var.remote_ip_cidr]
+    cidr_blocks = var.remote_ip_cidr_list
     description = "https"
   }
   ingress {
     protocol    = "udp"
     from_port   = 1194
     to_port     = 1194
-    cidr_blocks = [var.remote_ip_cidr]
+    cidr_blocks = var.remote_ip_cidr_list
   }
   ingress {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = [var.remote_ip_cidr]
+    cidr_blocks = var.remote_ip_cidr_list
     description = "icmp"
   }
   egress {

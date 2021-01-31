@@ -48,7 +48,8 @@ else
     export TF_VAR_vault_public_key=$(cat $public_key_path)
 fi
 export TF_VAR_vault_public_key=$(cat $public_key_path)
-export TF_VAR_remote_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32"
+export TF_VAR_remote_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32" # initially there will be no remote ip onsite, so we use the cloud 9 ip.
+export TF_VAR_remote_cloud_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32" # The cloud 9 ip to provision with
 export TF_VAR_inventory="$(to_abs_path $SCRIPTDIR/../secrets/inventory)"
 mkdir -p $TF_VAR_inventory
 

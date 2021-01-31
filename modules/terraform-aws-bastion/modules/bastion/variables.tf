@@ -4,8 +4,8 @@ variable "name" {
 
 variable "bastion_ami_id" {
   description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer."
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "create_vpc" {
@@ -27,7 +27,8 @@ variable "vpc_cidr" {
 # variable "vpn_cidr" {
 # }
 
-variable "remote_ip_cidr" {
+variable "remote_ip_cidr_list" {
+  type = list(string)
 }
 
 variable "public_subnets_cidr_blocks" {

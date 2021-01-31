@@ -31,3 +31,8 @@ variable "route_public_domain_name" {
   type        = bool
   default     = false
 }
+
+variable "remote_cloud_ip_cidr" {
+  description = "The remote cloud IP address that will access the bastion (cloud 9)"
+  type = string
+}

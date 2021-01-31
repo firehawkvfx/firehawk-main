@@ -69,7 +69,7 @@ data "vault_generic_secret" "private_domain" { # Get the map of data at the path
   path = "${local.mount_path}/network/private_domain"
 }
 
-data "vault_generic_secret" "remote_public_ip" { # Get the map of data at the path
+data "vault_generic_secret" "remote_public_ip" { # The remote onsite IP address
   path = "${local.mount_path}/network/remote_public_ip"
 }
 
@@ -102,11 +102,12 @@ module "bastion" {
   name           = "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
   bastion_ami_id = var.bastion_ami_id
 
-  aws_key_name = var.aws_key_name
+  # aws_key_name = var.aws_key_name
+  aws_key_nam = "macbook"
 
   vpc_id                     = local.vpc_id
   vpc_cidr                   = local.vpc_cidr
-  remote_ip_cidr             = "${local.remote_public_ip}/32"
+  remote_ip_cidr_list        = ["${local.remote_public_ip}/32", "${var.remote_cloud_ip_cidr}"]
   public_subnet_ids          = local.public_subnets
   public_subnets_cidr_blocks = local.public_subnet_cidr_blocks
   remote_subnet_cidr         = local.remote_subnet_cidr
