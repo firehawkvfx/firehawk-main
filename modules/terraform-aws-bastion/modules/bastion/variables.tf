@@ -5,7 +5,6 @@ variable "name" {
 variable "bastion_ami_id" {
   description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer."
   type        = string
-  default     = null
 }
 
 variable "create_vpc" {

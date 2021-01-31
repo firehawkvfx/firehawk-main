@@ -16,12 +16,12 @@ export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/plac
 
 # Packer Vars
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
-if [[ -f "$SCRIPTDIR/modules/bastion-ami/manifest.json" ]]; then
-    export PKR_VAR_bastion_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' $SCRIPTDIR/modules/bastion-ami/manifest.json | tail -1 | cut -d ":" -f2)"
-    echo "Found bastion_centos7_ami in manifest: PKR_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami"
-    export TF_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami
-    export TF_VAR_bastion_ami_id=$TF_VAR_bastion_centos7_ami
-fi
+# if [[ -f "$SCRIPTDIR/modules/bastion-ami/manifest.json" ]]; then
+#     export PKR_VAR_bastion_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' $SCRIPTDIR/modules/bastion-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+#     echo "Found bastion_centos7_ami in manifest: PKR_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami"
+#     export TF_VAR_bastion_centos7_ami=$PKR_VAR_bastion_centos7_ami
+#     export TF_VAR_bastion_ami_id=$TF_VAR_bastion_centos7_ami
+# fi
 if [[ -f "$SCRIPTDIR/modules/nice-dcv-ami/manifest.json" ]]; then
     export PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami="$(jq -r '.builds[] | select(.name == "amazonlinux2-nicedcv-nvidia-ami") | .artifact_id' $SCRIPTDIR/modules/nice-dcv-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     echo "Found bastion_amazonlinux2_nicedcv_nvidia_ami in manifest: PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami=$PKR_VAR_bastion_amazonlinux2_nicedcv_nvidia_ami"
