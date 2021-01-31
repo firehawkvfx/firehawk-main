@@ -352,7 +352,9 @@ build {
       # test=$(ls -A); if [[ $? != 0 ]]; then; echo "Command failed."; fi
       "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
       "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
-      "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'",            # check default lookup will resolve vault
+      "set -x; vault_ip=$(dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }')",            # check default lookup will resolve vault
+      "echo \"vault_ip=$vault_ip\"",
+      "if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed'; dig vault.service.consul; exit 1; fi"
     ]
     # only = ["amazon-ebs.ubuntu18-ami"]
   }
