@@ -12,7 +12,7 @@
 # constraints documentation
 # https://www.packer.io/docs/from-1.5/variables#type-constraints for more info.
 variable "aws_region" {
-  type = string
+  type    = string
   default = null
 }
 
@@ -27,7 +27,7 @@ variable "install_auth_signing_script" {
 }
 
 variable "resourcetier" {
-  type    = string
+  type = string
 }
 
 variable "consul_download_url" {
@@ -75,6 +75,22 @@ variable "subnet_id" {
   type = string
 }
 
+variable "amazon_linux_2_ami" {
+  type = string
+}
+
+variable "ubuntu16_ami" {
+  type = string
+}
+
+variable "ubuntu18_ami" {
+  type = string
+}
+
+variable "centos7_ami" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -91,17 +107,18 @@ source "amazon-ebs" "amazon-linux-2-ami" {
   ami_name        = "firehawk-base-amazon-linux-2-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  source_ami_filter {
-    filters = {
-      architecture                       = "x86_64"
-      "block-device-mapping.volume-type" = "gp2"
-      name                               = "*amzn2-ami-hvm-*"
-      root-device-type                   = "ebs"
-      virtualization-type                = "hvm"
-    }
-    most_recent = true
-    owners      = ["amazon"]
-  }
+  source_ami      = "${var.amazon_linux_2_ami}"
+  # source_ami_filter {
+  #   filters = {
+  #     architecture                       = "x86_64"
+  #     "block-device-mapping.volume-type" = "gp2"
+  #     name                               = "*amzn2-ami-hvm-*"
+  #     root-device-type                   = "ebs"
+  #     virtualization-type                = "hvm"
+  #   }
+  #   most_recent = true
+  #   owners      = ["amazon"]
+  # }
   ssh_username = "ec2-user"
 
   vpc_id               = "${var.vpc_id}"
@@ -117,14 +134,15 @@ source "amazon-ebs" "centos7-ami" {
   ami_name        = "firehawk-base-centos7-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  source_ami_filter {
-    filters = {
-      name         = "CentOS Linux 7 x86_64 HVM EBS *"
-      product-code = "aw0evgkw8e5c1q413zgy5pjce"
-    }
-    most_recent = true
-    owners      = ["679593333241"]
-  }
+  source_ami      = "${var.centos7_ami}"
+  # source_ami_filter {
+  #   filters = {
+  #     name         = "CentOS Linux 7 x86_64 HVM EBS *"
+  #     product-code = "aw0evgkw8e5c1q413zgy5pjce"
+  #   }
+  #   most_recent = true
+  #   owners      = ["679593333241"]
+  # }
   ssh_username = "centos"
 
   vpc_id               = "${var.vpc_id}"
@@ -140,17 +158,18 @@ source "amazon-ebs" "ubuntu16-ami" {
   ami_name        = "firehawk-base-ubuntu16-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  source_ami_filter {
-    filters = {
-      architecture                       = "x86_64"
-      "block-device-mapping.volume-type" = "gp2"
-      name                               = "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"
-      root-device-type                   = "ebs"
-      virtualization-type                = "hvm"
-    }
-    most_recent = true
-    owners      = ["099720109477"]
-  }
+  source_ami      = "${var.ubuntu16_ami}"
+  # source_ami_filter {
+  #   filters = {
+  #     architecture                       = "x86_64"
+  #     "block-device-mapping.volume-type" = "gp2"
+  #     name                               = "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"
+  #     root-device-type                   = "ebs"
+  #     virtualization-type                = "hvm"
+  #   }
+  #   most_recent = true
+  #   owners      = ["099720109477"]
+  # }
   ssh_username = "ubuntu"
 
   vpc_id               = "${var.vpc_id}"
@@ -166,17 +185,18 @@ source "amazon-ebs" "ubuntu18-ami" {
   ami_name        = "firehawk-base-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  source_ami_filter {
-    filters = {
-      architecture                       = "x86_64"
-      "block-device-mapping.volume-type" = "gp2"
-      name                               = "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
-      root-device-type                   = "ebs"
-      virtualization-type                = "hvm"
-    }
-    most_recent = true
-    owners      = ["099720109477"]
-  }
+  source_ami      = "${var.ubuntu18_ami}"
+  # source_ami_filter {
+  #   filters = {
+  #     architecture                       = "x86_64"
+  #     "block-device-mapping.volume-type" = "gp2"
+  #     name                               = "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
+  #     root-device-type                   = "ebs"
+  #     virtualization-type                = "hvm"
+  #   }
+  #   most_recent = true
+  #   owners      = ["099720109477"]
+  # }
   ssh_username = "ubuntu"
 
   vpc_id               = "${var.vpc_id}"
@@ -211,19 +231,19 @@ build {
     source      = "${var.ca_public_key_path}"
   }
   provisioner "shell" {
-    inline         = [
+    inline = [
       "echo \"hostname: $(sudo hostnamectl)\"",
       "sudo cat /etc/hostname",
       "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
       "sudo mkdir -p /opt/vault/scripts/",
       "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
       "else",
-      "sudo rm /tmp/sign-request.py", 
+      "sudo rm /tmp/sign-request.py",
       "fi",
-      "sudo mkdir -p /opt/vault/tls/", 
-      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/", 
-      "sudo chmod -R 600 /opt/vault/tls", 
-      "sudo chmod 700 /opt/vault/tls", 
+      "sudo mkdir -p /opt/vault/tls/",
+      "sudo mv /tmp/ca.crt.pem /opt/vault/tls/",
+      "sudo chmod -R 600 /opt/vault/tls",
+      "sudo chmod 700 /opt/vault/tls",
       "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
     ]
     inline_shebang = "/bin/bash -e"
@@ -239,7 +259,7 @@ build {
     only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   }
   provisioner "shell" {
-    inline         = [
+    inline = [
       # "sudo apt-get -y install python3.7",
       # "sudo dpkg --get-selections | grep hold",
       "sudo apt update -y",
@@ -248,7 +268,7 @@ build {
       "python3 -m pip install --upgrade pip",
       "python3 -m pip install boto3",
       "python3 -m pip --version"
-      ]
+    ]
     inline_shebang = "/bin/bash -e"
     only           = ["amazon-ebs.ubuntu18-ami"]
   }
@@ -260,8 +280,8 @@ build {
       "sudo yum install -y python python3.7 python3-pip",
       "python3 -m pip install --user --upgrade pip",
       "python3 -m pip install --user boto3"
-      ]
-    only   = ["amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
+    ]
+    only = ["amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }
 
   ### This block will install Vault and Consul Agent
@@ -290,8 +310,8 @@ build {
   provisioner "shell" { # jq requires this repo on centos 7
     inline = [
       "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-      ]
-    only   = ["amazon-ebs.centos7-ami"]
+    ]
+    only = ["amazon-ebs.centos7-ami"]
   }
 
 
@@ -302,7 +322,7 @@ build {
       " /tmp/terraform-aws-consul/modules/install-consul/install-consul --download-url ${var.consul_download_url};",
       "else",
       " /tmp/terraform-aws-consul/modules/install-consul/install-consul --version ${var.consul_version};",
-      "fi"]
+    "fi"]
   }
 
   provisioner "shell" { # configure systemd-resolved
@@ -312,7 +332,7 @@ build {
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
       "set -x; sudo cat /etc/systemd/resolved.conf",
-      ]
+    ]
     only = ["amazon-ebs.ubuntu18-ami"]
   }
   provisioner "shell" {
@@ -328,17 +348,17 @@ build {
       # test=$(ls -A); if [[ $? != 0 ]]; then; echo "Command failed."; fi
       "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
       "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
-      "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check default lookup will resolve vault
-      ]
+      "set -x; dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'",            # check default lookup will resolve vault
+    ]
     # only = ["amazon-ebs.ubuntu18-ami"]
   }
 
   post-processor "manifest" {
-      output = "${local.template_dir}/manifest.json"
-      strip_path = true
-      custom_data = {
-        timestamp = "${local.timestamp}"
-      }
+    output     = "${local.template_dir}/manifest.json"
+    strip_path = true
+    custom_data = {
+      timestamp = "${local.timestamp}"
+    }
   }
 }
 
