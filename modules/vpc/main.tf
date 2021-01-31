@@ -31,7 +31,7 @@ module "vpc" {
 
   sleep          = var.sleep
   create_bastion = false
-  create_bastion_graphical = var.create_bastion_graphical
+  create_bastion_graphical = false
   bastion_ami_id = var.bastion_ami_id
   bastion_graphical_ami_id = var.bastion_graphical_ami_id
 
