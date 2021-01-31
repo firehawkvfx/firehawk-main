@@ -1,6 +1,6 @@
-# This open vpn server base ami's primary purpose is to produce an image with apt-get update 
-# apt-get update can be unstable on a daily basis so the base ami once successful can be reused for further ami configuration.
-
+# The base AMI's purpose is to produce an image with apt-get/yum updates 
+# Updates can be unstable on a daily basis so the base ami once successful can be reused for further ami configuration also improving build time.
+# Avoiding updates altogether is not ideal as some packages and executables depend on updates to function.
 
 variable "aws_region" {
   type = string
