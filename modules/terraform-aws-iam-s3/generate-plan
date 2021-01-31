@@ -22,7 +22,10 @@ if [[ -z "$TF_VAR_bucket_extension" ]]; then
     exit_if_error 1 "TF_VAR_bucket_extension not defined.  Ensure you have run 'source update_vars.sh' from the repository root folder."
 fi
 
-$SCRIPTDIR/s3-backend-template/generate-s3-backend
-
-terraform init -input=false
+terraform init \
+    -input=false \
+    -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
+    -backend-config="key=main/terraform-aws-iam-s3/terraform.tfstate" \
+    -backend-config="region=$AWS_DEFAULT_REGION" \
+    -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
 terraform plan -out=tfplan -input=false
