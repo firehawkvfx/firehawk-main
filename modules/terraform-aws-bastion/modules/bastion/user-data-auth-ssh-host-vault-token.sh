@@ -5,8 +5,6 @@
 
 set -e
 
-admin_user="${openvpn_admin_user}" 
-admin_pw="${openvpn_admin_pw}"
 # TODO these will be replaced with calls to vault.
 
 # Send the log output from this script to user-data.log, syslog, and the console
