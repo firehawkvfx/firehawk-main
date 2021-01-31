@@ -114,3 +114,31 @@ path "auth/token/renew" {
 path "auth/token/renew-self" {
   capabilities = ["update"]
 }
+
+# SSH host certificates
+
+path "ssh-host-signer/roles/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "ssh-host-signer/config/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "ssh-host-signer/sign/*" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# SSH client certificates
+
+path "ssh-client-signer/roles" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "ssh-client-signer/config/*" {
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "ssh-client-signer/sign/*" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
