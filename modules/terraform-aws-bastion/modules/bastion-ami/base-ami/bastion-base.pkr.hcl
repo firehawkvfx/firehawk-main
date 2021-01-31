@@ -152,7 +152,7 @@ build {
       ]
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline_shebang = "/bin/bash -e"
-    only = ["amazon-ebs.ubuntu18-ami", "amazon-ebs.ubuntu16-ami"]
+    only = ["amazon-ebs.ubuntu18-ami"]
   }
   
   provisioner "shell" {
@@ -168,7 +168,7 @@ build {
     inline_shebang = "/bin/bash -e"
     environment_vars = ["DEBIAN_FRONTEND=noninteractive"]
     inline         = [
-      "sudo apt-get update -y"
+      "sudo yum update -y"
     ]
     only = ["amazon-ebs.centos7-ami", "amazon-linux-2-ami"]
   }
