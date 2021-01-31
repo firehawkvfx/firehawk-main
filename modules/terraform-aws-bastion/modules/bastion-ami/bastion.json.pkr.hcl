@@ -328,7 +328,7 @@ build {
 
   provisioner "shell" { # configure systemd-resolved
     inline = [
-      "set -x; sudo sed -i \"s/#Domains=/Domains=~service.consul./g\" /etc/systemd/resolved.conf",
+      "set -x; sudo sed -i \"s/#Domains=/Domains=~consul./g\" /etc/systemd/resolved.conf",
       "set -x; /tmp/terraform-aws-consul/modules/setup-systemd-resolved/setup-systemd-resolved",
       "set -x; sudo systemctl daemon-reload",
       "set -x; sudo systemctl restart systemd-resolved",
@@ -368,11 +368,3 @@ build {
     }
   }
 }
-
-
-
-# Example query for the output ami:
-# #!/bin/bash
-
-# AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
-# echo $AMI_ID
