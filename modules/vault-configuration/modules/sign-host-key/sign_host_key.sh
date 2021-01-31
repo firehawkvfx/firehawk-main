@@ -60,12 +60,13 @@ else
     octal_permissions=$(sudo stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
 fi
 octal_permissions=$( python -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
-if [[ "$octal_permissions"!="0644" ]]; then
-    echo "/etc/ssh/ssh_known_hosts octal_permissions currently $octal_permissions.  Setting to 0644"
-    sudo chmod 0644 /etc/ssh/ssh_known_hosts
+echo "$ssh_known_hosts_path octal_permissions currently $octal_permissions."
+if [[ "$octal_permissions" != "0644" ]]; then
+    echo "...Setting to 0644"
+    sudo chmod 0644 $ssh_known_hosts_path
 fi
 
-sudo grep -q "^@cert-authority \*\.consul" /etc/ssh/ssh_known_hosts || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
+sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
 sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
 
 echo "Added CA to $ssh_known_hosts_path."
