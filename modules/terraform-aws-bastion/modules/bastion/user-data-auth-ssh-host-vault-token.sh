@@ -56,8 +56,11 @@ export VAULT_ADDR=https://vault.service.consul:8200
 # Retry and wait for the Vault Agent to write the token out to a file.  This could be
 # because the Vault server is still booting and unsealing, or because run-consul
 # running on the background didn't finish yet
+
+# "vault login  --no-print ${vault_token}"
+
 retry \
-  "vault login  --no-print ${vault_token}" \
+  "vault login ${vault_token}" \
   "Waiting for Vault login"
 
 echo "Aquiring vault data..."
