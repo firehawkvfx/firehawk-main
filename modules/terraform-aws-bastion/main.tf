@@ -103,11 +103,11 @@ module "bastion" {
   bastion_ami_id = var.bastion_ami_id
 
   # aws_key_name = var.aws_key_name
-  aws_key_nam = "macbook"
+  aws_key_name = "macbook"
 
   vpc_id                     = local.vpc_id
   vpc_cidr                   = local.vpc_cidr
-  remote_ip_cidr_list        = ["${local.remote_public_ip}/32", "${var.remote_cloud_ip_cidr}"]
+  remote_ip_cidr_list        = ["${local.remote_public_ip}/32", var.remote_cloud_ip_cidr]
   public_subnet_ids          = local.public_subnets
   public_subnets_cidr_blocks = local.public_subnet_cidr_blocks
   remote_subnet_cidr         = local.remote_subnet_cidr
