@@ -149,9 +149,6 @@ module "consul_iam_policies_for_client" {
 }
 
 resource "vault_token" "ssh_host" {
-  triggers = {
-    instanceid = "${join(",", aws_instance.bastion.*.id)}"
-  }
   # dynamically generate a token with constrained permisions for the host role.
   role_name = "host-vault-token-creds-role"
 
