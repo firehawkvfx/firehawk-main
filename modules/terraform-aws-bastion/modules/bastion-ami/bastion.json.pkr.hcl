@@ -356,6 +356,7 @@ build {
       "echo \"vault_ip=$vault_ip\"",
       "if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed' >&2; dig vault.service.consul; exit 1; fi"
     ]
+    inline_shebang = "/bin/bash -e"
     # only = ["amazon-ebs.ubuntu18-ami"]
   }
 
