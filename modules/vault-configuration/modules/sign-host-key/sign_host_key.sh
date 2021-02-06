@@ -70,6 +70,7 @@ sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-
 sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
 
 echo "Added CA to $ssh_known_hosts_path."
+sudo systemctl restart sshd
 echo "Signing SSH host key done."
 
 ### End sign SSH host key

@@ -32,11 +32,16 @@ vault write ssh-client-signer/sign/ssh-role \
 vault write -field=signed_key ssh-client-signer/sign/ssh-role \
     public_key=@$HOME/.ssh/id_rsa.pub > $HOME/.ssh/id_rsa-cert.pub
 
+sudo chmod 0644 $HOME/.ssh/id_rsa-cert.pub
+
 # View result metadata
 ssh-keygen -Lf $HOME/.ssh/id_rsa-cert.pub
 
+
 # centos / amazon linux, restart ssh service
 sudo systemctl restart sshd
+
+echo "Signing SSH client key done."
 
 # You should be able to ssh into a target host:
 # ssh -i signed-cert.pub -i ~/.ssh/id_rsa username@10.0.23.5

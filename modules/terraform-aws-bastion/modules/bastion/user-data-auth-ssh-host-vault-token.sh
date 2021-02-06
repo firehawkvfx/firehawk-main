@@ -76,6 +76,7 @@ if sudo test ! -f "$trusted_ca"; then
     exit 1
 fi
 
+echo "LogLevel VERBOSE" | sudo tee --append /etc/ssh/sshd_config # for debug
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
@@ -133,8 +134,18 @@ fi
 
 sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
 sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
-
+ls -ltriah $ssh_known_hosts_path
 echo "Added CA to $ssh_known_hosts_path."
+
+ssh_known_hosts_path=/home/centos/.ssh/known_hosts
+sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
+sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+ls -ltriah $ssh_known_hosts_path
+echo "Added CA to $ssh_known_hosts_path."
+
+# centos / amazon linux, restart ssh service
+sudo systemctl restart sshd
+
 echo "Signing SSH host key done."
 
 ### End sign SSH host key
