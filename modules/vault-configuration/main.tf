@@ -49,10 +49,7 @@ resource "vault_policy" "pki_int_policy" {
   policy = file("policies/pki_int.hcl")
 }
 
-resource "vault_policy" "ssh_host_policy" {
-  name   = "ssh_host"
-  policy = file("policies/ssh_host.hcl")
-}
+
 
 resource "vault_mount" "dev" {
   path        = "dev"
@@ -372,6 +369,11 @@ resource "vault_pki_secret_backend_role" "firehawkvfx-dot-com" {
 
 ### SSH key signing for machines that wish to ssh to other known hosts ###
 
+resource "vault_policy" "ssh_host_policy" {
+  name   = "ssh_host"
+  policy = file("policies/ssh_host.hcl")
+}
+
 resource "vault_mount" "ssh_signer" {
   path        = "ssh-client-signer"
   type        = "ssh"
@@ -393,7 +395,8 @@ resource "vault_ssh_secret_backend_role" "ssh_role" {
       "permit-pty" = ""
   } )
   key_type     = "ca"
-  default_user = "ubuntu"
+  default_user = "centos"
+  # valid_principals= "ubuntu,centos"
   # ttl = "30m0s"
   ttl = "720h"
   # cidr_list     = "0.0.0.0/0"
@@ -429,7 +432,7 @@ resource "vault_token_auth_backend_role" "host_vault_token_role" {
   # disallowed_policies = ["default"]
   # token_bound_cidrs = ["10.0.0.0/16"]
   # token_num_uses   = 1
-  token_period           = 600
+  token_period           = 6000 # 100 mins TODO reduce this after testing
   renewable              = true
   token_explicit_max_ttl = 86400
   # orphan           = true

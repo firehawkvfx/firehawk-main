@@ -152,8 +152,3 @@ echo "Signing SSH host key done."
 
 # if this script fails, we can set the instance health status but we need to capture a fault
 # aws autoscaling set-instance-health --instance-id i-0b03e12682e74746e --health-status Unhealthy
-
-# # Serves the answer in a web server so we can test that this auth client is
-# # authenticating to vault and fetching data correctly
-# echo $response | jq -r .data.the_answer > index.html
-# python -m SimpleHTTPServer 8080 &
