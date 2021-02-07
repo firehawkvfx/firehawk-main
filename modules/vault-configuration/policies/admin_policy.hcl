@@ -131,7 +131,7 @@ path "ssh-host-signer/sign/*" {
 
 # SSH client certificates
 
-path "ssh-client-signer/roles" {
+path "ssh-client-signer/roles/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
