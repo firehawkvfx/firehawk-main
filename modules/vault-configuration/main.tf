@@ -392,7 +392,8 @@ resource "vault_ssh_secret_backend_role" "ssh_role" {
   allowed_users           = "*"
   allowed_extensions      = "permit-pty,permit-port-forwarding"
   default_extensions = tomap( {
-      "permit-pty" = ""
+      "permit-pty" = "",
+      "valid_principals": "centos,ubuntu"
   } )
   key_type     = "ca"
   default_user = "centos"
