@@ -12,7 +12,7 @@ function print_usage {
   echo
   echo "Usage: sign_ssh_key.sh [OPTIONS]"
   echo
-  echo "Signs a public key with Vault for use as an SSH client, generating a public certificate in the same directory as the public key with the suffix '-cert.pub'."
+  echo "If authenticated to Vault, signs a public key with Vault for use as an SSH client, generating a public certificate in the same directory as the public key with the suffix '-cert.pub'."
   echo
   echo "Options:"
   echo
@@ -56,18 +56,17 @@ function assert_not_empty {
   fi
 }
 
-# Aquire the public CA cert to approve an authority for known hosts.
-local -r trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
-vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
-
-# If TrustedUserCAKeys not defined, then add it to sshd_config
-sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
-# Ensure the value for TrustedUserCAKeys is configured correctly
-sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-
 function sign_public_key {
   local -r public_key="$1"
   local -r cert=${public_key/.pub/-cert.pub}
+
+  # Aquire the public CA cert to approve an authority for known hosts.
+  local -r trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
+  vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
+  # If TrustedUserCAKeys not defined, then add it to sshd_config
+  sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
+  # Ensure the value for TrustedUserCAKeys is configured correctly
+  sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
 
   log_info "Signing public key"
   
