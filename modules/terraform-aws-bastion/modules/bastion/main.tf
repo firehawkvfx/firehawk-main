@@ -160,11 +160,11 @@ resource "vault_token" "ssh_host" {
 }
 
 data "template_file" "user_data_auth_client" {
-  template = file("${path.module}/user-data-auth-ssh-host-vault-token.sh")
+  template = file("${path.module}/cloud-init.yaml")
 
-  vars = {
-    aws_domain               = var.aws_domain
-  }
+  # vars = {
+  #   aws_domain               = var.aws_domain
+  # }
 }
 
 locals {
