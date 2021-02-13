@@ -76,7 +76,7 @@ export VAULT_ADDR=https://vault.service.consul:8200
 # "vault login  --no-print ${vault_token}"
 
 retry \
-  "vault login -no-store $VAULT_TOKEN" \
+  "vault login --no-store $VAULT_TOKEN" \
   "Waiting for Vault login"
 
 echo "Aquiring vault data..."
