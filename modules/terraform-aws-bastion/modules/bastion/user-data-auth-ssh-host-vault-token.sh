@@ -23,10 +23,10 @@ function has_yum {
 }
 
 if $(has_yum); then
-    hostname=$(hostname) # in centos, failed dns lookup can cause sudo commands to slowdown
+    hostname=$(hostname) # in centos, failed dns lookup can cause commands to slowdown
     # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
     # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
-    echo "127.0.0.1 $hostname.${aws_domain} $hostname" | sudo tee -a /etc/hosts
+    echo "127.0.0.1 $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
 fi
 
 log "hostname: $(hostname)"
@@ -83,19 +83,19 @@ echo "Request Vault sign's the SSH host key and becomes a known host for other m
 
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
 # Aquire the public CA cert to approve an authority
-vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
-if sudo test ! -f "$trusted_ca"; then
+vault read -field=public_key ssh-client-signer/config/ca | tee $trusted_ca
+if test ! -f "$trusted_ca"; then
     echo "Missing $trusted_ca"
     exit 1
 fi
 
-# echo "LogLevel VERBOSE" | sudo tee --append /etc/ssh/sshd_config # for debug
+# echo "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
 # If TrustedUserCAKeys not defined, then add it to sshd_config
-sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
+grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
-sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
+sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
 
-if sudo test ! -f "/etc/ssh/ssh_host_rsa_key.pub"; then
+if test ! -f "/etc/ssh/ssh_host_rsa_key.pub"; then
     echo "Missing public host key /etc/ssh/ssh_host_rsa_key.pub"
     exit 1
 fi
@@ -107,57 +107,57 @@ vault write -format=json ssh-host-signer/sign/hostrole \
 # Aquire the cert
 vault write -field=signed_key ssh-host-signer/sign/hostrole \
     cert_type=host \
-    public_key=@/etc/ssh/ssh_host_rsa_key.pub | sudo tee /etc/ssh/ssh_host_rsa_key-cert.pub
+    public_key=@/etc/ssh/ssh_host_rsa_key.pub | tee /etc/ssh/ssh_host_rsa_key-cert.pub
 
-if sudo test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub"; then
+if test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub"; then
     echo "Failed to aquire /etc/ssh/ssh_host_rsa_key-cert.pub"
     exit 1
 fi
 
-sudo chmod 0640 /etc/ssh/ssh_host_rsa_key-cert.pub
+chmod 0640 /etc/ssh/ssh_host_rsa_key-cert.pub
 
 # Private key and cert are both required for ssh to another host.  Multiple entries for host key may exist.
-sudo grep -q "^HostKey /etc/ssh/ssh_host_rsa_key" /etc/ssh/sshd_config || echo 'HostKey /etc/ssh/ssh_host_rsa_key' | sudo tee --append /etc/ssh/sshd_config
+grep -q "^HostKey /etc/ssh/ssh_host_rsa_key" /etc/ssh/sshd_config || echo 'HostKey /etc/ssh/ssh_host_rsa_key' | tee --append /etc/ssh/sshd_config
 
 # Configure single entry for host cert
-sudo grep -q "^HostCertificate" /etc/ssh/sshd_config || echo 'HostCertificate' | sudo tee --append /etc/ssh/sshd_config
-sudo sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub@g' /etc/ssh/sshd_config
+grep -q "^HostCertificate" /etc/ssh/sshd_config || echo 'HostCertificate' | tee --append /etc/ssh/sshd_config
+sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub@g' /etc/ssh/sshd_config
 
 # Add the CA cert to use it for known host verification
 # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
 key="$(vault read -field=public_key ssh-host-signer/config/ca)"
 
 ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
-if sudo test ! -f $ssh_known_hosts_path; then
+if test ! -f $ssh_known_hosts_path; then
     echo "Creating $ssh_known_hosts_path"
-    sudo touch $ssh_known_hosts_path # ensure known hosts file exists
+    touch $ssh_known_hosts_path # ensure known hosts file exists
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
-    octal_permissions=$(sudo stat -f %A "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
+    octal_permissions=$(stat -f %A "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
 else
-    octal_permissions=$(sudo stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
+    octal_permissions=$(stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
 fi
 octal_permissions=$( python -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
 echo "$ssh_known_hosts_path octal_permissions currently $octal_permissions."
 if [[ "$octal_permissions" != "0644" ]]; then
     echo "...Setting to 0644"
-    sudo chmod 0644 $ssh_known_hosts_path
+    chmod 0644 $ssh_known_hosts_path
 fi
 
-sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
-sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
+sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
 ls -ltriah $ssh_known_hosts_path
 echo "Added CA to $ssh_known_hosts_path."
 
 ssh_known_hosts_path=/home/centos/.ssh/known_hosts
-sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
-sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
+sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
 ls -ltriah $ssh_known_hosts_path
 echo "Added CA to $ssh_known_hosts_path."
 
 # centos / amazon linux, restart ssh service
-sudo systemctl restart sshd
+systemctl restart sshd
 
 echo "Signing SSH host key done."
 
