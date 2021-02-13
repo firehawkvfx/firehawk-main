@@ -29,6 +29,8 @@ locals {
 module "vpc" {
   source = "../terraform-aws-vpc-vpn"
 
+  private_domain = var.aws_domain
+
   sleep          = var.sleep
   create_bastion = false
   create_bastion_graphical = false

@@ -80,3 +80,8 @@ variable "create_key_pair" {
   type        = bool
   default     = true
 }
+
+variable "aws_domain" {
+  description = "The private domain name to be used for hosts within the VPC.  It is recommended this is set to a domain you own to prevent attacks should DNS leak. eg: example.com"
+  type        = string
+}
