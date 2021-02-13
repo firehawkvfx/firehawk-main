@@ -5,9 +5,6 @@
 
 set -e
 
-rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0 # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
-systemctl start network
-
 # Send the log output from this script to user-data.log, syslog, and the console
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
@@ -18,6 +15,17 @@ function log {
  local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
  >&2 echo -e "$timestamp $message"
 }
+
+log "Reconfigure newtwork insterfaces..."
+rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0 # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
+
+systemctl disable NetworkManager
+systemctl status NetworkManager  # -> inactive
+systemctl stop network
+systemctl start network
+# systemctl start NetworkManager
+systemctl start network.service
+systemctl start network
 
 function has_yum {
   [[ -n "$(command -v yum)" ]]
