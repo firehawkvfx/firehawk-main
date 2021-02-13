@@ -47,7 +47,12 @@ bootcmd:
     done
     systemctl restart network
 
-    echo "TEST TEST TEST"
+    echo "TEST TEST TEST $(date +"%Y-%m-%d %H:%M:%S")"
+    sudo echo "sudo TEST TEST $(date +"%Y-%m-%d %H:%M:%S")"
+    echo "TEST TEST TEST $(date +"%Y-%m-%d %H:%M:%S")"
+    sudo echo "sudo TEST TEST $(date +"%Y-%m-%d %H:%M:%S")"
+    echo "TEST TEST TEST $(date +"%Y-%m-%d %H:%M:%S")"
+    sudo echo "sudo TEST TEST $(date +"%Y-%m-%d %H:%M:%S")"
 
     echo "$SHELL"
 
