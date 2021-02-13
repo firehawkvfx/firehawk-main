@@ -168,7 +168,7 @@ data "template_file" "user_data_auth_client" {
 }
 
 locals {
-  public_ip                     = element(concat(aws_eip.bastionip.*.public_ip, list("")), 0)
+  public_ip                     = element(concat(aws_instance.bastion.*.public_ip, list("")), 0)
   private_ip                    = element(concat(aws_instance.bastion.*.private_ip, list("")), 0)
   id                            = element(concat(aws_instance.bastion.*.id, list("")), 0)
   bastion_security_group_id     = element(concat(aws_security_group.bastion.*.id, list("")), 0)
