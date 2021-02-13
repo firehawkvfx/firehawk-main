@@ -44,9 +44,11 @@ log "hostname: $(hostname -f) $(hostname -s)"
 
 log "test sudo delay"
 log "no sudo"
-sudo log "sudo"
+sudo echo "sudo"
+log "sudo"
 log "no sudo"
-sudo log "sudo"
+sudo echo "sudo"
+log "sudo"
 log "no sudo"
 
 # These variables are passed in via Terraform template interpolation
