@@ -5,3 +5,7 @@ output "private_ip" {
 output "public_ip" {
   value = local.public_ip
 }
+
+output "id" {
+  value = local.id
+}
