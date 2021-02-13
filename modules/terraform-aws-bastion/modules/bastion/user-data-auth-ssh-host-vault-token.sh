@@ -27,8 +27,7 @@ if $(has_yum); then
     # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
     # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
     echo "127.0.0.1 $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
-    # hostnamectl set-hostname $(hostname -f)
-    hostnamectl set-hostname $hostname.${aws_domain}
+    hostnamectl set-hostname $hostname.${aws_domain} # Red hat recommends that the hostname uses the FQDN.  hostname -f to resolve the domain may not work at this point on boot, so we use a var.
 fi
 
 log "hostname: $(hostname)"
@@ -67,7 +66,7 @@ function retry {
 
 # If vault cli is installed we can also perform these operations with vault cli
 # The necessary environment variables have to be set
-# export VAULT_TOKEN=$token
+export VAULT_TOKEN=${vault_token}
 export VAULT_ADDR=https://vault.service.consul:8200
 
 # Retry and wait for the Vault Agent to write the token out to a file.  This could be
@@ -77,7 +76,7 @@ export VAULT_ADDR=https://vault.service.consul:8200
 # "vault login  --no-print ${vault_token}"
 
 retry \
-  "vault login ${vault_token}" \
+  "vault login -no-print -no-store" \
   "Waiting for Vault login"
 
 echo "Aquiring vault data..."
