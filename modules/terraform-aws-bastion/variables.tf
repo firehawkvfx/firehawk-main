@@ -31,8 +31,13 @@ variable "route_public_domain_name" {
   default     = false
 }
 
-variable "remote_cloud_ip_cidr" {
-  description = "The remote cloud IP address that will access the bastion (cloud 9)"
+variable "remote_cloud_public_ip_cidr" {
+  description = "The remote cloud IP public address that will access the bastion (cloud 9)"
+  type = string
+}
+
+variable "remote_cloud_private_ip_cidr" {
+  description = "The remote cloud private IP address that will access the bastion (cloud 9)"
   type = string
 }
 

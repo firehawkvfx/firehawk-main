@@ -108,7 +108,7 @@ module "bastion" {
   aws_domain = var.aws_domain
   vpc_id                     = local.vpc_id
   vpc_cidr                   = local.vpc_cidr
-  remote_ip_cidr_list        = ["${local.remote_public_ip}/32", var.remote_cloud_ip_cidr]
+  remote_ip_cidr_list        = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
   public_subnet_ids          = local.public_subnets
   public_subnets_cidr_blocks = local.public_subnet_cidr_blocks
   remote_subnet_cidr         = local.remote_subnet_cidr
