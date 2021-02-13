@@ -14,16 +14,22 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
-# hostname=$(hostname)
-# sed "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
-# sed "/::1/ s/$/ $hostname/" /etc/hosts
-
 # Log the given message. All logs are written to stderr with a timestamp.
 function log {
  local -r message="$1"
  local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
  >&2 echo -e "$timestamp $message"
 }
+
+function has_yum {
+  [[ -n "$(command -v yum)" ]]
+}
+
+if $(has_yum); then
+    hostname=$(hostname) # in centos, failed dns lookup can cause sudo commands to slowdown
+    sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
+    sed -i "/::1/ s/$/ $hostname/" /etc/hosts
+fi
 
 log "hostname: $(hostname)"
 
