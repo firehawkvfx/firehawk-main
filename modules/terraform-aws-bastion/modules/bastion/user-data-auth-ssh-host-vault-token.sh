@@ -5,7 +5,8 @@
 
 set -e
 
-# TODO these will be replaced with calls to vault.
+rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0 # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
+systemctl start network
 
 # Send the log output from this script to user-data.log, syslog, and the console
 # From: https://alestic.com/2010/12/ec2-user-data-output/
@@ -24,14 +25,11 @@ function has_yum {
 
 if $(has_yum); then
     hostname=$(hostname -s) # in centos, failed dns lookup can cause commands to slowdown
-    # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
-    # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
-    echo "127.0.0.1 $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
+    echo "127.0.0.1   $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
     hostnamectl set-hostname $hostname.${aws_domain} # Red hat recommends that the hostname uses the FQDN.  hostname -f to resolve the domain may not work at this point on boot, so we use a var.
 fi
 
 log "hostname: $(hostname)"
-
 log "hostname: $(hostname -f) $(hostname -s)"
 
 # These variables are passed in via Terraform template interpolation
@@ -76,7 +74,7 @@ export VAULT_ADDR=https://vault.service.consul:8200
 # "vault login  --no-print ${vault_token}"
 
 retry \
-  "vault login --no-store $VAULT_TOKEN" \
+  "vault login --no-print $VAULT_TOKEN" \
   "Waiting for Vault login"
 
 echo "Aquiring vault data..."
