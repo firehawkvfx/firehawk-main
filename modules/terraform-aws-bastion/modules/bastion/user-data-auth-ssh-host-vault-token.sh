@@ -26,7 +26,7 @@ if $(has_yum); then
     hostname=$(hostname) # in centos, failed dns lookup can cause sudo commands to slowdown
     # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
     # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
-    echo "127.0.0.1 $hostname.${aws_domain} $hostname"
+    echo "127.0.0.1 $hostname.${aws_domain} $hostname" | sudo tee -a /etc/hosts
 fi
 
 log "hostname: $(hostname)"
