@@ -127,34 +127,38 @@ sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub@g
 # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
 key="$(vault read -field=public_key ssh-host-signer/config/ca)"
 
-ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
-if test ! -f $ssh_known_hosts_path; then
-    echo "Creating $ssh_known_hosts_path"
-    touch $ssh_known_hosts_path # ensure known hosts file exists
-fi
+# ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
+function ensure_known_hosts {
+  local -r ssh_known_hosts_path="$1"
+  if test ! -f $ssh_known_hosts_path; then
+      echo "Creating $ssh_known_hosts_path"
+      touch $ssh_known_hosts_path # ensure known hosts file exists
+  fi
+  if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
+      octal_permissions=$(stat -f %A "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
+  else
+      octal_permissions=$(stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
+  fi
+  octal_permissions=$( python -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
+  echo "$ssh_known_hosts_path octal_permissions currently $octal_permissions."
+  if [[ "$octal_permissions" != "0644" ]]; then
+      echo "...Setting to 0644"
+      chmod 0644 $ssh_known_hosts_path
+  fi
 
-if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
-    octal_permissions=$(stat -f %A "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
-else
-    octal_permissions=$(stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
-fi
-octal_permissions=$( python -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
-echo "$ssh_known_hosts_path octal_permissions currently $octal_permissions."
-if [[ "$octal_permissions" != "0644" ]]; then
-    echo "...Setting to 0644"
-    chmod 0644 $ssh_known_hosts_path
-fi
+  grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
+  sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+  ls -ltriah $ssh_known_hosts_path
+  echo "Added CA to $ssh_known_hosts_path."
+}
+ensure_known_hosts /etc/ssh/ssh_known_hosts
 
-grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
-sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
-ls -ltriah $ssh_known_hosts_path
-echo "Added CA to $ssh_known_hosts_path."
-
-ssh_known_hosts_path=/home/centos/.ssh/known_hosts
-grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
-sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
-ls -ltriah $ssh_known_hosts_path
-echo "Added CA to $ssh_known_hosts_path."
+# ssh_known_hosts_path=/home/centos/.ssh/known_hosts
+ensure_known_hosts /home/centos/.ssh/known_hosts
+# grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
+# sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+# ls -ltriah $ssh_known_hosts_path
+# echo "Added CA to $ssh_known_hosts_path."
 
 # centos / amazon linux, restart ssh service
 systemctl restart sshd
