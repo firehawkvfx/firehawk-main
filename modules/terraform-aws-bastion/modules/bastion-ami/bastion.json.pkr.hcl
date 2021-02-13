@@ -340,7 +340,9 @@ build {
   provisioner "shell" {
     inline = [
       "/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq",
-      "sudo systemctl restart dnsmasq"
+      "sudo systemctl restart dnsmasq",
+      "echo 'Reconfigure network insterfaces...'",
+      "rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0" # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
       ]
     only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }

@@ -16,17 +16,17 @@ function log {
  >&2 echo -e "$timestamp $message"
 }
 
-log "Reconfigure newtwork insterfaces..."
-rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0 # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
+# log "Reconfigure network insterfaces..."
+# rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0 # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
 
-yum install -y NetworkManager
-systemctl disable NetworkManager
-systemctl status NetworkManager  # -> inactive
-systemctl stop network
-systemctl start network
-# systemctl start NetworkManager
-systemctl start network.service
-systemctl start network
+# yum install -y NetworkManager
+# systemctl disable NetworkManager
+# systemctl status NetworkManager  # -> inactive
+# systemctl stop network
+# systemctl start network
+# # systemctl start NetworkManager
+# systemctl start network.service
+# systemctl start network
 
 function has_yum {
   [[ -n "$(command -v yum)" ]]
