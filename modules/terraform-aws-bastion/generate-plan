@@ -32,9 +32,9 @@ fi
 
 manifest="$SCRIPTDIR/modules/bastion-ami/base-ami/manifest.json"
 if [[ -f "$manifest" ]]; then
-    export TF_VAR_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
-    echo "Found centos7_ami in manifest: TF_VAR_centos7_ami=$TF_VAR_centos7_ami"
-    export TF_VAR_bastion_ami_id=$TF_VAR_centos7_ami
+    # export TF_VAR_centos7_ami="$(jq -r '.builds[] | select(.name == "centos7-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
+    # echo "Found centos7_ami in manifest: TF_VAR_centos7_ami=$TF_VAR_centos7_ami"
+    export TF_VAR_bastion_ami_id=ami-0b2045146eb00b617
 fi
 
 terraform init \
