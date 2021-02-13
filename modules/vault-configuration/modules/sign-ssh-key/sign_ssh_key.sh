@@ -64,7 +64,7 @@ function sign_public_key {
   local -r trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
   vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
   # If TrustedUserCAKeys not defined, then add it to sshd_config
-  sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
+  sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee -a /etc/ssh/sshd_config
   # Ensure the value for TrustedUserCAKeys is configured correctly
   sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
 
