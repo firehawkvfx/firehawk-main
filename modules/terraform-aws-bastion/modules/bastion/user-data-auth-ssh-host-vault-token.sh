@@ -11,9 +11,6 @@ set -e
 # From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
-# These variables are passed in via Terraform template interpolation
-/opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
-
 # Log the given message. All logs are written to stderr with a timestamp.
 function log {
  local -r message="$1"
@@ -27,11 +24,15 @@ function has_yum {
 
 if $(has_yum); then
     hostname=$(hostname) # in centos, failed dns lookup can cause sudo commands to slowdown
-    sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
-    sed -i "/::1/ s/$/ $hostname/" /etc/hosts
+    # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
+    # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
+    echo "127.0.0.1 $hostname.${aws_domain} $hostname"
 fi
 
 log "hostname: $(hostname)"
+
+# These variables are passed in via Terraform template interpolation
+/opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
 # A retry function that attempts to run a command a number of times and returns the output
 function retry {

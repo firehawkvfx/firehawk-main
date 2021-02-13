@@ -13,6 +13,8 @@ export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
 export TF_VAR_firehawk_path=$SCRIPTDIR
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
+export TF_VAR_aws_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
+export PKR_VAR_aws_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
 
 # Packer Vars
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
