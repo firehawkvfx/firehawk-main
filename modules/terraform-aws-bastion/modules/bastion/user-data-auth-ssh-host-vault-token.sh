@@ -23,13 +23,10 @@ function has_yum {
 }
 
 if $(has_yum); then
-    hostname=$(hostname) # in centos, failed dns lookup can cause commands to slowdown
-    # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
-    # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
-    echo "127.0.0.1 $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
+    echo "127.0.0.1 $(hostname -f) $(hostname -s)" | tee -a /etc/hosts # in centos, failed dns lookup can cause commands to slowdown
 fi
 
-log "hostname: $(hostname)"
+log "hostname: $(hostname -f) $(hostname -s)"
 
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
