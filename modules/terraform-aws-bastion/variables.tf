@@ -35,3 +35,8 @@ variable "remote_cloud_ip_cidr" {
   description = "The remote cloud IP address that will access the bastion (cloud 9)"
   type = string
 }
+
+variable "aws_domain" {
+  description = "The domain used to resolve FQDN hostnames."
+  type        = string
+}
