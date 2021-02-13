@@ -27,6 +27,8 @@ if $(has_yum); then
     # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
     # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
     echo "127.0.0.1 $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
+    # hostnamectl set-hostname $(hostname -f)
+    hostnamectl set-hostname $hostname.${aws_domain}
 fi
 
 log "hostname: $(hostname)"
