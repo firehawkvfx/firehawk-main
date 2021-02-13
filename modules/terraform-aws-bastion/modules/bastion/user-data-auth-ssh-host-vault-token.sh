@@ -42,6 +42,13 @@ fi
 log "hostname: $(hostname)"
 log "hostname: $(hostname -f) $(hostname -s)"
 
+log "test sudo delay"
+log "no sudo"
+sudo log "sudo"
+log "no sudo"
+sudo log "sudo"
+log "no sudo"
+
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
