@@ -115,7 +115,7 @@ module "bastion" {
 
   route_public_domain_name = var.route_public_domain_name
   route_zone_id            = local.route_zone_id
-  public_domain_name       = local.public_domain_name
+  # public_domain_name       = local.public_domain_name
 
   sleep = var.sleep # sleep will stop instances to save cost during idle time.
 
