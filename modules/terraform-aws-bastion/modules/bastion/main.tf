@@ -89,12 +89,12 @@ locals {
     route = "public"
   }
 }
-resource "aws_eip" "bastionip" {
-  count    = var.create_vpc ? 1 : 0
-  vpc      = true
-  instance = aws_instance.bastion[count.index].id
-  tags     = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
-}
+# resource "aws_eip" "bastionip" {
+#   count    = var.create_vpc ? 1 : 0
+#   vpc      = true
+#   instance = aws_instance.bastion[count.index].id
+#   tags     = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
+# }
 
 resource "aws_instance" "bastion" {
   count         = var.create_vpc ? 1 : 0
@@ -163,9 +163,6 @@ data "template_file" "user_data_auth_client" {
   template = file("${path.module}/user-data-auth-ssh-host-vault-token.sh")
 
   vars = {
-    consul_cluster_tag_key   = var.consul_cluster_tag_key
-    consul_cluster_tag_value = var.consul_cluster_name
-    vault_token              = vault_token.ssh_host.client_token
     aws_domain               = var.aws_domain
   }
 }
@@ -177,7 +174,7 @@ locals {
   bastion_security_group_id     = element(concat(aws_security_group.bastion.*.id, list("")), 0)
   bastion_vpn_security_group_id = element(concat(aws_security_group.bastion_vpn.*.id, list("")), 0)
   vpc_security_group_ids        = var.create_vpn ? [local.bastion_security_group_id, local.bastion_vpn_security_group_id] : [local.bastion_security_group_id]
-  bastion_address               = var.route_public_domain_name ? "bastion.${var.public_domain_name}" : local.public_ip
+  # bastion_address               = var.route_public_domain_name ? "bastion.${var.public_domain_name}" : local.public_ip
 }
 
 
@@ -240,37 +237,14 @@ locals {
 variable "route_zone_id" {
 }
 
-variable "public_domain_name" {
-}
-
-resource "aws_route53_record" "bastion_record" {
-  count   = var.route_public_domain_name && var.create_vpc ? 1 : 0
-  zone_id = element(concat(list(var.route_zone_id), list("")), 0)
-  name    = element(concat(list("bastion.${var.public_domain_name}"), list("")), 0)
-  type    = "A"
-  ttl     = 300
-  records = [local.public_ip]
-}
-
-# resource "null_resource" "start-bastion" {
-#   depends_on = [aws_instance.bastion]
-#   count      = (! var.sleep && var.create_vpc) ? 1 : 0
-
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command     = "sleep 10; aws ec2 start-instances --instance-ids ${local.id}"
-#   }
+# variable "public_domain_name" {
 # }
 
-# resource "null_resource" "shutdown-bastion" {
-#   depends_on = [aws_instance.bastion]
-#   count      = var.sleep && var.create_vpc ? 1 : 0
-
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command     = <<EOT
-#       aws ec2 stop-instances --instance-ids ${local.id}
-# EOT
-#   }
+# resource "aws_route53_record" "bastion_record" {
+#   count   = var.route_public_domain_name && var.create_vpc ? 1 : 0
+#   zone_id = element(concat(list(var.route_zone_id), list("")), 0)
+#   name    = element(concat(list("bastion.${var.public_domain_name}"), list("")), 0)
+#   type    = "A"
+#   ttl     = 300
+#   records = [local.public_ip]
 # }
-
