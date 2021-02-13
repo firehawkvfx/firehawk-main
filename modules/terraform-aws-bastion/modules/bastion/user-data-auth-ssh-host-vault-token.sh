@@ -14,12 +14,18 @@ exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
+# hostname=$(hostname)
+# sed "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
+# sed "/::1/ s/$/ $hostname/" /etc/hosts
+
 # Log the given message. All logs are written to stderr with a timestamp.
 function log {
  local -r message="$1"
  local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
  >&2 echo -e "$timestamp $message"
 }
+
+log "hostname: $(hostname)"
 
 # A retry function that attempts to run a command a number of times and returns the output
 function retry {
@@ -76,7 +82,7 @@ if sudo test ! -f "$trusted_ca"; then
     exit 1
 fi
 
-echo "LogLevel VERBOSE" | sudo tee --append /etc/ssh/sshd_config # for debug
+# echo "LogLevel VERBOSE" | sudo tee --append /etc/ssh/sshd_config # for debug
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
