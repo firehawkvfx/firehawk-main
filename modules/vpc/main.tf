@@ -36,6 +36,8 @@ module "vpc" {
   bastion_graphical_ami_id = var.bastion_graphical_ami_id
 
   remote_ip_cidr = var.remote_ip_cidr
+  remote_cloud_public_ip_cidr = var.remote_cloud_public_ip_cidr
+  remote_cloud_private_ip_cidr = var.remote_cloud_private_ip_cidr
   remote_ip_graphical_cidr = var.remote_ip_graphical_cidr
   remote_subnet_cidr = var.remote_ip_cidr # this is a dummy address. normally for the vpn to function this should be the cidr range of your private subnet
 
