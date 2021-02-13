@@ -23,8 +23,13 @@ function has_yum {
 }
 
 if $(has_yum); then
-    echo "127.0.0.1 $(hostname -f) $(hostname -s)" | tee -a /etc/hosts # in centos, failed dns lookup can cause commands to slowdown
+    hostname=$(hostname -s) # in centos, failed dns lookup can cause commands to slowdown
+    # sed -i "/127\.0\.0\.1/ s/$/ $hostname/" /etc/hosts
+    # sed -i "/::1/ s/$/ $hostname/" /etc/hosts
+    echo "127.0.0.1 $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
 fi
+
+log "hostname: $(hostname)"
 
 log "hostname: $(hostname -f) $(hostname -s)"
 
