@@ -89,12 +89,12 @@ locals {
     route = "public"
   }
 }
-resource "aws_eip" "bastionip" {
-  count    = var.create_vpc ? 1 : 0
-  vpc      = true
-  instance = aws_instance.bastion[count.index].id
-  tags     = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
-}
+# resource "aws_eip" "bastionip" {
+#   count    = var.create_vpc ? 1 : 0
+#   vpc      = true
+#   instance = aws_instance.bastion[count.index].id
+#   tags     = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
+# }
 
 resource "aws_instance" "bastion" {
   count         = var.create_vpc ? 1 : 0
@@ -173,7 +173,7 @@ data "template_file" "user_data_auth_client" {
 }
 
 locals {
-  public_ip                     = element(concat(aws_eip.bastionip.*.public_ip, list("")), 0)
+  public_ip                     = element(concat(aws_instance.bastion.*.public_ip, list("")), 0)
   private_ip                    = element(concat(aws_instance.bastion.*.private_ip, list("")), 0)
   public_dns                    = element(concat(aws_instance.bastion.*.public_dns, list("")), 0)
   id                            = element(concat(aws_instance.bastion.*.id, list("")), 0)
