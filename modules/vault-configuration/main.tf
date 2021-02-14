@@ -423,7 +423,7 @@ resource "vault_ssh_secret_backend_role" "host_role" {
   ttl                     = "87600h"
   max_ttl                 = "87600h"
   allow_host_certificates = true
-  allowed_domains         = "localdomain,consul"
+  allowed_domains         = "localdomain,consul,${var.aws_external_domain}"
   allow_subdomains        = true
 }
 
