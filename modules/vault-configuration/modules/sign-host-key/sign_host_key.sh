@@ -3,6 +3,7 @@ set -e
 
 echo "Request Vault sign's the SSH host key and becomes a known host for other machines."
 
+aws_external_domain=$TF_VAR_aws_external_domain
 trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
 # Aquire the public CA cert to approve an authority
 vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
