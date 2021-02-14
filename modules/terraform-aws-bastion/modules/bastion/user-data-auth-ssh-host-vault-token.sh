@@ -1,12 +1,11 @@
 #!/bin/bash
 # This script is meant to be run in the User Data of each EC2 Instance while it's booting. The script uses the
-# run-consul script to configure and start Consul in client mode. Note that this script assumes it's running in an AMI
-# built from the Packer template in examples/vault-consul-ami/vault-consul.json.
+# run-consul script to configure and start Consul in client mode, and vault to sign the host key. Note that this script assumes it's running in an AMI
+# built from the Packer template in firehawk-main/modules/terraform-aws-bastion/modules/bastion-ami
 
 set -e
 
-# Send the log output from this script to user-data.log, syslog, and the console
-# From: https://alestic.com/2010/12/ec2-user-data-output/
+# Send the log output from this script to user-data.log, syslog, and the console. From: https://alestic.com/2010/12/ec2-user-data-output/
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 # Log the given message. All logs are written to stderr with a timestamp.
@@ -15,18 +14,6 @@ function log {
  local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
  >&2 echo -e "$timestamp $message"
 }
-
-# log "Reconfigure network insterfaces..."
-# rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0 # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
-
-# yum install -y NetworkManager
-# systemctl disable NetworkManager
-# systemctl status NetworkManager  # -> inactive
-# systemctl stop network
-# systemctl start network
-# # systemctl start NetworkManager
-# systemctl start network.service
-# systemctl start network
 
 function has_yum {
   [[ -n "$(command -v yum)" ]]
@@ -41,16 +28,6 @@ fi
 
 log "hostname: $(hostname)"
 log "hostname: $(hostname -f) $(hostname -s)"
-
-# This tests a bug that is present in the centos base AMI.
-# log "test sudo delay"
-# log "no sudo"
-# sudo echo "sudo"
-# log "sudo"
-# log "no sudo"
-# sudo echo "sudo"
-# log "sudo"
-# log "no sudo"
 
 # These variables are passed in via Terraform template interpolation
 /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
@@ -91,8 +68,6 @@ export VAULT_ADDR=https://vault.service.consul:8200
 # because the Vault server is still booting and unsealing, or because run-consul
 # running on the background didn't finish yet
 
-# "vault login  --no-print ${vault_token}"
-
 retry \
   "vault login --no-print $VAULT_TOKEN" \
   "Waiting for Vault login"
@@ -132,21 +107,16 @@ chmod 0640 /etc/ssh/ssh_host_rsa_key-cert.pub
 # systemctl stop sshd 
 # log "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
 
-
-
 # Private key and cert are both required for ssh to another host.  Multiple entries for host key may exist.
 grep -q "^HostKey /etc/ssh/ssh_host_rsa_key" /etc/ssh/sshd_config || echo 'HostKey /etc/ssh/ssh_host_rsa_key' | tee --append /etc/ssh/sshd_config
 
-# Configure entry for host cert
+# Configure host cert to be recognised as a known host.
 grep -q "^HostCertificate" /etc/ssh/sshd_config || echo 'HostCertificate' | tee --append /etc/ssh/sshd_config
 sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub@g' /etc/ssh/sshd_config
 
-
-# Add the CA cert to use it for known host verification
-# curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
+# Add the CA cert to use it for known host verification # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
 key="$(vault read -field=public_key ssh-host-signer/config/ca)"
 
-# ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
 function ensure_known_hosts {
   local -r ssh_known_hosts_path="$1"
   local -r aws_external_domain=${aws_external_domain}
@@ -165,7 +135,6 @@ function ensure_known_hosts {
       log "...Setting to 0644"
       chmod 0644 $ssh_known_hosts_path
   fi
-
   grep -q "^@cert-authority \*\.consul,\*\.$aws_external_domain" $ssh_known_hosts_path || echo "@cert-authority *.consul,*.$aws_external_domain" | tee --append $ssh_known_hosts_path
   sed -i "s#@cert-authority \*\.consul,\*\.$aws_external_domain.*#@cert-authority *.consul,*.$aws_external_domain $key#g" $ssh_known_hosts_path
   ls -ltriah $ssh_known_hosts_path
@@ -185,9 +154,8 @@ systemctl daemon-reload
 systemctl start sshd
 # systemctl start network
 
-# centos / amazon linux, restart ssh service
-
 log "Signing SSH host key done. Revoking vault token..."
 vault token revoke -self
+
 # if this script fails, we can set the instance health status but we need to capture a fault
 # aws autoscaling set-instance-health --instance-id i-0b03e12682e74746e --health-status Unhealthy

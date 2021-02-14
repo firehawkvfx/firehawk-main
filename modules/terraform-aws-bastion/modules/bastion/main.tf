@@ -35,17 +35,27 @@ resource "aws_security_group" "bastion" {
     description = "all outgoing traffic"
   }
 }
-locals {
-  extra_tags = {
-    role  = "bastion"
-    route = "public"
+resource "vault_token" "ssh_host" { # dynamically generate a token with constrained permisions for the host role.
+  role_name        = "host-vault-token-creds-role"
+  policies         = ["ssh_host"]
+  renewable        = false
+  explicit_max_ttl = "120s"
+}
+data "template_file" "user_data_auth_client" {
+  template = file("${path.module}/user-data-auth-ssh-host-vault-token.sh")
+  vars = {
+    consul_cluster_tag_key   = var.consul_cluster_tag_key
+    consul_cluster_tag_value = var.consul_cluster_name
+    vault_token              = vault_token.ssh_host.client_token
+    aws_internal_domain      = var.aws_internal_domain
+    aws_external_domain      = var.aws_external_domain
   }
 }
 resource "aws_instance" "bastion" {
   count         = var.create_vpc ? 1 : 0
   ami           = var.bastion_ami_id
   instance_type = var.instance_type
-  # key_name      = var.aws_key_name
+  # key_name      = var.aws_key_name # The PEM key is disabled for use in production, can be used for debugging.  Instead, signed SSH certificates should be used to access the host.
   subnet_id              = tolist(var.public_subnet_ids)[0]
   tags                   = merge(map("Name", format("%s", var.name)), var.common_tags, local.extra_tags)
   user_data              = data.template_file.user_data_auth_client.rendered
@@ -78,24 +88,11 @@ module "consul_iam_policies_for_client" { # Adds policies necessary for running 
   source      = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
   iam_role_id = aws_iam_role.bastion_instance_role.id
 }
-resource "vault_token" "ssh_host" { # dynamically generate a token with constrained permisions for the host role.
-  role_name        = "host-vault-token-creds-role"
-  policies         = ["ssh_host"]
-  renewable        = false
-  explicit_max_ttl = "120s"
-}
-
-data "template_file" "user_data_auth_client" {
-  template = file("${path.module}/user-data-auth-ssh-host-vault-token.sh")
-  vars = {
-    consul_cluster_tag_key   = var.consul_cluster_tag_key
-    consul_cluster_tag_value = var.consul_cluster_name
-    vault_token              = vault_token.ssh_host.client_token
-    aws_internal_domain      = var.aws_internal_domain
-    aws_external_domain      = var.aws_external_domain
-  }
-}
 locals {
+  extra_tags = {
+    role  = "bastion"
+    route = "public"
+  }
   public_ip                     = element(concat(aws_instance.bastion.*.public_ip, list("")), 0)
   private_ip                    = element(concat(aws_instance.bastion.*.private_ip, list("")), 0)
   public_dns                    = element(concat(aws_instance.bastion.*.public_dns, list("")), 0)
