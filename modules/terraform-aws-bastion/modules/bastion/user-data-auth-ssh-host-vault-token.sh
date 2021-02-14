@@ -175,12 +175,16 @@ function ensure_known_hosts {
 ensure_known_hosts /etc/ssh/ssh_known_hosts
 ensure_known_hosts /home/centos/.ssh/known_hosts
 
+systemctl stop sshd
+systemctl stop network
 ### Finally allow users with signed client certs to login.
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
 sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-systemctl restart sshd
+sudo systemctl daemon-reload
+systemctl start sshd
+systemctl start network
 
 # centos / amazon linux, restart ssh service
 
