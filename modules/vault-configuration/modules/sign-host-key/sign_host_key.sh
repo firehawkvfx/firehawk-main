@@ -66,8 +66,8 @@ if [[ "$octal_permissions" != "0644" ]]; then
     sudo chmod 0644 $ssh_known_hosts_path
 fi
 
-sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | sudo tee --append $ssh_known_hosts_path
-sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+sudo grep -q "^@cert-authority \*\.consul,\*\.$aws_external_domain" $ssh_known_hosts_path || echo "@cert-authority *.consul,*.$aws_external_domain" | sudo tee --append $ssh_known_hosts_path
+sudo sed -i "s#@cert-authority \*\.consul,\*\.$aws_external_domain.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
 
 echo "Added CA to $ssh_known_hosts_path."
 sudo systemctl restart sshd

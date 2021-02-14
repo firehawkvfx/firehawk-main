@@ -167,7 +167,8 @@ data "template_file" "user_data_auth_client" {
     consul_cluster_tag_key   = var.consul_cluster_tag_key
     consul_cluster_tag_value = var.consul_cluster_name
     vault_token              = vault_token.ssh_host.client_token
-    aws_internal_domain               = var.aws_internal_domain
+    aws_internal_domain      = var.aws_internal_domain
+    aws_external_domain      = var.aws_external_domain
   }
 }
 

@@ -167,8 +167,8 @@ function ensure_known_hosts {
       chmod 0644 $ssh_known_hosts_path
   fi
 
-  grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
-  sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
+  grep -q "^@cert-authority \*\.consul,\*\.$aws_external_domain" $ssh_known_hosts_path || echo "@cert-authority *.consul,*.$aws_external_domain" | tee --append $ssh_known_hosts_path
+  sed -i "s#@cert-authority \*\.consul,\*\.$aws_external_domain.*#@cert-authority *.consul,*.$aws_external_domain $key#g" $ssh_known_hosts_path
   ls -ltriah $ssh_known_hosts_path
   echo "Added CA to $ssh_known_hosts_path."
 }
