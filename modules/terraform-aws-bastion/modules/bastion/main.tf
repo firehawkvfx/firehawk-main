@@ -154,9 +154,10 @@ resource "vault_token" "ssh_host" {
 
   policies = ["ssh_host"]
 
-  renewable = true
-  ttl       = "1200s"
-  period    = "600s"
+  renewable = false
+  # ttl       = "120s"
+  explicit_max_ttl = "120s"
+  # period    = "600s"
 }
 
 data "template_file" "user_data_auth_client" {

@@ -13,3 +13,8 @@ path "ssh-host-signer/config/ca" {
 path "ssh-client-signer/config/ca" {
     capabilities = ["read"]
 }
+
+# This allows a host to revoke tokens.  It allows it to explicitly terminate the token when done using it.
+path "auth/token/revoke-accessor" {
+  capabilities = ["update"]
+}
