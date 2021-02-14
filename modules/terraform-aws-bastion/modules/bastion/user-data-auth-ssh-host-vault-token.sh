@@ -183,7 +183,7 @@ systemctl stop sshd
 grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
 sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-systemctl reload sshd
+# systemctl reload sshd
 systemctl start sshd
 
 # centos / amazon linux, restart ssh service
