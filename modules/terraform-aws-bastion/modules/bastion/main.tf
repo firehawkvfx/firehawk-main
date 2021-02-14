@@ -101,7 +101,6 @@ locals {
   public_dns                    = element(concat(aws_instance.bastion.*.public_dns, list("")), 0)
   id                            = element(concat(aws_instance.bastion.*.id, list("")), 0)
   bastion_security_group_id     = element(concat(aws_security_group.bastion.*.id, list("")), 0)
-  bastion_vpn_security_group_id = element(concat(aws_security_group.bastion_vpn.*.id, list("")), 0)
   vpc_security_group_ids        = [local.bastion_security_group_id]
   bastion_address               = var.route_public_domain_name ? "bastion.${var.public_domain_name}" : local.public_ip
 }
