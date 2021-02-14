@@ -130,7 +130,6 @@ if test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub"; then
 fi
 chmod 0640 /etc/ssh/ssh_host_rsa_key-cert.pub
 
-### Stop SSH while updating config to prevent race conditions if users immediately attempt to login
 # systemctl stop sshd 
 # echo "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
 
@@ -143,8 +142,6 @@ grep -q "^HostKey /etc/ssh/ssh_host_rsa_key" /etc/ssh/sshd_config || echo 'HostK
 grep -q "^HostCertificate" /etc/ssh/sshd_config || echo 'HostCertificate' | tee --append /etc/ssh/sshd_config
 sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub@g' /etc/ssh/sshd_config
 
-systemctl restart sshd
-### Start SSHD service
 
 # Add the CA cert to use it for known host verification
 # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
@@ -178,13 +175,12 @@ function ensure_known_hosts {
 ensure_known_hosts /etc/ssh/ssh_known_hosts
 ensure_known_hosts /home/centos/.ssh/known_hosts
 
-systemctl stop sshd
+### Finally allow users with signed client certs to login.
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
 sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-# systemctl reload sshd
-systemctl start sshd
+systemctl restart sshd
 
 # centos / amazon linux, restart ssh service
 
