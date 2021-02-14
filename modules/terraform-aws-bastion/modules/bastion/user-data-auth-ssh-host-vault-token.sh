@@ -173,21 +173,11 @@ function ensure_known_hosts {
   echo "Added CA to $ssh_known_hosts_path."
 }
 ensure_known_hosts /etc/ssh/ssh_known_hosts
-
-# ssh_known_hosts_path=/home/centos/.ssh/known_hosts
-ensure_known_hosts /home/centos/.ssh/known_hosts
-# grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo '@cert-authority *.consul' | tee --append $ssh_known_hosts_path
-# sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul $key#g" $ssh_known_hosts_path
-# ls -ltriah $ssh_known_hosts_path
-# echo "Added CA to $ssh_known_hosts_path."
-
+ensure_known_hosts /home/centos/.ssh/known_host
 # centos / amazon linux, restart ssh service
 systemctl restart sshd
 
-echo "Signing SSH host key done. Revoking vault token..."
+log "Signing SSH host key done. Revoking vault token..."
 vault token revoke -self
-# vault token revoke $VAULT_TOKEN
-### End sign SSH host key
-
 # if this script fails, we can set the instance health status but we need to capture a fault
 # aws autoscaling set-instance-health --instance-id i-0b03e12682e74746e --health-status Unhealthy
