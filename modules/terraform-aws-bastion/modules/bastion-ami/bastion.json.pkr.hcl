@@ -145,6 +145,8 @@ source "amazon-ebs" "centos7-ami" {
   # }
   ssh_username = "centos"
 
+  user_data_file = "${local.template_dir}/cloud-init.yaml"
+
   vpc_id               = "${var.vpc_id}"
   subnet_id            = "${var.subnet_id}"
   security_group_id    = "${var.security_group_id}"
@@ -350,6 +352,7 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
+      "sudo sed ‘s/sed/sudo //’ /opt/consul/bin/run-consul" # strip sudo. sudo on centos takes 25 seconds due to a bad AMI build. https://bugs.centos.org/view.php?id=18066
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
       "set -x; consul members list",
       "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
