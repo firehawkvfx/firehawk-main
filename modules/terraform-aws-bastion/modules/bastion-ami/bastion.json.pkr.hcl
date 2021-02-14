@@ -343,16 +343,21 @@ build {
     inline = [
       "/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq",
       "sudo systemctl restart dnsmasq",
-      "echo 'Reconfigure network interfaces...'",
-      # "ifconfig",
-      "sudo rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0" # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
       ]
     only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }
 
+  provisioner "shell" {
+    inline = [
+      "echo 'Reconfigure network interfaces...'", # the centos 7 base ami has issues with sudo.  These hacks here are unfortunate.
+      "sudo rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0", # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
+      "sudo sed ‘s/sed/sudo //’ /opt/consul/bin/run-consul" # strip sudo for when we run consul. sudo on centos takes 25 seconds due to a bad AMI build. https://bugs.centos.org/view.php?id=18066
+      ]
+    only   = ["amazon-ebs.centos7-ami"]
+  }
+
   provisioner "shell" { # Generate certificates with vault.
     inline = [
-      "sudo sed ‘s/sed/sudo //’ /opt/consul/bin/run-consul" # strip sudo. sudo on centos takes 25 seconds due to a bad AMI build. https://bugs.centos.org/view.php?id=18066
       "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
       "set -x; consul members list",
       "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
