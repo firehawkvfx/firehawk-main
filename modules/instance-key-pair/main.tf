@@ -25,7 +25,7 @@ locals {
 module "key_pair" {
   source = "terraform-aws-modules/key-pair/aws"
 
-  key_name   = "main-deployment" 
+  key_name   = "main-deployment"
   public_key = var.vault_public_key
   tags = local.common_tags
 }
