@@ -185,7 +185,8 @@ ensure_known_hosts /home/centos/.ssh/known_hosts
 systemctl restart sshd
 
 echo "Signing SSH host key done. Revoking vault token..."
-vault token revoke $VAULT_TOKEN
+vault token revoke -self
+# vault token revoke $VAULT_TOKEN
 ### End sign SSH host key
 
 # if this script fails, we can set the instance health status but we need to capture a fault
