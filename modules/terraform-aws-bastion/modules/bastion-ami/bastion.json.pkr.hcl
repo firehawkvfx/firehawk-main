@@ -351,7 +351,7 @@ build {
     inline = [
       "echo 'Reconfigure network interfaces...'", # the centos 7 base ami has issues with sudo.  These hacks here are unfortunate.
       "sudo rm -fr /etc/sysconfig/network-scripts/ifcfg-eth0", # this may need to be removed from the image. having a leftover network interface file here if the interface is not present can cause dns issues and slowdowns with sudo.
-      "sudo sed \"s/sed/sudo //\" /opt/consul/bin/run-consul" # strip sudo for when we run consul. sudo on centos takes 25 seconds due to a bad AMI build. https://bugs.centos.org/view.php?id=18066
+      "sudo sed -i 's/sudo //g' /opt/consul/bin/run-consul" # strip sudo for when we run consul. sudo on centos takes 25 seconds due to a bad AMI build. https://bugs.centos.org/view.php?id=18066
       ]
     only   = ["amazon-ebs.centos7-ami"]
   }
