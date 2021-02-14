@@ -151,6 +151,7 @@ key="$(vault read -field=public_key ssh-host-signer/config/ca)"
 # ssh_known_hosts_path=/etc/ssh/ssh_known_hosts
 function ensure_known_hosts {
   local -r ssh_known_hosts_path="$1"
+  local -r aws_external_domain=${aws_external_domain}
   if test ! -f $ssh_known_hosts_path; then
       echo "Creating $ssh_known_hosts_path"
       touch $ssh_known_hosts_path # ensure known hosts file exists
