@@ -102,20 +102,6 @@ echo "Aquiring vault data..."
 ### Sign SSH host key
 echo "Request Vault sign's the SSH host key and becomes a known host for other machines."
 
-trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
-# Aquire the public CA cert to approve an authority
-vault read -field=public_key ssh-client-signer/config/ca | tee $trusted_ca
-if test ! -f "$trusted_ca"; then
-    echo "Missing $trusted_ca"
-    exit 1
-fi
-
-# echo "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
-# If TrustedUserCAKeys not defined, then add it to sshd_config
-grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
-# Ensure the value for TrustedUserCAKeys is configured correctly
-sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-
 if test ! -f "/etc/ssh/ssh_host_rsa_key.pub"; then
     echo "Missing public host key /etc/ssh/ssh_host_rsa_key.pub"
     exit 1
@@ -175,6 +161,21 @@ function ensure_known_hosts {
 }
 ensure_known_hosts /etc/ssh/ssh_known_hosts
 ensure_known_hosts /home/centos/.ssh/known_hosts
+
+# Finally now that this host is a known host and is aware of other known hosts, add the ca for users to login
+trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
+# Aquire the public CA cert to approve an authority
+vault read -field=public_key ssh-client-signer/config/ca | tee $trusted_ca
+if test ! -f "$trusted_ca"; then
+    echo "Missing $trusted_ca"
+    exit 1
+fi
+# echo "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
+# If TrustedUserCAKeys not defined, then add it to sshd_config
+grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
+# Ensure the value for TrustedUserCAKeys is configured correctly
+sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
+
 # centos / amazon linux, restart ssh service
 systemctl restart sshd
 
