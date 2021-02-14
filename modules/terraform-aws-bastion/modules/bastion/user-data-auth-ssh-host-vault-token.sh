@@ -34,8 +34,8 @@ function has_yum {
 
 if $(has_yum); then
     hostname=$(hostname -s) # in centos, failed dns lookup can cause commands to slowdown
-    echo "127.0.0.1   $hostname.${aws_domain} $hostname" | tee -a /etc/hosts
-    hostnamectl set-hostname $hostname.${aws_domain} # Red hat recommends that the hostname uses the FQDN.  hostname -f to resolve the domain may not work at this point on boot, so we use a var.
+    echo "127.0.0.1   $hostname.${aws_internal_domain} $hostname" | tee -a /etc/hosts
+    hostnamectl set-hostname $hostname.${aws_internal_domain} # Red hat recommends that the hostname uses the FQDN.  hostname -f to resolve the domain may not work at this point on boot, so we use a var.
     systemctl restart network
 fi
 

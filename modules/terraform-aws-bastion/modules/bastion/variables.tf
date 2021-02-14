@@ -89,7 +89,7 @@ variable "consul_cluster_tag_key" {
   default     = "consul-servers"
 }
 
-variable "aws_domain" {
+variable "aws_internal_domain" {
   description = "The domain used to resolve FQDN hostnames."
   type        = string
 }

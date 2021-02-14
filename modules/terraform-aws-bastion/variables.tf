@@ -41,7 +41,7 @@ variable "remote_cloud_private_ip_cidr" {
   type = string
 }
 
-variable "aws_domain" {
+variable "aws_internal_domain" {
   description = "The domain used to resolve FQDN hostnames."
   type        = string
 }
