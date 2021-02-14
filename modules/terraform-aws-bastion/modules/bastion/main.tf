@@ -63,6 +63,17 @@ resource "aws_iam_role" "bastion_instance_role" {
   name_prefix        = "${var.name}-role"
   assume_role_policy = data.aws_iam_policy_document.bastion_instance_role.json
 }
+data "aws_iam_policy_document" "bastion_instance_role" { # The policy that grants an entity permission to assume this role.
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
 module "consul_iam_policies_for_client" { # Adds policies necessary for running consul
   source      = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
   iam_role_id = aws_iam_role.bastion_instance_role.id
