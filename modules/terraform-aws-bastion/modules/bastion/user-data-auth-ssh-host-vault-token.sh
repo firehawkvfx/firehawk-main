@@ -174,7 +174,7 @@ function ensure_known_hosts {
   echo "Added CA to $ssh_known_hosts_path."
 }
 ensure_known_hosts /etc/ssh/ssh_known_hosts
-ensure_known_hosts /home/centos/.ssh/known_host
+ensure_known_hosts /home/centos/.ssh/known_hosts
 # centos / amazon linux, restart ssh service
 systemctl restart sshd
 
