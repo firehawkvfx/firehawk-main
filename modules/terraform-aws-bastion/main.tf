@@ -106,6 +106,7 @@ module "bastion" {
   aws_key_name = "macbook"
 
   aws_internal_domain = var.aws_internal_domain
+  aws_external_domain = var.aws_external_domain
   vpc_id                     = local.vpc_id
   vpc_cidr                   = local.vpc_cidr
   remote_ip_cidr_list        = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]

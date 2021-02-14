@@ -45,3 +45,8 @@ variable "aws_internal_domain" {
   description = "The domain used to resolve FQDN hostnames."
   type        = string
 }
+
+variable "aws_external_domain" {
+  description = "The domain used to resolve external FQDN hostnames.  Since we always provide the CA for externals connections, the default for public ec2 instances is acceptable, but in production it is best configure it with your own domain."
+  type        = string
+}
