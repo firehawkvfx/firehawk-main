@@ -67,6 +67,8 @@ function sign_public_key {
   sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee -a /etc/ssh/sshd_config
   # Ensure the value for TrustedUserCAKeys is configured correctly
   sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
+  # Copy the the tusted ca keys file for the user to download easily from cloud 9.
+  sudo cp $trusted_ca $(dirname $public_key)
 
   log_info "Signing public key"
   
