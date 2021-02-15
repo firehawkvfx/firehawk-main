@@ -26,7 +26,7 @@ locals {
 
 source "amazon-ebs" "amazon-linux-2-ami" {
   ami_description = "An Amazon Linux 2 AMI that will accept connections from hosts with TLS Certs."
-  ami_name        = "firehawk-bastionbase-amazon-linux-2-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-vaultclientbase-amazon-linux-2-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami_filter {
@@ -52,7 +52,7 @@ source "amazon-ebs" "amazon-linux-2-ami" {
 
 source "amazon-ebs" "centos7-ami" {
   ami_description = "A Cent OS 7 AMI that will accept connections from hosts with TLS Certs."
-  ami_name        = "firehawk-bastionbase-centos7-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-vaultclientbase-centos7-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami_filter {
@@ -75,7 +75,7 @@ source "amazon-ebs" "centos7-ami" {
 
 source "amazon-ebs" "ubuntu16-ami" {
   ami_description = "An Ubuntu 16.04 AMI that will accept connections from hosts with TLS Certs."
-  ami_name        = "firehawk-bastionbase-ubuntu16-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-vaultclientbase-ubuntu16-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami_filter {
@@ -101,7 +101,7 @@ source "amazon-ebs" "ubuntu16-ami" {
 
 source "amazon-ebs" "ubuntu18-ami" {
   ami_description = "An Ubuntu 18.04 AMI that will accept connections from hosts with TLS Certs."
-  ami_name        = "firehawk-bastionbase-ubuntu18-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-vaultclientbase-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami_filter {

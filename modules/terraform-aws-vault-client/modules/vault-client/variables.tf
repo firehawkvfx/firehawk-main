@@ -1,10 +1,10 @@
 variable "name" {
   description = "The name used to define resources in this module"
   type        = string
-  default     = "bastion"
+  default     = "vault_client"
 }
-variable "bastion_ami_id" {
-  description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer."
+variable "vault_client_ami_id" {
+  description = "The prebuilt AMI for the vault client host. This should be a private ami you have build with packer."
   type        = string
 }
 variable "create_vpc" {
@@ -27,30 +27,14 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
-variable "route_zone_id" {
-  description = "(Optional) The Route53 Zone ID if using a public DNS"
-  type        = string
-  default     = null
-}
-variable "public_domain_name" {
-  description = "The public DNS name to be used"
-  type        = string
-  default     = null
-}
 variable "remote_ip_cidr_list" {
   description = "The list of remote CIDR blocks that will be able to access the host."
   type        = list(string)
 }
-variable "route_public_domain_name" {
-  description = "Defines if a public DNS name is to be used"
-  type        = bool
-  default     = false
-}
-
-variable "public_subnet_ids" {
-  description = "The list of public subnets to deploy into.  Currently only the first subnet is used."
+variable "security_group_ids" {
+  description = "The list of security group ID's that have SSH access to the node"
   type        = list(string)
-  default     = []
+  default     = null
 }
 # variable "aws_key_name" {
 #   description = "The name of the AWS PEM key for access to the VPN instance"
@@ -79,9 +63,5 @@ variable "consul_cluster_tag_key" {
 }
 variable "aws_internal_domain" {
   description = "The domain used to resolve internal FQDN hostnames."
-  type        = string
-}
-variable "aws_external_domain" {
-  description = "The domain used to resolve external FQDN hostnames.  Since we always provide the CA for externals connections, the default for public ec2 instances is acceptable, but in production it is best configure it with your own domain."
   type        = string
 }
