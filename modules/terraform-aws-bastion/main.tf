@@ -88,14 +88,11 @@ locals {
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
   remote_public_ip           = lookup(data.vault_generic_secret.remote_public_ip.data, "value")
-  # remote_subnet_cidr         = lookup(data.vault_generic_secret.remote_subnet_cidr.data, "value")
   private_route_table_ids    = data.aws_route_tables.private.ids
   public_route_table_ids     = data.aws_route_tables.public.ids
   public_domain_name         = "none"
   route_zone_id              = "none"
 }
-
-
 module "bastion" {
   source = "./modules/bastion"
   name           = "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
