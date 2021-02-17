@@ -41,6 +41,11 @@ variable "security_group_ids" {
 #   type        = string
 #   default     = null
 # }
+variable "private_subnet_ids" {
+  description = "The list of private subnets to deploy into.  Currently only the first subnet is used."
+  type        = list(string)
+  default     = []
+}
 variable "instance_type" {
   description = "The AWS instance type to use."
   type        = string
