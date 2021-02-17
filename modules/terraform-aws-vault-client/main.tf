@@ -107,7 +107,7 @@ module "vault_client" {
   security_group_ids = [aws_security_group.bastion.id]
   # public_subnet_ids          = local.public_subnets
   # route_public_domain_name = var.route_public_domain_name
-  route_zone_id            = local.route_zone_id
+  # route_zone_id            = local.route_zone_id
   # public_domain_name       = local.public_domain_name
   common_tags = local.common_tags
 }
