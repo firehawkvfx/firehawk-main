@@ -10,6 +10,11 @@ export TF_VAR_bastion_ami_id=none
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
+cd $SCRIPTDIR/modules/terraform-aws-vault-client
+export TF_VAR_vault_client_ami_id=none
+terraform plan -out=tfplan -input=false -destroy
+terraform apply -input=false tfplan
+
 cd $SCRIPTDIR/modules/vault
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
