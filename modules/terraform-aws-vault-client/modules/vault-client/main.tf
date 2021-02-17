@@ -13,12 +13,12 @@ resource "aws_security_group" "vault_client" {
     description = "All incoming traffic from vpc"
   }
   ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = var.remote_ip_cidr_list
+    protocol        = "tcp"
+    from_port       = 22
+    to_port         = 22
+    cidr_blocks     = var.remote_ip_cidr_list
     security_groups = var.security_group_ids
-    description = "SSH"
+    description     = "SSH"
   }
   ingress {
     protocol    = "icmp"
@@ -48,6 +48,7 @@ data "template_file" "user_data_auth_client" {
     consul_cluster_tag_value = var.consul_cluster_name
     vault_token              = vault_token.ssh_host.client_token
     aws_internal_domain      = var.aws_internal_domain
+    aws_external_domain      = "" # The external domain is not used for internal hosts.
   }
 }
 resource "aws_instance" "vault_client" {
