@@ -80,6 +80,7 @@ data "aws_security_group" "bastion" { # Aquire the security group ID for externa
   tags = map( "Name", "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}" )
   vpc_id                     = data.aws_vpc.primary.id
 }
+
 locals {
   mount_path                 = var.resourcetier
   vpc_id                     = data.aws_vpc.primary.id
@@ -104,7 +105,7 @@ module "vault_client" {
   vpc_id                     = local.vpc_id
   vpc_cidr                   = local.vpc_cidr
   remote_ip_cidr_list        = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
-  security_group_ids = [aws_security_group.bastion.id]
+  security_group_ids = [data.aws_security_group.bastion.id]
   # public_subnet_ids          = local.public_subnets
   # route_public_domain_name = var.route_public_domain_name
   # route_zone_id            = local.route_zone_id
