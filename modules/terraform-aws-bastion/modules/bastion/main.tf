@@ -15,6 +15,13 @@ resource "aws_security_group" "bastion" {
   }
   ingress {
     protocol    = "tcp"
+    from_port   = 8200
+    to_port     = 8200
+    cidr_blocks = var.remote_ip_cidr_list
+    description = "Vault UI forwarding"
+  }
+  ingress {
+    protocol    = "tcp"
     from_port   = 22
     to_port     = 22
     cidr_blocks = var.remote_ip_cidr_list
