@@ -30,6 +30,10 @@ if [[ -f "$manifest" ]]; then
     echo "TF_VAR_vault_client_ami_id=$TF_VAR_vault_client_ami_id"
 fi
 
+cd "$SCRIPTDIR/../terraform-aws-bastion"
+TF_VAR_bastion_public_dns=$(terraform output public_dns)
+cd "$SCRIPTDIR"
+
 terraform init \
     -input=false \
     -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
