@@ -40,16 +40,6 @@ variable "install_auth_signing_script" {
   default = "true"
 }
 
-# variable "tls_private_key_path" {
-#   type    = string
-#   default = "/home/ec2-user/.ssh/tls/vault.key.pem"
-# }
-
-# variable "tls_public_key_path" {
-#   type    = string
-#   default = "/home/ec2-user/.ssh/tls/vault.crt.pem"
-# }
-
 variable "vault_download_url" {
   type    = string
   default = ""
@@ -74,7 +64,7 @@ source "amazon-ebs" "amazonlinux2-nicedcv-nvidia-ami" {
   region          = "${var.aws_region}"
   source_ami_filter {
     filters = {
-      name         = "DCV-AmazonLinux2-2020-1-9012-NVIDIA-450-51-05-x86-64"
+      name         = "DCV-AmazonLinux2-2020-2-9662-NVIDIA-450-89-x86_64"
     }
     most_recent = true
     owners      = ["877902723034"]

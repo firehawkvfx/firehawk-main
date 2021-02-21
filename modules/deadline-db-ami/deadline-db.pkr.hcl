@@ -16,7 +16,7 @@ variable "aws_region" {
   default = null
 }
 
-variable "bastion_ubuntu18_ami" {
+variable "general_host_ubuntu18_ami" {
   type = string
 }
 
@@ -30,167 +30,129 @@ variable "install_auth_signing_script" {
   default = "true"
 }
 
+variable "resourcetier" {
+  type    = string
+}
+
+variable "vpc_id" {
+  type    = string
+}
+
+variable "security_group_id" {
+  type = string
+}
+
+variable "subnet_id" {
+  type    = string
+}
+
+variable "consul_cluster_tag_key" {
+  type = string
+}
+
+variable "consul_cluster_tag_value" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
+  # bucket_extension = vault("/${var.resourcetier}/data/aws/bucket_extension", "value") # vault refs in packer use the api path, not the cli path
+  deadline_version = vault("/${var.resourcetier}/data/deadline/deadline_version", "value")
+  # syscontrol_gid = vault("/${var.resourcetier}/data/system/syscontrol_gid", "value")
+  # deployuser_uid = vault("/${var.resourcetier}/data/system/deployuser_uid", "value")
+  # deadlineuser_uid = vault("/${var.resourcetier}/data/system/deadlineuser_uid", "value")
+  installers_bucket = vault("/main/data/aws/installers_bucket", "value")
+  # user_deadlineuser_pw = "fghthgmjg"
+  # deadline_proxy_certificate_password = "fghthgmjg"
 }
-
-# source blocks are generated from your builders; a source can be referenced in
-# build blocks. A build block runs provisioner and post-processors on a
-# source. Read the documentation for source blocks here:
-# https://www.packer.io/docs/from-1.5/blocks/source
-#could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
-# source "amazon-ebs" "amazon-linux-2-ami" {
-#   ami_description = "An Amazon Linux 2 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-amazon-linux-2-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       architecture                       = "x86_64"
-#       "block-device-mapping.volume-type" = "gp2"
-#       name                               = "*amzn2-ami-hvm-*"
-#       root-device-type                   = "ebs"
-#       virtualization-type                = "hvm"
-#     }
-#     most_recent = true
-#     owners      = ["amazon"]
-#   }
-#   ssh_username = "ec2-user"
-# }
-
-# #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
-# source "amazon-ebs" "centos7-ami" {
-#   ami_description = "A Cent OS 7 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-centos7-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       name         = "CentOS Linux 7 x86_64 HVM EBS *"
-#       product-code = "aw0evgkw8e5c1q413zgy5pjce"
-#     }
-#     most_recent = true
-#     owners      = ["679593333241"]
-#   }
-#   ssh_username = "centos"
-# }
-
-# #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
-
-# source "amazon-ebs" "ubuntu16-ami" {
-#   ami_description = "An Ubuntu 16.04 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-ubuntu16-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       architecture                       = "x86_64"
-#       "block-device-mapping.volume-type" = "gp2"
-#       name                               = "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"
-#       root-device-type                   = "ebs"
-#       virtualization-type                = "hvm"
-#     }
-#     most_recent = true
-#     owners      = ["099720109477"]
-#   }
-#   ssh_username = "ubuntu"
-# }
-
-#could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
 
 source "amazon-ebs" "ubuntu18-ami" {
   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  source_ami      = "${var.bastion_ubuntu18_ami}"
+  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  source_ami      = "${var.general_host_ubuntu18_ami}"
   ssh_username    = "ubuntu"
+  vpc_id = "${var.vpc_id}"
+  subnet_id = "${var.subnet_id}"
+  security_group_id = "${var.security_group_id}"
+  launch_block_device_mappings {
+    device_name = "/dev/sda1"
+    volume_size = 40
+    volume_type = "gp2"
+    delete_on_termination = true
+  }
+  // Notice that instead of providing a list of mappings, you are just providing
+  // multiple mappings in a row. This diverges from the JSON template format.
+  ami_block_device_mappings {
+    device_name  = "/dev/sdb"
+    virtual_name = "ephemeral0"
+  }
+  ami_block_device_mappings {
+    device_name  = "/dev/sdc"
+    virtual_name = "ephemeral1"
+  }
   # assume_role { # Since we need to read files from s3, we require a role with read access.
-  #     role_arn     = "arn:aws:iam::972620357255:role/S3-Admin-S3" # This needs to be replaced with a terraform output
+  #     role_arn     = "arn:aws:iam::972620357255:role/provisioner_instance_role_pipeid0" # This needs to be replaced with a terraform output
   #     session_name = "SESSION_NAME"
-  #     external_id  = "EXTERNAL_ID"
+  #     # external_id  = "EXTERNAL_ID"
   # }
 }
 
-# source "amazon-ebs" "ubuntu18-ami" {
-#   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
-#   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
-#   instance_type   = "t2.micro"
-#   region          = "${var.aws_region}"
-#   source_ami_filter {
-#     filters = {
-#       architecture                       = "x86_64"
-#       "block-device-mapping.volume-type" = "gp2"
-#       name                               = "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"
-#       root-device-type                   = "ebs"
-#       virtualization-type                = "hvm"
-#     }
-#     most_recent = true
-#     owners      = ["099720109477"]
-#   }
-#   ssh_username = "ubuntu"
-# }
-
-# a build block invokes sources and runs provisioning steps on them. The
-# documentation for build blocks can be found here:
-# https://www.packer.io/docs/from-1.5/blocks/build
 build {
   sources = [
-    # "source.amazon-ebs.amazon-linux-2-ami", 
-    # "source.amazon-ebs.centos7-ami", 
-    # "source.amazon-ebs.ubuntu16-ami", 
     "source.amazon-ebs.ubuntu18-ami"
     ]
+  provisioner "shell" {
+    inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
+    inline_shebang = "/bin/bash -e"
+    # only           = ["amazon-ebs.ubuntu18-ami"]
+  }
 
-  # provisioner "shell" {
-  #   inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
-  # }
+  provisioner "shell" { # Generate certificates with vault.
+    inline = [
+      # "set -x; sudo systemctl status consul.service",
+      # # "set -x; sleep 30; sudo systemctl status consul.service",
+      # "set -x; sudo systemctl restart consul.service",
+      # "set -x; sudo systemctl status consul.service",
+      # "set -x; sudo cat /etc/resolv.conf",
+      "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
+      "consul members list",
+      "dig @localhost vault.service.consul",
+      "dig vault.service.consul",
+      # "export VAULT_ADDR=https://vault.service.consul:8200",
+      # "vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role",
+      # "vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h"
+      ]
+  }
 
-  # #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
-  # provisioner "file" {
-  #   destination = "/tmp/terraform-aws-vault/modules"
-  #   source      = "${local.template_dir}/../../modules/"
-  # }
 
-  # #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
-  # provisioner "file" {
-  #   destination = "/tmp/sign-request.py"
-  #   source      = "${local.template_dir}/auth/sign-request.py"
-  # }
-  # provisioner "file" {
-  #   destination = "/tmp/ca.crt.pem"
-  #   source      = "${var.ca_public_key_path}"
-  # }
-  # provisioner "shell" {
-  #   inline         = [
-  #     "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
-  #     "sudo mkdir -p /opt/vault/scripts/",
-  #     "sudo mv /tmp/sign-request.py /opt/vault/scripts/",
-  #     "else",
-  #     "sudo rm /tmp/sign-request.py", 
-  #     "fi",
-  #     "sudo mkdir -p /opt/vault/tls/", 
-  #     "sudo mv /tmp/ca.crt.pem /opt/vault/tls/", 
-  #     # "echo 'TrustedUserCAKeys /opt/vault/tls/ca.crt.pem' | sudo tee -a /etc/ssh/sshd_config", 
-  #     # "echo \"@cert-authority * $(sudo cat /opt/vault/tls/ca.crt.pem)\" | sudo tee -a /etc/ssh/ssh_known_hosts", 
-  #     "sudo chmod -R 600 /opt/vault/tls", 
-  #     "sudo chmod 700 /opt/vault/tls", 
-  #     "sudo /tmp/terraform-aws-vault/modules/update-certificate-store/update-certificate-store --cert-file-path /opt/vault/tls/ca.crt.pem"
-  #   ]
-  #   inline_shebang = "/bin/bash -e"
-  # }
-  # provisioner "shell" {
-  #   inline         = ["sudo systemd-run --property='After=apt-daily.service apt-daily-upgrade.service' --wait /bin/true"]
-  #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.ubuntu18-ami"]
-  # }
+#   provisioner "shell" { # Generate certificates with vault.
+#     inline = [
+#       <<EOFO
+# export VAULT_ADDR=https://vault.service.consul:8200
+# vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
+# # try placing this in a bash script
+# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
+# EOFO
+#       ]
+#   }
+
+#   provisioner "shell" { # Generate certificates with vault.
+#     inline = [
+#       <<EOFO
+# export VAULT_ADDR=https://vault.service.consul:8200
+# vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
+# vault write -format=json pki_int/issue/firehawkvfx-dot-com common_name=deadlinedb.service.consul ttl=8760h | sudo tee >(jq -r .data.certificate | sudo tee /etc/ssl/mongodb_ca.pem) >(jq -r .data.issuing_ca | sudo tee /etc/ssl/mongodb_issuing_ca.pem) >(jq -r .data.private_key | sudo tee /etc/ssl/mongodb_ca_key.pem)
+# EOFO
+#       ]
+#   }
   # provisioner "shell" {
   #   inline         = ["echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections", "sudo apt-get install -y -q", "sudo apt-get -y update", "sudo apt-get install -y git"]
   #   inline_shebang = "/bin/bash -e"
-  #   only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
+  #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
   # }
   # provisioner "shell" {
   #   inline         = [
@@ -206,27 +168,123 @@ build {
   #   inline_shebang = "/bin/bash -e"
   #   only           = ["amazon-ebs.ubuntu18-ami"]
   # }
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo yum update -y",
-  #     "sleep 5",
-  #     "sudo yum install -y git",
-  #     "sudo yum install -y python python3.7 python3-pip",
-  #     "python3 -m pip install --user --upgrade pip",
-  #     "python3 -m pip install --user boto3"
-  #     ]
-  #   only   = ["amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deployuser sudo=true add_to_group_syscontrol=true create_ssh_key=false variable_uid=${local.deployuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
   # }
 
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/newuser_deadlineuser.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu variable_user=deadlineuser sudo=false add_to_group_syscontrol=false create_ssh_key=false variable_uid=${local.deadlineuser_uid} delegate_host=localhost syscontrol_gid=${local.syscontrol_gid}"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
+
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=ubuntu delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
+
+  # provisioner "ansible" {
+  #   playbook_file = "./ansible/aws_cli_ec2_install.yaml"
+  #   extra_arguments = [
+  #     "-v",
+  #     "--extra-vars",
+  #     "variable_host=default variable_connect_as_user=ubuntu variable_user=ubuntu variable_become_user=deadlineuser delegate_host=localhost",
+  #     "--skip-tags",
+  #     "user_access"
+  #   ]
+  #   collections_path = "./ansible/collections"
+  #   roles_path = "./ansible/roles"
+  #   ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+  #   galaxy_file = "./requirements.yml"
+  # }
+
+# ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -v --extra-vars "variable_host=role_node_centos variable_user=centos variable_become_user=deadlineuser" --skip-tags "user_access"; exit_test
+# ansible-playbook -i "$TF_VAR_inventory" ansible/aws-cli-ec2-install.yaml -vv --extra-vars "variable_host=workstation1 variable_user=deadlineuser aws_cli_root=true ansible_ssh_private_key_file=$TF_VAR_onsite_workstation_private_ssh_key"; exit_test
+
+
+
+### Install Mongo
+
   provisioner "ansible" {
-    playbook_file = "${local.template_dir}/../../ansible/deadline-db-install.yaml"
+    playbook_file = "./ansible/transparent-hugepages-disable.yml"
     extra_arguments = [
-      "--extra-vars", "user_deadlineuser_name=ubuntu"
+      "-v",
+      "--extra-vars",
+      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deadlineuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
+      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost"
     ]
-    # collections_path = "${local.template_dir}/../../ansible/"
-    # roles_path = "${local.template_dir}/../../ansible/roles"
-    collections_path = "./../../ansible/"
-    roles_path = "./../../ansible/roles"
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/deadline-db-install.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" {
+    playbook_file = "./ansible/deadlinercs.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
+  }
+
+  provisioner "ansible" { # remove any keys from the image and store them in vault.
+    playbook_file = "./ansible/deadline-vault-store-secrets.yaml"
+    extra_arguments = [
+      "-v",
+      "--extra-vars",
+      # "user_deadlineuser_pw=${local.user_deadlineuser_pw} user_deadlineuser_name=deployuser variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul deadline_proxy_certificate_password=${local.deadline_proxy_certificate_password} installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+      "resourcetier=${var.resourcetier} user_deadlineuser_name=ubuntu variable_host=default variable_connect_as_user=ubuntu delegate_host=localhost openfirehawkserver=deadlinedb.service.consul installers_bucket=${local.installers_bucket} deadline_version=${local.deadline_version} reinstallation=false"
+    ]
+    collections_path = "./ansible/collections"
+    roles_path = "./ansible/roles"
+    ansible_env_vars = [ "ANSIBLE_CONFIG=ansible/ansible.cfg" ]
+    galaxy_file = "./requirements.yml"
   }
 
   post-processor "manifest" {
@@ -237,11 +295,3 @@ build {
       }
   }
 }
-
-
-
-# Example query for the output ami:
-# #!/bin/bash
-
-# AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
-# echo $AMI_ID

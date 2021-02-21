@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
@@ -11,4 +12,4 @@ export PACKER_LOG_PATH="$SCRIPTDIR/packerlog.log"
 
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
 rm -f $PKR_VAR_manifest_path
-packer build $SCRIPTDIR/bastion.json.pkr.hcl
+packer build "$@" $SCRIPTDIR/bastion.json.pkr.hcl
