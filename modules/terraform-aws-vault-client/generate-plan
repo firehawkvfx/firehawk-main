@@ -31,8 +31,9 @@ if [[ -f "$manifest" ]]; then
 fi
 
 cd "$SCRIPTDIR/../terraform-aws-bastion"
-TF_VAR_bastion_public_dns=$(terraform output public_dns)
+export TF_VAR_bastion_public_dns=$(terraform output public_dns)
 cd "$SCRIPTDIR"
+"TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
 
 terraform init \
     -input=false \
