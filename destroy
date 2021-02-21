@@ -7,6 +7,7 @@ source $SCRIPTDIR/update_vars.sh
 
 cd $SCRIPTDIR/modules/terraform-aws-vault-client
 export TF_VAR_vault_client_ami_id=none
+export TF_VAR_bastion_public_dns=none
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
