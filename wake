@@ -27,6 +27,8 @@ terraform apply -input=false tfplan # Ensure Main VPC exists
 cd $SCRIPTDIR/modules/vault
 ./generate-plan
 terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.
+./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
+sudo /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
 cd $SCRIPTDIR/modules/vpc
 # ./s3-backend-template/generate-s3-backend
