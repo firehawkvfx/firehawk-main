@@ -274,11 +274,37 @@ build {
     inline_shebang = "/bin/bash -e"
     only           = ["amazon-ebs.ubuntu18-ami"]
   }
+  # install latest git for centos and amazon linux
+  provisioner "shell" {
+    inline = [
+      "sudo yum update -y",
+      "sleep 5",
+      # "sudo yum install -y git",
+      "CENTOS_MAIN_VERSION=$(cat /etc/centos-release | awk -F 'release[ ]*' '{print $2}' | awk -F '.' '{print $1}')",
+      "echo $CENTOS_MAIN_VERSION",
+      # output should be "6" or "7"
+      # Install IUS Repo and Epel-Release:
+      "yum install -y https://repo.ius.io/ius-release-el${CENTOS_MAIN_VERSION}.rpm",
+      "yum install -y epel-release",
+      # re-install git:
+      "yum erase -y git*",
+      "yum install -y git-core",
+      "git --version"
+    ]
+    only = ["amazon-ebs.centos7-ami"]
+  }
   provisioner "shell" {
     inline = [
       "sudo yum update -y",
       "sleep 5",
       "sudo yum install -y git",
+      "git --version"
+    ]
+    only = ["amazon-ebs.amazon-linux-2-ami"]
+  }
+  # Install python and pip
+  provisioner "shell" {
+    inline = [
       "sudo yum install -y python python3.7 python3-pip",
       "python3 -m pip install --user --upgrade pip",
       "python3 -m pip install --user boto3"
@@ -287,7 +313,6 @@ build {
   }
 
   ### This block will install Vault and Consul Agent
-
   provisioner "shell" { # Vault client probably wont be installed on vault clients in future, but most hosts that will authenticate will require it.
     inline = [
       "if test -n '${var.vault_download_url}'; then",
