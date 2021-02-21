@@ -274,20 +274,16 @@ build {
     inline_shebang = "/bin/bash -e"
     only           = ["amazon-ebs.ubuntu18-ami"]
   }
-  # install latest git for centos and amazon linux
+  # Install latest git for centos and amazon linux
   provisioner "shell" {
     inline = [
       "sudo yum update -y",
       "sleep 5",
-      # "sudo yum install -y git",
       "CENTOS_MAIN_VERSION=$(cat /etc/centos-release | awk -F 'release[ ]*' '{print $2}' | awk -F '.' '{print $1}')",
-      "echo $CENTOS_MAIN_VERSION",
-      # output should be "6" or "7"
-      # Install IUS Repo and Epel-Release:
-      "yum install -y https://repo.ius.io/ius-release-el${CENTOS_MAIN_VERSION}.rpm",
+      "echo $CENTOS_MAIN_VERSION", # output should be "6" or "7"
+      "yum install -y https://repo.ius.io/ius-release-el${CENTOS_MAIN_VERSION}.rpm", # Install IUS Repo and Epel-Release:
       "yum install -y epel-release",
-      # re-install git:
-      "yum erase -y git*",
+      "yum erase -y git*",       # re-install git:
       "yum install -y git-core",
       "git --version"
     ]
