@@ -190,10 +190,10 @@ build {
       "sleep 5",
       "export CENTOS_MAIN_VERSION=$(cat /etc/centos-release | awk -F 'release[ ]*' '{print $2}' | awk -F '.' '{print $1}')",
       "echo $CENTOS_MAIN_VERSION", # output should be "6" or "7"
-      "yum install -y https://repo.ius.io/ius-release-el$${CENTOS_MAIN_VERSION}.rpm", # Install IUS Repo and Epel-Release:
-      "yum install -y epel-release",
-      "yum erase -y git*",       # re-install git:
-      "yum install -y git-core",
+      "sudo yum install -y https://repo.ius.io/ius-release-el$${CENTOS_MAIN_VERSION}.rpm", # Install IUS Repo and Epel-Release:
+      "sudo yum install -y epel-release",
+      "sudo yum erase -y git*",       # re-install git:
+      "sudo yum install -y git-core",
       "git --version"
     ]
     only = ["amazon-ebs.centos7-ami"]
