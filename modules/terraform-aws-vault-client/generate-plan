@@ -33,7 +33,7 @@ fi
 cd "$SCRIPTDIR/../terraform-aws-bastion"
 export TF_VAR_bastion_public_dns=$(terraform output public_dns)
 cd "$SCRIPTDIR"
-"TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
+echo "TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
 
 terraform init \
     -input=false \
