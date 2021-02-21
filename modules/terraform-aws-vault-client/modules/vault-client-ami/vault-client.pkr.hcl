@@ -332,7 +332,7 @@ build {
 
   provisioner "shell" { # jq requires this repo on centos 7, and the dig command is also required
     inline = [
-      "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
+      # "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
       "sudo yum -y install bind-utils jq"
     ]
     only = ["amazon-ebs.centos7-ami"]
