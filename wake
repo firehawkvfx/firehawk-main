@@ -39,9 +39,11 @@ fi
 echo "Running Consul..."
 sudo /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
 
-if [[ -z "$VAULT_TOKEN" ]]; then
-    exit_if_error 1 "VAULT_TOKEN not defined.  This is required to continue deploying hosts that will require vault for certificates."
-fi
+vault login $VAULT_TOKEN
+
+# if [[ -z "$VAULT_TOKEN" ]]; then
+#     echo "VAULT_TOKEN not defined.  This is required to continue deploying hosts that will require vault for certificates."
+# fi
 
 cd $SCRIPTDIR/modules/terraform-aws-bastion
 ./generate-plan
