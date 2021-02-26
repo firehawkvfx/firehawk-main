@@ -59,6 +59,9 @@ function retry {
   exit $exit_status
 }
 
+# systemctl stop sshd 
+# log "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debugging ssh
+
 # If vault cli is installed we can also perform these operations with vault cli
 # The necessary environment variables have to be set
 export VAULT_TOKEN=${vault_token}
@@ -104,15 +107,13 @@ if test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub"; then
 fi
 chmod 0640 /etc/ssh/ssh_host_rsa_key-cert.pub
 
-# systemctl stop sshd 
-# log "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
-
 # Private key and cert are both required for ssh to another host.  Multiple entries for host key may exist.
 grep -q "^HostKey /etc/ssh/ssh_host_rsa_key" /etc/ssh/sshd_config || echo 'HostKey /etc/ssh/ssh_host_rsa_key' | tee --append /etc/ssh/sshd_config
 
 # Configure host cert to be recognised as a known host.
 grep -q "^HostCertificate" /etc/ssh/sshd_config || echo 'HostCertificate' | tee --append /etc/ssh/sshd_config
 sed -i 's@HostCertificate.*@HostCertificate /etc/ssh/ssh_host_rsa_key-cert.pub@g' /etc/ssh/sshd_config
+
 
 # Add the CA cert to use it for known host verification # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
 key="$(vault read -field=public_key ssh-host-signer/config/ca)"

@@ -139,7 +139,7 @@ resource "vault_auth_backend" "example" {
 
 resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
   role_name        = "vpn-server-vault-token-creds-role"
-  allowed_policies = ["vpn_server"]
+  allowed_policies = ["vpn_server","ssh_host"]
   # disallowed_policies = ["default"]
   # token_bound_cidrs = ["10.0.0.0/16"]
   # token_num_uses   = 1
