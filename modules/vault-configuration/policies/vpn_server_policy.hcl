@@ -18,91 +18,47 @@ path "auth/token/renew-self" {
 
 # The provisioner policy is for packer instances and other automation that requires read access to vault
 
-path "dev/network/*"
+path "dev/data/network/*"
 {
   capabilities = ["list", "read"]
 }
 
-path "green/network/*"
+path "dev/data/files/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "green/data/network/*"
 {
   capabilities = ["list", "read"]
 }
 
-path "blue/network/*"
+path "green/data/files/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/data/network/*"
 {
   capabilities = ["list", "read"]
+}
+
+path "blue/data/files/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 path "main/data/network/*"
 {
   capabilities = ["list", "read"]
 }
-# path "main/network/*"
-# {
-#   capabilities = ["list", "read"]
-# }
-# path "main/*"
-# {
-#   capabilities = ["create", "read", "update", "delete", "list"]
-# }
-
-path "main/data/user"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-# target="{{ resourcetier }}/files{{ item.value.target }}"
-
-path "dev/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "green/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "blue/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
 
 path "main/data/files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
-# path "main/files/*"
-# {
-#   capabilities = ["create", "read", "update", "delete", "list"]
-# }
 
-# # This allows the instance to generate certificates
-
-# path "pki_int/issue/*" {
-#     capabilities = ["create", "update"]
-# }
-
-# path "pki_int/certs" {
-#     capabilities = ["list"]
-# }
-
-# path "pki_int/revoke" {
-#     capabilities = ["create", "update"]
-# }
-
-# path "pki_int/tidy" {
-#     capabilities = ["create", "update"]
-# }
-
-# path "pki/cert/ca" {
-#     capabilities = ["read"]
-# }
-
-path "auth/token/renew" {
-    capabilities = ["update"]
-}
-
-path "auth/token/renew-self" {
-    capabilities = ["update"]
+path "main/data/user"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
 }
