@@ -22,16 +22,16 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "vpn_cidr" {
-  description = "The CIDR range that the vpn will assign using DHCP.  These are virtual addresses for routing traffic."
-  type        = string
-}
+# variable "vpn_cidr" {
+#   description = "The CIDR range that the vpn will assign using DHCP.  These are virtual addresses for routing traffic."
+#   type        = string
+# }
 
-variable "remote_ip_cidr" {
-  description = "The remote public address that will connect to the bastion instance and other public instances.  This is used to limit inbound access to public facing hosts like the VPN from your site's public IP."
-  type        = string
-  default     = null
-}
+# variable "remote_ip_cidr" {
+#   description = "The remote public address that will connect to the bastion instance and other public instances.  This is used to limit inbound access to public facing hosts like the VPN from your site's public IP."
+#   type        = string
+#   default     = null
+# }
 
 variable "common_tags" {
   description = "A map of common tags to assign to the resources created by this module"
