@@ -56,6 +56,10 @@ cd $SCRIPTDIR/modules/terraform-aws-vault-client
 ./generate-plan
 terraform apply -input=false tfplan
 
+cd $SCRIPTDIR/modules/terraform-aws-vpn
+./generate-plan
+terraform apply -input=false tfplan
+
 # Deprecated. bastions have their own module now.
 # cd $SCRIPTDIR/modules/vpc
 # # ./s3-backend-template/generate-s3-backend
