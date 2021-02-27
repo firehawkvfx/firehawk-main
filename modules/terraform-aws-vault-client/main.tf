@@ -114,7 +114,7 @@ module "vault_client" {
   remote_subnet_cidr = local.remote_subnet_cidr
 
   private_subnet_ids  = local.private_subnet_ids
-  remote_ip_cidr_list = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
+  remote_ip_cidr_list = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr, local.remote_subnet_cidr, local.vpn_cidr]
   security_group_ids  = [data.aws_security_group.bastion.id]
   # public_subnet_ids          = local.public_subnets
   # route_public_domain_name = var.route_public_domain_name

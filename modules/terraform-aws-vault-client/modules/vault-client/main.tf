@@ -6,14 +6,14 @@ resource "aws_security_group" "vault_client" {
   description = "Vault client security group"
   tags        = merge(map("Name", var.name), var.common_tags, local.extra_tags)
 
-  ingress {
-    protocol    = "-1"
-    from_port   = 0
-    to_port     = 0
-    cidr_blocks = [var.vpc_cidr, var.vpn_cidr, var.remote_subnet_cidr]
+  # ingress {
+  #   protocol    = "-1"
+  #   from_port   = 0
+  #   to_port     = 0
+  #   cidr_blocks = var.remote_ip_cidr_list
 
-    description = "all incoming traffic from vpc, vpn dhcp, and remote subnet"
-  }
+  #   description = "all incoming traffic from vpc, vpn dhcp, and remote subnet"
+  # }
 
   ingress {
     protocol        = "tcp"
