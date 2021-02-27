@@ -73,6 +73,9 @@ data "vault_generic_secret" "remote_public_ip" { # The remote onsite IP address
   path = "${local.mount_path}/network/remote_public_ip"
 }
 
+data "vault_generic_secret" "vpn_cidr" { # Get the map of data at the path
+  path = "${local.mount_path}/network/vpn_cidr"
+}
 data "vault_generic_secret" "remote_subnet_cidr" { # Get the map of data at the path
   path = "${local.mount_path}/network/remote_subnet_cidr"
 }
@@ -86,8 +89,10 @@ locals {
   vpc_id               = data.aws_vpc.primary.id
   vpc_cidr             = data.aws_vpc.primary.cidr_block
   aws_internet_gateway = data.aws_internet_gateway.gw.id
-  # public_subnets             = tolist(data.aws_subnet_ids.public.ids)
-  # public_subnet_cidr_blocks  = [for s in data.aws_subnet.public : s.cidr_block]
+
+  vpn_cidr                   = lookup(data.vault_generic_secret.vpn_cidr.data, "value")
+  remote_subnet_cidr         = lookup(data.vault_generic_secret.remote_subnet_cidr.data, "value")
+
   private_subnet_ids         = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
@@ -104,6 +109,10 @@ module "vault_client" {
   # aws_external_domain = var.aws_external_domain
   vpc_id              = local.vpc_id
   vpc_cidr            = local.vpc_cidr
+
+  vpn_cidr           = local.vpn_cidr
+  remote_subnet_cidr = local.remote_subnet_cidr
+
   private_subnet_ids  = local.private_subnet_ids
   remote_ip_cidr_list = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
   security_group_ids  = [data.aws_security_group.bastion.id]
