@@ -43,6 +43,9 @@ if [[ -z "$VAULT_TOKEN" ]]; then
     echo "Instances from this point require you to login to vault.  To avoid this message you can define the var VAULT_TOKEN"
 fi
 
+echo "Waiting for consul vault service..."
+until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
+vault status
 vault login --no-print $VAULT_TOKEN
 
 cd $SCRIPTDIR/modules/terraform-aws-bastion
