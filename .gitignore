@@ -2,3 +2,4 @@
 terraform.tfstate*
 plan
 tmp/log/*
+**/.DS_Store
