@@ -19,9 +19,8 @@ variable "enable_vault" {
 }
 
 variable "bucket_extension" {
-  description = "# The extension for cloud storage used to label your S3 storage buckets. This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html"
+  description = "The extension for cloud storage used to label your S3 storage buckets (eg: example.com, my-name-at-gmail.com). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html"
   type = string
-  default = null
 }
 
 variable "aws_private_key_path" {
@@ -30,22 +29,32 @@ variable "aws_private_key_path" {
   default = ""
 }
 
-variable "vault_public_key" {
-  description = "The public key of the host used to ssh into the vault cluster"
-  type = string
-  default = ""
-}
-
 variable "remote_ip_cidr" {
   description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host.."
   type = string
-  default = null
+}
+
+variable "remote_cloud_private_ip_cidr" {
+  description = "The remote private address that will connect to the bastion instance and other public instances.  This is used to limit inbound access to public facing hosts like the VPN from your site's public IP."
+  type        = string
+  default     = null
+}
+
+variable "remote_cloud_public_ip_cidr" {
+  description = "The remote public address that will connect to the bastion instance and other public instances.  This is used to limit inbound access to public facing hosts like the VPN from your site's public IP."
+  type        = string
+  default     = null
+}
+
+variable "create_bastion_graphical" {
+  description = "Creates a graphical bastion host for vault configuration."
+  type = bool
+  default = true
 }
 
 variable "remote_ip_graphical_cidr" {
   description = "The public IP of the host used to connect to the graphical bastion."
   type = string
-  default = null
 }
 
 variable "vault_consul_ami_id" {
@@ -64,4 +73,10 @@ variable "bastion_graphical_ami_id" {
   description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/nice-dcv-ami."
   type = string
   default = null
+}
+
+variable "create_key_pair" {
+  description = "Controls if key pair should be created"
+  type        = bool
+  default     = true
 }

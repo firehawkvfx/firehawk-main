@@ -7,3 +7,12 @@
 [submodule "ansible"]
 	path = ansible
 	url = ../ansible.git
+[submodule "modules/deadline-db-ami/ansible/collections/ansible_collections/firehawkvfx/core"]
+	path = modules/deadline-db-ami/ansible/collections/ansible_collections/firehawkvfx/core
+	url = https://github.com/firehawkvfx/ansible_collection_core.git
+[submodule "modules/deadline-db-ami/ansible/collections/ansible_collections/firehawkvfx/fsx"]
+	path = modules/deadline-db-ami/ansible/collections/ansible_collections/firehawkvfx/fsx
+	url = https://github.com/firehawkvfx/ansible_collection_fsx.git
+[submodule "modules/terraform-aws-vpn"]
+	path = modules/terraform-aws-vpn
+	url = ../terraform-aws-vpn.git

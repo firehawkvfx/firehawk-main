@@ -1,4 +1,9 @@
-sudo yum install -y jq ansible moretutils ts
+sudo yum install -y git
+sudo yum install -y python python3.7 python3-pip
+python3 -m pip install --user --upgrade pip # Do not run pip as sudo. Do this instead.
+python3 -m pip install ansible boto3
+
+sudo yum install -y jq
 mkdir -p tmp
 
 wget https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip -P tmp/ # Get terraform
