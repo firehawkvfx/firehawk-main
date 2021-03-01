@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Shared parameters for a firehawk deployment.
+
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "Network Configuration"
+        Parameters: 
+          - resourcetier
+          - onsitepublicip
+          - onsiteprivatesubnetcidr
+          - globalbucketextension
+    ParameterLabels: 
+      resourcetier: 
+        default: "Deployment Environment (resourcetier)"
+      onsitepublicip: 
+        default: "Your Onsite Public IP Address"
+      onsiteprivatesubnetcidr:
+        default: "Your Onsite Private Subnet"
+      globalbucketextension:
+        default: "Your Global Bucket Extension"
+
+Parameters:
+  resourcetier:
+    Description: 'The resource tier uniquely defining the deployment area.  eg: dev/green/blue/main.'
+    Type: String
+    AllowedValues:
+    - dev
+    - green
+    - blue
+    - main
+    Default: main
+  onsitepublicip:
+    Description: 'The public IP of your onsite connection used to connect to the cloud infra. Google "what is my ip" for the value. If you do not have a static IP, Terraform may need to update more frequently.'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+    # Default: ''
+  onsiteprivatesubnetcidr:
+    Description: 'The private subnet IP range used for your onsite hosts.  Your router will usually use DHCP to place hosts within this range. eg: 192.168.29.0/24'
+    Type: String
+    # AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-3]|[0-9]))$"
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([1-2][0-9]|3[0-2]))?$"
+  globalbucketextension:
+    Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com  eg2: myemailatgmaildotcom'
+    Type: String
+    AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
+    ConstraintDescription: bucket name can include numbers, lowercase letters, uppercase letters, dots (.) and hyphens (-). It cannot start or end with a dot (.) or hyphen (-).
+Resources:
+  SSMOnsitePublicIp:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /onsite_public_ip
+      Type: String
+      Value: !Ref onsitepublicip
+      Description: 'The public IP of your onsite connection used to connect to the cloud infra. Google "what is my ip" for the value. If you do not have a static IP, Terraform may need to update more frequently.'
+      AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+  SSMOnsitePrivateSubnetCIDR:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /onsite_private_subnet_cidr
+      Type: String
+      Value: !Ref onsiteprivatesubnetcidr
+      Description: 'The private subnet IP range used for your onsite hosts.  Your router will usually use DHCP to place hosts within this range. eg: 192.168.29.0/24'
+      # AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-3]|[0-9]))$"
+  GlobalBucketExtension:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /global_bucket_extension
+      Type: String
+      Value: !Ref globalbucketextension
+      Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com eg2: myemailatgmaildotcom'
+      AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
