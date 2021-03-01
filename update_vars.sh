@@ -56,7 +56,6 @@ if [[ -z "$TF_VAR_resourcetier" ]]; then
   log_error "Could not read resourcetier tag from this instance.  Ensure you have set a tag with resourcetier."
   return
 fi
-
 export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
 export TF_VAR_pipelineid="0" # Uniquely name and tag the resources produced by a CI pipeline
 export TF_VAR_conflictkey="${TF_VAR_resourcetier}${TF_VAR_pipelineid}" # The conflict key is a unique identifier for a deployment.
@@ -109,6 +108,7 @@ if [[ num_invalid -eq 0 ]]; then
   error_if_empty "SSM Parameter missing: onsite_private_subnet_cidr" "$TF_VAR_onsite_private_subnet_cidr"
   export TF_VAR_global_bucket_extension=$(echo $get_parameters | jq '.Parameters[]| select(.Name == "/firehawk/resourcetier/dev/global_bucket_extension")|.Value' --raw-output)
   error_if_empty "SSM Parameter missing: global_bucket_extension" "$TF_VAR_global_bucket_extension"
+  export TF_VAR_bucket_extension="$TF_VAR_resourcetier.$TF_VAR_global_bucket_extension"
 else
   log_error "SSM parameters are not yet initialised.  You can init SSM parameters with the cloudformation template modules/cloudformation-cloud9-vault-iam/cloudformation_ssm_parameters_firehawk.yaml"
   return
