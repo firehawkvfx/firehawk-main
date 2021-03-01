@@ -40,10 +40,15 @@ myKey:
         - kms:ScheduleKeyDeletion
         - kms:CancelKeyDeletion
         Resource: '*'
-      - Sid: Allow use of the key
+      - Sid: Allow use of the key to all users.  This should be further restricted.
         Effect: Allow
         Principal:
-          AWS: arn:aws:iam::123456789012:user/Bob
+          AWS:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:iam::'
+              - Ref: AWS::AccountId
+              - :user/*
         Action:
         - kms:DescribeKey
         - kms:Encrypt

@@ -8,6 +8,11 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 export TF_VAR_resourcetier="main" # Can be dev,green,blue,main
 export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
 export TF_VAR_pipelineid="0" # Uniquely name and tag the resources produced by a CI pipeline
+if [[ "$TF_VAR_resourcetier"=="dev" ]]; then
+  export TF_VAR_environment="dev"
+else
+  export TF_VAR_environment="prod"
+fi
 export TF_VAR_firehawk_path=$SCRIPTDIR
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
