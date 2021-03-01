@@ -32,7 +32,5 @@ module "vpc" {
   deployer_ip_cidr             = var.deployer_ip_cidr
   remote_cloud_public_ip_cidr  = var.remote_cloud_public_ip_cidr
   remote_cloud_private_ip_cidr = var.remote_cloud_private_ip_cidr
-  aws_key_name                 = "main-deployment"
-  aws_private_key_path         = var.aws_private_key_path
   common_tags                  = local.common_tags
 }

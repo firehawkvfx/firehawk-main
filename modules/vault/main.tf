@@ -35,7 +35,7 @@ module "vault" {
 
   enable_auto_unseal = true
   
-  ssh_key_name = "main-deployment"
+  ssh_key_name = "deployuser-${var.resourcetier}"
 
   # Persist vault data in an S3 bucket when all nodes are shut down.
   enable_s3_backend = true

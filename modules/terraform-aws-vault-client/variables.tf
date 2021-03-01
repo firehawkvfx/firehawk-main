@@ -1,5 +1,5 @@
 variable "aws_key_name" {
-  default = "main-deployment"
+  default = "deployuser-${var.resourcetier}"
 }
 
 variable "vault_client_ami_id" {
