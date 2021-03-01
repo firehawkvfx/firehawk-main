@@ -49,8 +49,7 @@ export TF_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used fo
 export PKR_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
 export TF_VAR_aws_external_domain=$AWS_DEFAULT_REGION.compute.amazonaws.com
 
-# test aquiring the resourcetier from the instance tag.
-
+# Aquiring the resourcetier from the instance tag.
 export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value' --raw-output)" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
 if [[ -z "$TF_VAR_resourcetier" ]]; then
   log_error "Could not read resourcetier tag from this instance.  Ensure you have set a tag with resourcetier."
@@ -74,6 +73,8 @@ if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manif
 fi
 export PACKER_LOG=1
 export PACKER_LOG_PATH="packerlog.log"
+export TF_VAR_provisioner_iam_profile_name="provisioner_instance_role_$TF_VAR_conflictkey"
+export PKR_VAR_provisioner_iam_profile_name="provisioner_instance_role_$TF_VAR_conflictkey"
 
 # Terraform Vars
 export TF_VAR_general_use_ssh_key="$HOME/.ssh/id_rsa" # For debugging deployment of most resources- not for production use.

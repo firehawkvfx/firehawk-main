@@ -68,6 +68,13 @@ cd modules/vault
 ./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
 ```
 
+- Create a policy enabling Packer to build images with vault access.  You only need to ensure these policies exist once per resourcetier (dev/green/blue/prod).
+```
+cd modules/terraform-aws-iam-s3
+./generate-plan
+terraform apply tfplan
+```
+
 - Build Vault and Consul Images
 ```
 cd $TF_VAR_firehawk_path

@@ -19,6 +19,10 @@ variable "subnet_id" {
   type = string
 }
 
+variable "provisioner_iam_profile_name" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -45,7 +49,7 @@ source "amazon-ebs" "amazon-linux-2-ami" {
   vpc_id               = "${var.vpc_id}"
   subnet_id            = "${var.subnet_id}"
   security_group_id    = "${var.security_group_id}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  iam_instance_profile = var.provisioner_iam_profile_name
 }
 
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
@@ -68,7 +72,7 @@ source "amazon-ebs" "centos7-ami" {
   vpc_id               = "${var.vpc_id}"
   subnet_id            = "${var.subnet_id}"
   security_group_id    = "${var.security_group_id}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  iam_instance_profile = var.provisioner_iam_profile_name
 }
 
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
@@ -94,7 +98,7 @@ source "amazon-ebs" "ubuntu16-ami" {
   vpc_id               = "${var.vpc_id}"
   subnet_id            = "${var.subnet_id}"
   security_group_id    = "${var.security_group_id}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  iam_instance_profile = var.provisioner_iam_profile_name
 }
 
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
@@ -120,7 +124,7 @@ source "amazon-ebs" "ubuntu18-ami" {
   vpc_id               = "${var.vpc_id}"
   subnet_id            = "${var.subnet_id}"
   security_group_id    = "${var.security_group_id}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  iam_instance_profile = var.provisioner_iam_profile_name
 }
 
 build {

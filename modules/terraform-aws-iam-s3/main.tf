@@ -7,7 +7,7 @@ data "aws_canonical_user_id" "current" {}
 locals {
   common_tags     = {
     resourcetier = var.resourcetier
-    conflictkey  = "${var.resourcetier}${var.pipelineid}"
+    conflictkey  = var.conflictkey
     # The conflict key defines a name space where duplicate resources in different deployments sharing this name are prevented from occuring.  This is used to prevent a new deployment overwriting and existing resource unless it is destroyed first.
     # examples might be blue, green, dev1, dev2, dev3...dev100.  This allows us to lock deployments on some resources.
     pipelineid   = var.pipelineid
@@ -18,8 +18,11 @@ locals {
   }
 }
 
+variable "provisioner_iam_profile_name" {
+  type = string
+}
 resource "aws_iam_role" "provisioner_instance_role" {
-  name = "provisioner_instance_role_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  name = var.provisioner_iam_profile_name
   assume_role_policy = data.aws_iam_policy_document.provisioner_instance_assume_role.json
   tags = local.common_tags
 }
@@ -51,7 +54,7 @@ data "aws_iam_policy_document" "provisioner_instance_assume_role" { # Determines
 
 # to limit access to a specific bucket, see here - https://aws.amazon.com/blogs/security/writing-iam-policies-how-to-grant-access-to-an-amazon-s3-bucket/
 resource "aws_iam_role_policy" "s3_read_write" {
-  name = "S3ReadWrite"
+  name = "S3ReadWrite_${var.conflictkey}"
   role = aws_iam_role.provisioner_instance_role.id
 
   policy = <<EOF
@@ -86,7 +89,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "get_caller_identity" {
-  name = "STSGetCallerIdentity"
+  name = "STSGetCallerIdentity_${var.conflictkey}"
   role = aws_iam_role.provisioner_instance_role.id
 
   policy = <<EOF
