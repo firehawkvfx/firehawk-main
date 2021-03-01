@@ -49,8 +49,6 @@ resource "vault_policy" "pki_int_policy" {
   policy = file("policies/pki_int.hcl")
 }
 
-
-
 resource "vault_mount" "dev" {
   path        = "dev"
   type        = "kv-v2"

@@ -37,7 +37,7 @@ variable "public_domain_name" {
   type        = string
   default     = null
 }
-variable "remote_ip_cidr_list" {
+variable "permitted_cidr_list" {
   description = "The list of remote CIDR blocks that will be able to access the host."
   type        = list(string)
 }

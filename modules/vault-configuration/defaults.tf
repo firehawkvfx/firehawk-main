@@ -33,16 +33,16 @@ locals {
       "default": "9003",
       "example_1": "9003",
     },
-    "network/remote_subnet_cidr" = {
-      "name" = "remote_subnet_cidr",
+    "network/onsite_private_subnet_cidr" = {
+      "name" = "onsite_private_subnet_cidr",
       "description": "This is the IP range of your subnet onsite that the firehawkserver vm will reside in, and that other onsite nodes reside in.  The below example (in CIDR notation) would denote the range 192.168.29.0 - 192.168.29.255",
-      "default": "",
+      "default": "${var.onsite_private_subnet_cidr}",
       "example_1": "192.168.29.0/24",
     },
-    "network/remote_public_ip" = {
-      "name" = "remote_public_ip",
+    "network/onsite_public_ip" = {
+      "name" = "onsite_public_ip",
       "description": "Your remote public IP address you will use to access the VPN / Bastion hosts from.",
-      "default": "",
+      "default": "${var.onsite_public_ip}",
       "example_1": "180.150.117.212",
     },
     "network/openvpn_admin_pw" = {
@@ -106,8 +106,8 @@ locals {
     "network/private_domain" = {
       "name" = "private_domain",
       "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
-      "default": "dev.openfirehawk.com",
-      "example_1": "dev.openfirehawk.com"
+      "default": "dev.node.consul",
+      "example_1": "dev.node.consul"
     }
   } ) )
   blue = merge(local.defaults, tomap( {
@@ -158,8 +158,8 @@ locals {
     "network/private_domain" = {
       "name" = "private_domain",
       "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
-      "default": "blue.openfirehawk.com",
-      "example_1": "blue.openfirehawk.com"
+      "default": "blue.node.consul",
+      "example_1": "blue.node.consul"
     }
   } ) )
   green = merge(local.defaults, tomap( {
@@ -210,8 +210,8 @@ locals {
     "network/private_domain" = {
       "name" = "private_domain",
       "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
-      "default": "green.openfirehawk.com",
-      "example_1": "green.openfirehawk.com"
+      "default": "green.node.consul",
+      "example_1": "green.node.consul"
     }
   } ) )
   main = merge(local.defaults, tomap( {
@@ -261,8 +261,8 @@ locals {
     "network/private_domain" = {
       "name" = "private_domain",
       "description": "The private domain name for your hosts.  This is required for the host names and fsx storage in a private network.  Launched Infrastructure will switch between different domains depending on the resource environment for isolation.",
-      "default": "main.openfirehawk.com",
-      "example_1": "main.openfirehawk.com"
+      "default": "main.node.consul",
+      "example_1": "main.node.consul"
     }
   } ) )
 }

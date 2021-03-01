@@ -69,15 +69,15 @@ data "vault_generic_secret" "private_domain" { # Get the map of data at the path
   path = "${local.mount_path}/network/private_domain"
 }
 
-data "vault_generic_secret" "remote_public_ip" { # The remote onsite IP address
-  path = "${local.mount_path}/network/remote_public_ip"
+data "vault_generic_secret" "onsite_public_ip" { # The remote onsite IP address
+  path = "${local.mount_path}/network/onsite_public_ip"
 }
 
 data "vault_generic_secret" "vpn_cidr" { # Get the map of data at the path
   path = "${local.mount_path}/network/vpn_cidr"
 }
-data "vault_generic_secret" "remote_subnet_cidr" { # Get the map of data at the path
-  path = "${local.mount_path}/network/remote_subnet_cidr"
+data "vault_generic_secret" "onsite_private_subnet_cidr" { # Get the map of data at the path
+  path = "${local.mount_path}/network/onsite_private_subnet_cidr"
 }
 data "aws_security_group" "bastion" { # Aquire the security group ID for external bastion hosts, these will require SSH access to this internal host.  Since multiple deployments may exist, the pipelineid allows us to distinguish between unique deployments.
   tags   = map("Name", "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}")
@@ -91,12 +91,12 @@ locals {
   aws_internet_gateway = data.aws_internet_gateway.gw.id
 
   vpn_cidr                   = lookup(data.vault_generic_secret.vpn_cidr.data, "value")
-  remote_subnet_cidr         = lookup(data.vault_generic_secret.remote_subnet_cidr.data, "value")
+  onsite_private_subnet_cidr         = lookup(data.vault_generic_secret.onsite_private_subnet_cidr.data, "value")
 
   private_subnet_ids         = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
-  remote_public_ip           = lookup(data.vault_generic_secret.remote_public_ip.data, "value")
+  onsite_public_ip           = lookup(data.vault_generic_secret.onsite_public_ip.data, "value")
   private_route_table_ids    = data.aws_route_tables.private.ids
   # public_route_table_ids     = data.aws_route_tables.public.ids
   # public_domain_name         = "none"
@@ -111,10 +111,10 @@ module "vault_client" {
   vpc_cidr            = local.vpc_cidr
 
   # vpn_cidr           = local.vpn_cidr
-  # remote_subnet_cidr = local.remote_subnet_cidr
+  # onsite_private_subnet_cidr = local.onsite_private_subnet_cidr
 
   private_subnet_ids  = local.private_subnet_ids
-  remote_ip_cidr_list = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr, local.remote_subnet_cidr, local.vpn_cidr]
+  permitted_cidr_list = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr, local.onsite_private_subnet_cidr, local.vpn_cidr]
   security_group_ids  = [data.aws_security_group.bastion.id]
   # public_subnet_ids          = local.public_subnets
   # route_public_domain_name = var.route_public_domain_name

@@ -8,18 +8,15 @@ variable "vault_client_role_arns" {
   type = list(string)
 }
 
-# variable "envtier" {
-#   description = "The environment tier eg: dev, prod"
-#   type = string
-#   default = "dev"
-# }
+variable "onsite_public_ip" {
+  description = "The public ip address of your onsite location to enable access to security groups and openVPN."
+  type = string
+}
 
-# variable "resourcetier" {
-#   description = "The resource tier is an group of resources in dev or prod by colour. eg: green, blue, grey"
-#   type = string
-#   default = "grey"
-# }
-
+variable "onsite_private_subnet_cidr" {
+  description = "The private subnet range that host IP's reside in onsite.  Usually provided by your router's DHCP range 192.168.x.0/24, where x is unique to your location."
+  type = string
+}
 variable "restore_defaults" {
   description = "If true, will reset all values to system defaults"
   type        = bool

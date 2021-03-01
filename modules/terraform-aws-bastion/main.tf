@@ -69,12 +69,12 @@ data "vault_generic_secret" "private_domain" { # Get the map of data at the path
   path = "${local.mount_path}/network/private_domain"
 }
 
-data "vault_generic_secret" "remote_public_ip" { # The remote onsite IP address
-  path = "${local.mount_path}/network/remote_public_ip"
+data "vault_generic_secret" "onsite_public_ip" { # The remote onsite IP address
+  path = "${local.mount_path}/network/onsite_public_ip"
 }
 
-data "vault_generic_secret" "remote_subnet_cidr" { # Get the map of data at the path
-  path = "${local.mount_path}/network/remote_subnet_cidr"
+data "vault_generic_secret" "onsite_private_subnet_cidr" { # Get the map of data at the path
+  path = "${local.mount_path}/network/onsite_private_subnet_cidr"
 }
 
 locals {
@@ -87,7 +87,7 @@ locals {
   private_subnets            = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
-  remote_public_ip           = lookup(data.vault_generic_secret.remote_public_ip.data, "value")
+  onsite_public_ip           = lookup(data.vault_generic_secret.onsite_public_ip.data, "value")
   private_route_table_ids    = data.aws_route_tables.private.ids
   public_route_table_ids     = data.aws_route_tables.public.ids
   public_domain_name         = "none"
@@ -101,7 +101,7 @@ module "bastion" {
   aws_external_domain = var.aws_external_domain
   vpc_id                     = local.vpc_id
   vpc_cidr                   = local.vpc_cidr
-  remote_ip_cidr_list        = ["${local.remote_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
+  permitted_cidr_list        = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
   public_subnet_ids          = local.public_subnets
   route_public_domain_name = var.route_public_domain_name
   route_zone_id            = local.route_zone_id

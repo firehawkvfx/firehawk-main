@@ -29,7 +29,7 @@ variable "aws_private_key_path" {
   default = ""
 }
 
-variable "remote_ip_cidr" {
+variable "deployer_ip_cidr" {
   description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host.."
   type = string
 }
@@ -50,11 +50,6 @@ variable "create_bastion_graphical" {
   description = "Creates a graphical bastion host for vault configuration."
   type = bool
   default = true
-}
-
-variable "remote_ip_graphical_cidr" {
-  description = "The public IP of the host used to connect to the graphical bastion."
-  type = string
 }
 
 variable "vault_consul_ami_id" {

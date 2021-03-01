@@ -27,7 +27,7 @@ variable "vpc_cidr" {
 #   type        = string
 # }
 
-# variable "remote_ip_cidr" {
+# variable "deployer_ip_cidr" {
 #   description = "The remote public address that will connect to the bastion instance and other public instances.  This is used to limit inbound access to public facing hosts like the VPN from your site's public IP."
 #   type        = string
 #   default     = null
@@ -38,7 +38,7 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
-variable "remote_ip_cidr_list" {
+variable "permitted_cidr_list" {
   description = "The list of remote CIDR blocks that will be able to access the host."
   type        = list(string)
 }
