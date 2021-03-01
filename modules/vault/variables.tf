@@ -31,7 +31,7 @@ variable "vault_public_key" {
 }
 
 variable "deployer_ip_cidr" {
-  description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host.."
+  description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host."
   type = string
 }
 
@@ -41,25 +41,13 @@ variable "vault_consul_ami_id" {
   default     = null
 }
 
-variable "bastion_ami_id" {
-  description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/bastion-ami."
+variable "instance_id_main_cloud9" {
+  description = "The instance ID of the cloud9 seed instance in your main account.  This will be used to establish a connection with vault."
   type = string
-  default = null
-}
-
-variable "bastion_graphical_ami_id" {
-  description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/nice-dcv-ami."
-  type = string
-  default = null
 }
 
 variable "vpc_id_main_cloud9" {
   description = "The VPC ID containing the cloud9 seed instance in your main account.  This will be used to establish VPC peering with vault."
-  type = string
-}
-
-variable "instance_id_main_cloud9" {
-  description = "The instance ID of the cloud9 seed instance in your main account.  This will be used to establish a connection with vault."
   type = string
 }
 
@@ -75,4 +63,9 @@ variable "resourcetier" {
 variable "pipelineid" {
   description = "The pipelineid uniquely defining the deployment instance if using CI.  eg: dev/green/blue/main"
   type        = string
+}
+
+variable "conflictkey" {
+    description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
+    type = string
 }

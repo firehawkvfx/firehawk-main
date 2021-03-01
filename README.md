@@ -88,12 +88,25 @@ cd modules/kms-key
 terraform apply tfplan
 ```
 
+- Create a VPC for Vault
+```
+cd modules/vpc
+./generate-plan
+terraform apply tfplan
+```
+
+- Enable peering between vault vpc and current Cloud 9 vpc
+```
+cd modules/terraform-aws-vpc-main-cloud9-peering
+./generate-plan
+terraform apply tfplan
+```
+
 - Deploy Vault
 ```
 cd $TF_VAR_firehawk_path
 ./wake
 ```
-
 
 - Initialise the vault:
 ```
