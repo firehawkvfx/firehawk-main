@@ -1,3 +1,5 @@
+# further changes are required for this to be used.  We need to restrict the access to the key to a profile that the vault instamces will use.
+
 myKey:
   Type: AWS::KMS::Key
   Properties:

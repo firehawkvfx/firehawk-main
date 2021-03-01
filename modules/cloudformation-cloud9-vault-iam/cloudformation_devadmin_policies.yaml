@@ -2,7 +2,7 @@
 
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Custom IAM policies for admin users.  
+  Custom IAM policies for admin users.  These permissions are a work in progress and further reduction of the permissions should be applied for production use.
 
 Parameters:
   adminGroupUsers:
