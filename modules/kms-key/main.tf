@@ -11,7 +11,6 @@ resource "random_pet" "env" {
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 data "aws_canonical_user_id" "current" {}
-
 locals {
   common_tags = {
     environment  = var.environment
