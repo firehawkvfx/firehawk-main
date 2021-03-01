@@ -11,21 +11,20 @@ data "aws_caller_identity" "current" {}
 data "aws_canonical_user_id" "current" {}
 
 locals {
-  common_tags     = {
-    environment  = "prod"
-    resourcetier = "main"
-    conflictkey  = "main1" 
-    # The conflict key defines a name space where duplicate resources in different deployments sharing this name are prevented from occuring.  This is used to prevent a new deployment overwriting an existing resource unless it is destroyed first.
+  common_tags = {
+    environment  = var.environment
+    resourcetier = var.resourcetier
+    conflictkey  = "${var.resourcetier}${var.pipelineid}"
+    # The conflict key defines a name space where duplicate resources in different deployments sharing this name are prevented from occuring.  This is used to prevent a new deployment overwriting and existing resource unless it is destroyed first.
     # examples might be blue, green, dev1, dev2, dev3...dev100.  This allows us to lock deployments on some resources.
-    pipelineid   = "0"
-    owner        = data.aws_canonical_user_id.current.display_name
-    accountid    = data.aws_caller_identity.current.account_id
-    terraform    = "true"
+    pipelineid = var.pipelineid
+    owner      = data.aws_canonical_user_id.current.display_name
+    accountid  = data.aws_caller_identity.current.account_id
+    region     = data.aws_region.current.name
+    terraform  = "true"
     role = "shared bucket"
-    region = data.aws_region.current.name
   }
   share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
-  
   vault_map = element( concat( data.vault_generic_secret.installers_bucket.*.data, list({}) ), 0 )
   bucket_name = var.use_vault && contains( keys(local.vault_map), "value" ) ? lookup( local.vault_map, "value", var.bucket_name) : var.bucket_name
 }

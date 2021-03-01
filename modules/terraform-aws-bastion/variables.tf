@@ -16,7 +16,6 @@ variable "sleep" {
 variable "resourcetier" {
     description = "The resource tier speicifies a unique name for a resource based on the environment.  eg:  dev, green, blue, main."
     type = string
-    default = "main"
 }
 
 variable "pipelineid" {
