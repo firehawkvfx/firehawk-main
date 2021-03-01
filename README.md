@@ -51,7 +51,8 @@ cd $TF_VAR_firehawk_path
 ```
 
 - Create KMS Keys to auto unseal the vault
-
+```
+cd modules/kms-key
 
 - Initialise the vault:
 ```
