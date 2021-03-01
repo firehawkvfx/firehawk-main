@@ -2,160 +2,12 @@
 The Firehawk Main VPC (WIP) deploys Hashicorp Vault into a private VPC with auto unsealing.
 
 This deployment uses Cloud 9 to simplify management of AWS Secret Keys.  You will need to create a custom profile to allow the cloud 9 instance permission to create these resources with Terraform.  
-  
-## Policies for the Cloud 9 instance.
+## Policies
 
-WARNING: Do not use this in production without restricting these policies further.
-These policies are WIP, and are far too permissive for a production or persistant deployment.  
-
-- Ensure you have MFA enabled for the current user.
-
-- In AWS Management Console | IAM | Policies: Create a new policy named: Cloud9SSMCustomInstanceProfile.
-Use this JSON definition for the policy:
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ssmmessages:CreateControlChannel",
-                "ssmmessages:CreateDataChannel",
-                "ssmmessages:OpenControlChannel",
-                "ssmmessages:OpenDataChannel",
-                "ssm:UpdateInstanceInformation"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-```
-- In AWS Management Console | IAM | Policies: Create a new policy named: Cloud9CustomRole.
-Use this JSON definition for the policy:
-```
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:RunInstances",
-                "ec2:CreateSecurityGroup",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
-                "ec2:DescribeInstances",
-                "ec2:DescribeInstanceStatus",
-                "cloudformation:CreateStack",
-                "cloudformation:DescribeStacks",
-                "cloudformation:DescribeStackEvents",
-                "cloudformation:DescribeStackResources"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:TerminateInstances",
-                "ec2:DeleteSecurityGroup",
-                "ec2:AuthorizeSecurityGroupIngress"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "cloudformation:DeleteStack"
-            ],
-            "Resource": "arn:aws:cloudformation:*:*:stack/aws-cloud9-*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:CreateTags"
-            ],
-            "Resource": [
-                "arn:aws:ec2:*:*:instance/*",
-                "arn:aws:ec2:*:*:security-group/*"
-            ],
-            "Condition": {
-                "StringLike": {
-                    "aws:RequestTag/Name": "aws-cloud9-*"
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:StartInstances",
-                "ec2:StopInstances"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "ec2:ResourceTag/aws:cloudformation:stack-name": "aws-cloud9-*"
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:ListInstanceProfiles",
-                "iam:GetInstanceProfile"
-            ],
-            "Resource": [
-                "arn:aws:iam::*:instance-profile/cloud9/*"
-            ]
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Resource": [
-                "arn:aws:iam::*:role/service-role/AWSCloud9SSMAccessRole"
-            ],
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": "ec2.amazonaws.com"
-                }
-            }
-        }
-    ]
-}
-```
-- Create a new role called Cloud9CustomRole
-
-Edit trust relationships for this role and use this JSON definition:
-```
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "cloud9.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-- Attach these policies to the role:
-```
-Cloud9SSMCustomInstanceProfile
-Cloud9CustomPolicy
-IAMFullAccess
-AdministratorAccess
-```
+- In cloudformation run these templates to init policies and defaults:
+  - modules/cloudformation-cloud9-vault-iam/cloudformation_devadmin_policies.yaml
+  - modules/cloudformation-cloud9-vault-iam/cloudformation_cloud9_policies.yaml
+  - modules/cloudformation-cloud9-vault-iam/cloudformation_ssm_parameters_firehawk.yaml
 
 ## Creating The Cloud9 Environment
 
@@ -165,7 +17,7 @@ Ensure you have selected:
 `Create a new no-ingress EC2 instance for environment (access via Systems Manager)`
 This will create a Cloud 9 instance with no inbound access.
 
-- Once up, in AWS Management Console | EC2 : Select the instance, and change the instance profile to your `Cloud9CustomRole`
+- Once up, in AWS Management Console | EC2 : Select the instance, and change the instance profile to your `Cloud9CustomAdminRoleFirehawk`
 
 - Ensure you can connect to the IDE through AWS Management Console | Cloud9.
 

@@ -31,7 +31,10 @@ terraform apply -input=false tfplan # Ensure Main VPC exists
 cd $SCRIPTDIR/modules/vault
 ./generate-plan
 terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.
-# ./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
+
+# Install consul
+./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
+
 if [[ ! -f "/opt/consul/bin/run-consul" ]]; then
     exit 0 # if the user hasn't installed consul yet, this step must be performed manually.
 fi
