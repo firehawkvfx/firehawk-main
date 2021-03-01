@@ -37,11 +37,17 @@ cd firehawk-main; ./install_packages.sh
 source ./update_vars.sh
 ```
 
-- Create TLS Certificates for your vault images
+- Create TLS Certificates for your Vault images
 ```
 cd modules/terraform-aws-vault/modules/private-tls-cert
 terraform plan -out=tfplan
-terraform apply
+terraform apply tfplan
+```
+
+- Install Consul and Vault client
+```
+cd modules/vault
+./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
 ```
 
 - Build Vault and Consul Images
@@ -53,6 +59,16 @@ cd $TF_VAR_firehawk_path
 - Create KMS Keys to auto unseal the vault
 ```
 cd modules/kms-key
+./generate-plan
+terraform apply tfplan
+```
+
+- Deploy Vault
+```
+cd $TF_VAR_firehawk_path
+./wake
+```
+
 
 - Initialise the vault:
 ```
