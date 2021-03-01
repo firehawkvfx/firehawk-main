@@ -17,6 +17,12 @@ Ensure you have selected:
 `Create a new no-ingress EC2 instance for environment (access via Systems Manager)`
 This will create a Cloud 9 instance with no inbound access.
 
+Ensure you add tags:
+```
+resourcetier=main
+```
+The tag will define the environment in the shell.
+
 - Once up, in AWS Management Console | EC2 : Select the instance, and change the instance profile to your `Cloud9CustomAdminRoleFirehawk`
 
 - Ensure you can connect to the IDE through AWS Management Console | Cloud9.
@@ -25,6 +31,18 @@ This will create a Cloud 9 instance with no inbound access.
 Your instance should now have permission to create and destroy any resource with Terraform.
 
 ## Create the Hashicorp Vault deployment
+
+- In the cloud 9 instance, generate an ssh keypair at the deault path and with no password.
+```
+ssh-keygen
+```
+
+- Copy the output of your public key
+```
+cat ~/.ssh/id_rsa.pub
+```
+
+- Paste it into the AWS Management Console | Key Pairs | Import Key Pair.  Name the keypair 'deployuser-main' (Or replace main with the resource tier you are using to deploy into)
 
 - Clone the repo, and install required binaries and packages.
 ```
