@@ -30,7 +30,7 @@ function error_if_empty {
   if [[ -z "$2" ]]; then
     log_error "$1"
   fi
-  exit 1
+  return
 }
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
@@ -54,7 +54,7 @@ export TF_VAR_aws_external_domain=$AWS_DEFAULT_REGION.compute.amazonaws.com
 export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value') --raw-output" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
 if [[ -z "$TF_VAR_resourcetier" ]]; then
   log_error "Could not read resourcetier tag from this instance.  Ensure you have set a tag with resourcetier."
-  exit 1
+  return
 fi
 
 export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
@@ -82,7 +82,7 @@ export TF_VAR_aws_private_key_path="$TF_VAR_general_use_ssh_key"
 public_key_path="$HOME/.ssh/id_rsa.pub"
 if [[ ! -f $public_key_path ]] ; then
     echo "File $public_key_path is not there, aborting. Ensure you have initialised a keypair with ssh-keygen"
-    exit 1
+    return
 fi
 export TF_VAR_vault_public_key=$(cat $public_key_path)
 
@@ -112,8 +112,10 @@ else
   # export TF_VAR_global_bucket_extension="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "global_bucket_extension")|.Value')"
   # error_if_empty "Tag for this instance missing: global_bucket_extension" "$TF_VAR_global_bucket_extension"
   log_error "SSM parameters are not yet initialised.  You can init SSM parameters with the cloudformation template modules/cloudformation-cloud9-vault-iam/cloudformation_ssm_parameters_firehawk.yaml"
-  exit 1
+  return
 fi
+
+echo "test"
 
 # export TF_VAR_onsite_public_ip_cidr="$TF_VAR_onsite_public_ip/32"
 # export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
