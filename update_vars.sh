@@ -114,4 +114,4 @@ else
   return
 fi
 
-log "Done sourcing vars."
+log_info "Done sourcing vars."
