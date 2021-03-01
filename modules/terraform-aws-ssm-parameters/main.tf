@@ -34,12 +34,13 @@ resource "aws_ssm_parameter" "firehawk_onsite_private_subnet_cidr" {
   tags  = merge(map("Name", "firehawk_onsite_private_subnet_cidr"), var.common_tags)
 }
 
-resource "aws_ssm_parameter" "firehawk_bucket_extension" {
-  name  = "/firehawk/conflictkey/${lookup(var.common_tags, "conflictkey", "0")}/bucket_extension"
-  value = var.bucket_extension
-  tags  = merge(map("Name", "firehawk_bucket_extension"), var.common_tags)
+resource "aws_ssm_parameter" "firehawk_global_bucket_extension" {
+  name  = "/firehawk/conflictkey/${lookup(var.common_tags, "conflictkey", "0")}/global_bucket_extension"
+  value = var.global_bucket_extension
+  tags  = merge(map("Name", "firehawk_global_bucket_extension"), var.common_tags)
 }
 
 output "Instructions" {
-  value = "Provided you have a static IP, The parameters you have just initialised will only need to be done once.  If your IP changes you may need to update the parameter and subsequent terraform runs frequently."
+  value = "Provided you have a static IP, The parameters you have just initialised will only need to be done once.  If your IP changes you may need to update the parameter and subsequent terraform runs frequently. \nThese can then be read with the command: \n aws ssm get-parameters \
+    --names \"/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_public_ip\" \"/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_private_subnet_cidr\" \"/firehawk/conflictkey/${TF_VAR_conflictkey}/global_bucket_extension\""
 }

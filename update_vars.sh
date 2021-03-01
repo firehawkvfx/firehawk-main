@@ -8,6 +8,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 export TF_VAR_resourcetier="main" # Can be dev,green,blue,main
 export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
 export TF_VAR_pipelineid="0" # Uniquely name and tag the resources produced by a CI pipeline
+export TF_VAR_conflictkey="${TF_VAR_resourcetier}${TF_VAR_pipelineid}" # The conflict key is a unique identifier for a deployment.
 if [[ "$TF_VAR_resourcetier"=="dev" ]]; then
   export TF_VAR_environment="dev"
 else
@@ -47,15 +48,17 @@ export TF_VAR_vpc_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/
 export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 
 export VAULT_ADDR=https://vault.service.consul:8200 # verify dns before login with: dig vault.service.consul
-
-source $SCRIPTDIR/../secrets/secret_vars.sh # cluster info is stored in secrets.
-
-export TF_VAR_onsite_public_ip_cidr="$TF_VAR_onsite_public_ip/32"
 export consul_cluster_tag_key="consul-servers" # These tags are used when new hosts join a consul cluster. 
-export consul_cluster_tag_value="consul-main"
+export consul_cluster_tag_value="consul-$TF_VAR_resourcetier"
 export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
 
-export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
+aws ssm get-parameters --names \
+    "/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_public_ip" \
+    "/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_private_subnet_cidr" \
+    "/firehawk/conflictkey/${TF_VAR_conflictkey}/global_bucket_extension"
+
+# export TF_VAR_onsite_public_ip_cidr="$TF_VAR_onsite_public_ip/32"
+# export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.

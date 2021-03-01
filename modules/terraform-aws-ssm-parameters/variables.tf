@@ -18,7 +18,7 @@ variable "onsite_private_subnet_cidr" {
   description = "The private subnet IP range used for your onsite hosts.  Your router will usually use DHCP to place hosts within this range. eg: 192.168.29.0/24"
   type        = string
 }
-variable "bucket_extension" {
-  description = "The suffix used for all S3 cloud storage buckets created by the deployement and for encrypted terraform state.  \nThis must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. \neg: example.com \n eg2: myemailatgmaildotcom"
+variable "global_bucket_extension" {
+  description = "The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  \nThis must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. \neg: example.com \n eg2: myemailatgmaildotcom"
   type        = string
 }
