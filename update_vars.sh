@@ -96,12 +96,13 @@ export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
 
-aws ssm get-parameters --names \
+get_parameters=$(aws ssm get-parameters --names \
     "/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_public_ip" \
     "/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_private_subnet_cidr" \
-    "/firehawk/conflictkey/${TF_VAR_conflictkey}/global_bucket_extension"
+    "/firehawk/conflictkey/${TF_VAR_conflictkey}/global_bucket_extension")
+num_invalid=$(echo $get_parameters | jq '.InvalidParameters| length')
 
-if [[ $? -eq 0 ]]; then
+if [[ num_invalid -eq 0 ]]; then
   log "Done sourcing vars."
 else
   export TF_VAR_onsite_public_ip="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "onsite_public_ip")|.Value')"
