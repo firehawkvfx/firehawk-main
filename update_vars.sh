@@ -4,6 +4,28 @@ to_abs_path() {
   python -c "import os; print(os.path.abspath('$1'))"
 }
 
+function log {
+  local -r level="$1"
+  local -r message="$2"
+  local -r timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  >&2 echo -e "${timestamp} [${level}] [$SCRIPT_NAME] ${message}"
+}
+
+function log_info {
+  local -r message="$1"
+  log "INFO" "$message"
+}
+
+function log_warn {
+  local -r message="$1"
+  log "WARN" "$message"
+}
+
+function log_error {
+  local -r message="$1"
+  log "ERROR" "$message"
+}
+
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
 # Instance and vpc data
@@ -13,11 +35,21 @@ export TF_VAR_remote_cloud_private_ip_cidr="$(curl http://169.254.169.254/latest
 macid=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/)
 export TF_VAR_vpc_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${macid}/vpc-id) # Aquire the cloud 9 instance's VPC ID to peer with Main VPC
 export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+# region specific vars
+export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
+export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
+export TF_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
+export PKR_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
+export TF_VAR_aws_external_domain=$AWS_DEFAULT_REGION.compute.amazonaws.com
 
 # test aquiring the resourcetier from the instance tag.
-aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value'
 
-export TF_VAR_resourcetier="main" # Can be dev,green,blue,main
+export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value')" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
+if [[ -z "$TF_VAR_resourcetier" ]]; then
+  log_error "Could not read resourcetier tag from this instance.  Ensure you have set a tag with resourcetier."
+  exit 1
+fi
+
 export PKR_VAR_resourcetier="$TF_VAR_resourcetier"
 export TF_VAR_pipelineid="0" # Uniquely name and tag the resources produced by a CI pipeline
 export TF_VAR_conflictkey="${TF_VAR_resourcetier}${TF_VAR_pipelineid}" # The conflict key is a unique identifier for a deployment.
@@ -27,11 +59,6 @@ else
   export TF_VAR_environment="prod"
 fi
 export TF_VAR_firehawk_path=$SCRIPTDIR
-export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
-export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
-export TF_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
-export PKR_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
-export TF_VAR_aws_external_domain=$AWS_DEFAULT_REGION.compute.amazonaws.com
 
 # Packer Vars
 if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
