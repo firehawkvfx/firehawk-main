@@ -4,6 +4,5 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 
 # Build all required amis.
 set -e # Exit on error
-$SCRIPTDIR/modules/bastion-ami/build.sh
-$SCRIPTDIR/modules/nice-dcv-ami/build.sh
+
 $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/build.sh
