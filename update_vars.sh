@@ -51,7 +51,7 @@ export TF_VAR_aws_external_domain=$AWS_DEFAULT_REGION.compute.amazonaws.com
 
 # test aquiring the resourcetier from the instance tag.
 
-export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value') --raw-output" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
+export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value' --raw-output)" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
 if [[ -z "$TF_VAR_resourcetier" ]]; then
   log_error "Could not read resourcetier tag from this instance.  Ensure you have set a tag with resourcetier."
   return
@@ -103,19 +103,15 @@ get_parameters=$(aws ssm get-parameters --names \
 num_invalid=$(echo $get_parameters | jq '.InvalidParameters| length')
 
 if [[ num_invalid -eq 0 ]]; then
-  log "Done sourcing vars."
+  export TF_VAR_onsite_public_ip=$(echo $get_parameters | jq '.Parameters[]| select(.Name == "/firehawk/resourcetier/dev/onsite_public_ip")|.Value' --raw-output)
+  error_if_empty "SSM Parameter missing: onsite_public_ip" "$TF_VAR_onsite_public_ip"
+  export TF_VAR_onsite_private_subnet_cidr=$(echo $get_parameters | jq '.Parameters[]| select(.Name == "/firehawk/resourcetier/dev/onsite_private_subnet_cidr")|.Value' --raw-output)
+  error_if_empty "SSM Parameter missing: onsite_private_subnet_cidr" "$TF_VAR_onsite_private_subnet_cidr"
+  export TF_VAR_global_bucket_extension=$(echo $get_parameters | jq '.Parameters[]| select(.Name == "/firehawk/resourcetier/dev/global_bucket_extension")|.Value' --raw-output)
+  error_if_empty "SSM Parameter missing: global_bucket_extension" "$TF_VAR_global_bucket_extension"
 else
-  # export TF_VAR_onsite_public_ip="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "onsite_public_ip")|.Value')"
-  # error_if_empty "Tag for this instance missing: onsite_public_ip" "$TF_VAR_onsite_public_ip"
-  # export TF_VAR_onsite_private_subnet_cidr="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "onsite_private_subnet_cidr")|.Value')"
-  # error_if_empty "Tag for this instance missing: onsite_private_subnet_cidr" "$TF_VAR_onsite_private_subnet_cidr"
-  # export TF_VAR_global_bucket_extension="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "global_bucket_extension")|.Value')"
-  # error_if_empty "Tag for this instance missing: global_bucket_extension" "$TF_VAR_global_bucket_extension"
   log_error "SSM parameters are not yet initialised.  You can init SSM parameters with the cloudformation template modules/cloudformation-cloud9-vault-iam/cloudformation_ssm_parameters_firehawk.yaml"
   return
 fi
 
-echo "test"
-
-# export TF_VAR_onsite_public_ip_cidr="$TF_VAR_onsite_public_ip/32"
-# export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
+log "Done sourcing vars."
