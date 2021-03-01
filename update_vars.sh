@@ -26,6 +26,13 @@ function log_error {
   log "ERROR" "$message"
 }
 
+function error_if_empty {
+  if [[ -z "$2" ]]; then
+    log_error "$1"
+  fi
+  exit 1
+}
+
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
 # Instance and vpc data
@@ -93,6 +100,18 @@ aws ssm get-parameters --names \
     "/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_public_ip" \
     "/firehawk/conflictkey/${TF_VAR_conflictkey}/onsite_private_subnet_cidr" \
     "/firehawk/conflictkey/${TF_VAR_conflictkey}/global_bucket_extension"
+
+if [[ $? -eq 0 ]]; then
+  log "Done sourcing vars."
+else
+  export TF_VAR_onsite_public_ip="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "onsite_public_ip")|.Value')"
+  error_if_empty "Tag for this instance missing: onsite_public_ip" "$TF_VAR_onsite_public_ip"
+  export TF_VAR_onsite_private_subnet_cidr="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "onsite_private_subnet_cidr")|.Value')"
+  error_if_empty "Tag for this instance missing: onsite_private_subnet_cidr" "$TF_VAR_onsite_private_subnet_cidr"
+  export TF_VAR_global_bucket_extension="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "global_bucket_extension")|.Value')"
+  error_if_empty "Tag for this instance missing: global_bucket_extension" "$TF_VAR_global_bucket_extension"
+  log_warn "SSM parameters are not yet initialised.  Using instance tags as a fallback for some vars.  You can init SSM parameters based on the present values with modules/terraform-aws-ssm-parameters."
+fi
 
 # export TF_VAR_onsite_public_ip_cidr="$TF_VAR_onsite_public_ip/32"
 # export TF_VAR_bucket_extension="${TF_VAR_resourcetier}.${TF_VAR_global_bucket_extension}" # This is primarily used for terraform state. TODO:set this to main.
