@@ -61,7 +61,7 @@ function request_ssh_known_hosts {
   echo "$key" | tee "$HOME/.ssh/ssh_known_hosts_fragment" # we store the fragment for use on other hosts that need configuration.
 }
 
-function configure_ssh_known_hosts {}
+function configure_ssh_known_hosts {
   local -r ssh_known_hosts_fragment="$1"
   local -r key=$(cat $ssh_known_hosts_fragment)
   local -r ssh_known_hosts_path="/etc/ssh/ssh_known_hosts"
@@ -154,7 +154,7 @@ function install {
   fi
   log_info "Configure this host to use trusted CA"
   configure_ssh_known_hosts "$ssh_known_hosts" # configure trusted ca for our host
-  
+
   log_info "Complete!"
 }
 
