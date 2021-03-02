@@ -106,7 +106,8 @@ function sign_public_key {
 function install {
   local public_key="$DEFAULT_PUBLIC_KEY"
   local trusted_ca="$DEFAULT_TRUSTED_CA"
-
+  local cert=""
+  
   while [[ $# > 0 ]]; do
     local key="$1"
 
@@ -140,10 +141,15 @@ function install {
     shift
   done
   
-  local cert=${public_key/.pub/-cert.pub}
-
   configure_trusted_ca "$trusted_ca"
-  sign_public_key "$public_key" "$trusted_ca" "$cert"
+  if [[ -z "$cert" ]]; then;
+    log_info "Will sign public key"
+    cert=${public_key/.pub/-cert.pub}
+    sign_public_key "$public_key" "$trusted_ca" "$cert"
+  else
+    log_info "Cert path provided: public key already signed."
+  fi
+  log_info "Configure cert for use"
   configure_cert "$cert"
   log_info "Complete!"
 }
