@@ -34,7 +34,7 @@ terraform apply -input=false tfplan # Ensure VPC is peered with this cloud9 VPC
 
 cd $SCRIPTDIR/modules/vault
 ./generate-plan
-terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.
+terraform apply -input=false tfplan # Ensure Vault / Consul instances are running, and configure VPC peering with the current cloud 9 VPC.
 
 if [[ ! -f "/opt/consul/bin/run-consul" ]]; then
     echo "You have not yet installed consul."

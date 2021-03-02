@@ -1,5 +1,5 @@
 variable "aws_key_name" {
-  default = "deployuser-${var.resourcetier}"
+  type = string
 }
 
 variable "bastion_ami_id" {

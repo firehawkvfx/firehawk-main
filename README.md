@@ -194,6 +194,12 @@ terraform apply "tfplan"
 
 Congratulations!  You now have a fully configured vault.
 
+## You should be able to continue to deploy tthe rest of the main account with the wake command
+```
+source ./update_vars.sh
+./wake
+```
+
 ## Aquire SSH certificates
 
 - Add known hosts certificate, sign your cloud9 host Key, and sign your host as an SSH Client to other hosts.
