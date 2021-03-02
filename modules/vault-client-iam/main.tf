@@ -22,7 +22,6 @@ locals {
 resource "aws_iam_instance_profile" "vault_client_profile" {
   path = "/"
   role = aws_iam_role.vault_client_role.name
-  tags = local.common_tags
 }
 
 resource "aws_iam_role" "vault_client_role" {
@@ -62,7 +61,6 @@ resource "aws_iam_role_policy" "set_instance_health" {
   name   = "set_instance_health_${var.conflictkey}"
   role   = aws_iam_role.vault_client_role.id
   policy = data.aws_iam_policy_document.set_instance_health.json
-  tags = local.common_tags
 }
 
 data "aws_iam_policy_document" "set_instance_health" {
