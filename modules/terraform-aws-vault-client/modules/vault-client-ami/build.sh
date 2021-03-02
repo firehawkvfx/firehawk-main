@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
+EXECDIR="$(pwd)"
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+cd $SCRIPTDIR
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 
@@ -35,3 +37,4 @@ echo "Using Security Group: $PKR_VAR_security_group_id"
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
 rm -f $PKR_VAR_manifest_path
 packer build "$@" $SCRIPTDIR/vault-client.pkr.hcl
+cd $EXECDIR

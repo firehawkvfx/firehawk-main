@@ -1,8 +1,6 @@
 #!/bin/bash
 
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
-
 # Build all required amis.
 set -e # Exit on error
 
-$SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/build.sh
+$TF_VAR_firehawk_path/modules/terraform-aws-vault/examples/vault-consul-ami/build.sh

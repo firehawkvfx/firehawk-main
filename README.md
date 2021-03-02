@@ -182,5 +182,13 @@ All hosts now have the capability for authenticated SSH with certificates!  The 
 
 ## Build images for the bastion, internal vault client, and vpn server
 
+- For each instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
+
 ```
 modules/terraform-aws-bastion/modules/bastion-ami/base-ami/build.sh
+modules/terraform-aws-bastion/modules/bastion-ami/build.sh
+modules/terraform-aws-vault-client/modules/vault-client-ami/base-ami/build.sh
+modules/terraform-aws-vault-client/modules/vault-client-ami/build.sh
+modules/terraform-aws-vpn/modules/openvpn-server-ami/base-ami/build.sh
+modules/terraform-aws-vpn/modules/openvpn-server-ami/build.sh
+```
