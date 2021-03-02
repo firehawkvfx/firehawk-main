@@ -204,9 +204,9 @@ source ./update_vars.sh
 
 - Add known hosts certificate, sign your cloud9 host Key, and sign your host as an SSH Client to other hosts.
 ```
-./sign-host-key/known_hosts.sh
-./sign-host-key/sign_host_key.sh
-./sign-ssh-key/sign_ssh_key.sh 
+./modules/vault-configuration/modules/sign-ssh-key/sign_ssh_key.sh 
+./modules/vault-configuration/modules/sign-host-key/sign_host_key.sh
+./modules/vault-configuration/modules/sign-host-key/known_hosts.sh
 ```
 
 The remote host you intend to run the vpn on will need to do the same.
@@ -215,6 +215,7 @@ The remote host you intend to run the vpn on will need to do the same.
 - In a file browser on the remote host, ensure you have generated an rsa public key, and drag the public key into this folder in the web browser.
 
 - From cloud9, sign the public key.  eg:
+
 ```
 ./modules/vault-configuration/modules/sign-ssh-key/sign_ssh_key.sh --public-key ~/.ssh/remote_host/id_rsa.pub
 ```
