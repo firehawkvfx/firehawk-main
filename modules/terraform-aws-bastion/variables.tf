@@ -1,5 +1,6 @@
 variable "aws_key_name" {
   type = string
+  default = null
 }
 
 variable "bastion_ami_id" {

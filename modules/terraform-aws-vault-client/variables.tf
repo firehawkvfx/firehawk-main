@@ -1,5 +1,6 @@
 variable "aws_key_name" {
   type = string
+  default = null
 }
 
 variable "vault_client_ami_id" {
