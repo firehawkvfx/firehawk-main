@@ -196,3 +196,5 @@ For each instance we build a base AMI to run os updates (you only need to do thi
 ```
 scripts/build_vault_clients.sh
 ```
+- Check that you have images for the bastion, vault client, and vpn server in you AWS Management Console | Ami's.  If any are missing you may wish to try running the contents of the script manually.
+
