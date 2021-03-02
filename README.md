@@ -94,6 +94,25 @@ cd $TF_VAR_firehawk_path
 ./build.sh
 ```
 
+While this is occuring, in another terminal you can also build images for the vault clients and continue with the next step...
+
+## Build images for the bastion, internal vault client, and vpn server
+
+For each client instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
+
+- Run this script to automate all subsequent builds for teh vault and consul clients.
+```
+scripts/build_vault_clients.sh
+```
+
+- Check that you have images for the bastion, vault client, and vpn server in you AWS Management Console | Ami's.  If any are missing you may wish to try running the contents of the script manually.
+
+Note: The images here are built without a valt cluster, but there will be no verification of Consul DNS resolution. If you wish to test DNS during the image build and your vault cluster is running, run these steps after vault is up and run:
+```
+export PKR_VAR_test_consul=true
+```
+
+## Policies and Vault Deployment
 
 - Create a policy enabling Packer to build images with vault access.  You only need to ensure these policies exist once per resourcetier (dev/green/blue/prod). These policies are not required to build images in the main account, but may be used to build images for rendering.
 ```
@@ -175,17 +194,6 @@ terraform apply "tfplan"
 
 Congratulations!  You now have a fully configured vault.
 
-## Build images for the bastion, internal vault client, and vpn server
-Note: This step may optionally be performed without a valt cluster, but there will be no verification of Consul DNS resolution.
-
-For each client instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
-
-- Run this script to automate all subsequent builds for teh vault and consul clients.
-```
-scripts/build_vault_clients.sh
-```
-- Check that you have images for the bastion, vault client, and vpn server in you AWS Management Console | Ami's.  If any are missing you may wish to try running the contents of the script manually.
-
 ## Aquire SSH certificates
 
 - Add known hosts certificate, sign your cloud9 host Key, and sign your host as an SSH Client to other hosts.
@@ -199,7 +207,6 @@ The remote host you intend to run the vpn on will need to do the same.
 - In the cloud9 file browser, click the cog to show the home dir.
 - Create a new folder in /home/ec2-user/.ssh named something like 'remote_host' or the machine name.
 - In a file browser on the remote host, ensure you have generated an rsa public key, and drag the public key into this folder in the web browser.
-- 
 
 All hosts now have the capability for authenticated SSH with certificates!  The default time to live (TTL) on SSH client certificates is one month, at which point you can just run this step again.
 

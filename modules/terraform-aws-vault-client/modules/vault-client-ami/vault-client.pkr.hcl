@@ -95,6 +95,11 @@ variable "provisioner_iam_profile_name" {
   type = string
 }
 
+variable "test_consul" { # If a consul cluster is running, attempt to join the cluster.
+  type = bool
+  default = false
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -383,15 +388,16 @@ build {
 
   provisioner "shell" { # Generate certificates with vault.
     inline = [
-      "set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
-      "set -x; consul members list",
-      "set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
-      # test=$(ls -A); if [[ $? != 0 ]]; then; echo "Command failed."; fi
-      "set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
-      "set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
-      "set -x; vault_ip=$(dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }')",            # check default lookup will resolve vault
-      "echo \"vault_ip=$vault_ip\"",
-      "if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed' >&2; dig vault.service.consul; exit 1; fi"
+      "if [[ \"${var.test_consul}\" == true ]]; then", # only test the connection if the var is set.
+      " set -x; sudo /opt/consul/bin/run-consul --client --cluster-tag-key \"${var.consul_cluster_tag_key}\" --cluster-tag-value \"${var.consul_cluster_tag_value}\"", # this is normally done with user data but dont for convenience here
+      " set -x; consul members list",
+      " set -x; dig $(hostname) | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost resolve's
+      " set -x; dig @127.0.0.1 vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check consul will resolve vault
+      " set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
+      " set -x; vault_ip=$(dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }')",            # check default lookup will resolve vault
+      " echo \"vault_ip=$vault_ip\"",
+      " if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed' >&2; dig vault.service.consul; exit 1; fi"
+      "fi",
     ]
     inline_shebang = "/bin/bash -e"
     # only = ["amazon-ebs.ubuntu18-ami"]
