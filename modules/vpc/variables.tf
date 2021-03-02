@@ -89,3 +89,8 @@ variable "pipelineid" {
   description = "The pipelineid uniquely defining the deployment instance if using CI.  eg: dev/green/blue/main"
   type        = string
 }
+
+variable "conflictkey" {
+    description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
+    type = string
+}

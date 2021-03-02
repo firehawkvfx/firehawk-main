@@ -160,3 +160,5 @@ terraform apply "tfplan"
 ./generate-plan
 terraform apply "tfplan"
 ```
+
+- Sign your cloud9 SSH Key and add known hosts certificate.

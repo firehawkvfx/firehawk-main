@@ -33,3 +33,22 @@ variable "aws_external_domain" {
   description = "The AWS external domain can be used for ssh certtificates, provided we always ensure to provide the CA cert to any host that wishes to connect. eg: ap-southeast-2.compute.amazonaws.com.  It is also possible to use your own domain, and recommended for produciton, provided you have enabled AWS access to control its name records."
   type        = string
 }
+
+variable "environment" {
+  description = "The environment.  eg: dev/prod"
+  type        = string
+}
+
+variable "resourcetier" {
+  description = "The resource tier uniquely defining the deployment area.  eg: dev/green/blue/main"
+  type        = string
+}
+variable "pipelineid" {
+  description = "The pipelineid uniquely defining the deployment instance if using CI.  eg: dev/green/blue/main"
+  type        = string
+}
+
+variable "conflictkey" {
+    description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
+    type = string
+}
