@@ -95,9 +95,11 @@ locals {
   route_zone_id              = "none"
 }
 module "bastion" {
-  source                   = "./modules/bastion"
-  name                     = "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
-  bastion_ami_id           = var.bastion_ami_id
+  source                 = "./modules/bastion"
+  name                   = "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  bastion_ami_id         = var.bastion_ami_id
+  consul_cluster_tag_key = var.consul_cluster_tag_key
+  consul_cluster_name    = var.consul_cluster_name
   # aws_key_name             = var.aws_key_name # The aws pem key name can optionally be enabled for debugging, but generally SSH certificates should be used instead.
   aws_internal_domain      = var.aws_internal_domain
   aws_external_domain      = var.aws_external_domain

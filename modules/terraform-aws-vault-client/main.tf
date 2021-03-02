@@ -92,7 +92,7 @@ locals {
   aws_internet_gateway = data.aws_internet_gateway.gw.id
 
   vpn_cidr                   = lookup(data.vault_generic_secret.vpn_cidr.data, "value")
-  onsite_private_subnet_cidr         = lookup(data.vault_generic_secret.onsite_private_subnet_cidr.data, "value")
+  onsite_private_subnet_cidr = lookup(data.vault_generic_secret.onsite_private_subnet_cidr.data, "value")
 
   private_subnet_ids         = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
@@ -106,9 +106,12 @@ module "vault_client" {
   source              = "./modules/vault-client"
   name                = "vaultclient_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
   vault_client_ami_id = var.vault_client_ami_id
-  aws_internal_domain = var.aws_internal_domain
-  vpc_id              = local.vpc_id
-  vpc_cidr            = local.vpc_cidr
+
+  consul_cluster_name    = var.consul_cluster_name
+  consul_cluster_tag_key = var.consul_cluster_tag_key
+  aws_internal_domain    = var.aws_internal_domain
+  vpc_id                 = local.vpc_id
+  vpc_cidr               = local.vpc_cidr
 
   private_subnet_ids  = local.private_subnet_ids
   permitted_cidr_list = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr, local.onsite_private_subnet_cidr, local.vpn_cidr]

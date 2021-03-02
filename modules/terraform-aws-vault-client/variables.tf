@@ -49,10 +49,15 @@ variable "aws_internal_domain" {
   type        = string
 }
 
-# variable "aws_external_domain" {
-#   description = "The domain used to resolve external FQDN hostnames.  Since we always provide the CA for externals connections, the default for public ec2 instances is acceptable, but in production it is best configure it with your own domain."
-#   type        = string
-# }
+variable "consul_cluster_tag_key" {
+  description = "The tag the Consul EC2 Instances will look for to automatically discover each other and form a cluster."
+  type        = string
+}
+
+variable "consul_cluster_name" {
+  description = "What to name the Consul server cluster and all of its associated resources"
+  type        = string
+}
 
 variable "bastion_public_dns" {
   description = "The bastion must exist in order to provide complete instructions to establish connection with this host, and also aquire the security group enabling ssh between both hosts."
