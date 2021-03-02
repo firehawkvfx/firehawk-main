@@ -178,17 +178,21 @@ Congratulations!  You now have a fully configured vault.
 ./sign-host-key/sign_host_key.sh
 ./sign-ssh-key/sign_ssh_key.sh 
 ```
+
+The remote host you intend to run the vpn on will need to do the same.
+- In the cloud9 file browser, click the cog to show the home dir.
+- Create a new folder in /home/ec2-user/.ssh named something like 'remote_host' or the machine name.
+- In a file browser on the remote host, ensure you have generated an rsa public key, and drag the public key into this folder in the web browser.
+- 
+
 All hosts now have the capability for authenticated SSH with certificates!  The default time to live (TTL) on SSH client certificates is one month, at which point you can just run this step again.
+
 
 ## Build images for the bastion, internal vault client, and vpn server
 
-- For each instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
+For each instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
 
+- Run this script to automate all builds.
 ```
-modules/terraform-aws-bastion/modules/bastion-ami/base-ami/build.sh
-modules/terraform-aws-bastion/modules/bastion-ami/build.sh
-modules/terraform-aws-vault-client/modules/vault-client-ami/base-ami/build.sh
-modules/terraform-aws-vault-client/modules/vault-client-ami/build.sh
-modules/terraform-aws-vpn/modules/openvpn-server-ami/base-ami/build.sh
-modules/terraform-aws-vpn/modules/openvpn-server-ami/build.sh
+scripts/build_vault_clients.sh
 ```
