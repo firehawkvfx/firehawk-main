@@ -55,6 +55,20 @@ cd firehawk-main; ./install_packages.sh
 source ./update_vars.sh
 ```
 
+- Setup an S3 bucket for terraform remote state (Only do this once per resourcetier dev/green/blue/main)
+```
+cd modules/terraform-s3-bucket-remote-backend
+./generate-plan
+terraform apply tfplan
+```
+
+- Setup an S3 bucket for vault. (Only do this once per resourcetier dev/green/blue/main)
+```
+cd modules/terraform-s3-bucket-vault-backend
+./generate-plan
+terraform apply tfplan
+```
+
 - Create TLS Certificates for your Vault images
 ```
 cd modules/terraform-aws-vault/modules/private-tls-cert

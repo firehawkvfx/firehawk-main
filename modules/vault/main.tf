@@ -43,6 +43,9 @@ module "vault" {
   s3_bucket_name    = "vault.${var.bucket_extension}"
 
   ami_id = var.vault_consul_ami_id
+
+  consul_cluster_name = var.consul_cluster_name
+  consul_cluster_tag_key = var.consul_cluster_tag_key
 }
 
 
