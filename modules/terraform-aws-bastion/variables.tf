@@ -14,6 +14,11 @@ variable "sleep" {
   default     = false
 }
 
+variable "environment" {
+  description = "The environment.  eg: dev/prod"
+  type        = string
+}
+
 variable "resourcetier" {
     description = "The resource tier speicifies a unique name for a resource based on the environment.  eg:  dev, green, blue, main."
     type = string
