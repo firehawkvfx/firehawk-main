@@ -20,6 +20,9 @@ if [[ -f "$manifest" ]]; then
 
     export PKR_VAR_amazon_linux_2_ami="$(jq -r '.builds[] | select(.name == "amazon-linux-2-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
     echo "Found amazon_linux_2_ami in manifest: PKR_VAR_amazon_linux_2_ami=$PKR_VAR_amazon_linux_2_ami"
+else
+    echo "Manifest for base ami does not exist.  Build the base ami and try again."
+    exit 1
 fi
 
 # Packer Vars

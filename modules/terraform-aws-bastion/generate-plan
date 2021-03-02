@@ -28,6 +28,9 @@ if [[ -f "$manifest" ]]; then
     echo "Found centos7_ami in manifest: TF_VAR_centos7_ami=$TF_VAR_centos7_ami"
     export TF_VAR_bastion_ami_id=$TF_VAR_centos7_ami
     echo "TF_VAR_bastion_ami_id=$TF_VAR_bastion_ami_id"
+else
+    echo "Manifest ami does not exist.  Build the base ami and try again."
+    exit 1
 fi
 
 terraform init \

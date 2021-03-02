@@ -12,7 +12,7 @@ $TF_VAR_firehawk_path/modules/terraform-aws-bastion/modules/bastion-ami/base-ami
 P1=$!
 $TF_VAR_firehawk_path/modules/terraform-aws-vault-client/modules/vault-client-ami/base-ami/build.sh &
 P2=$!
-$TF_VAR_firehawk_path/modules/terraform-aws-vpn/modules/openvpn-server-ami/base-ami/build.sh $
+$TF_VAR_firehawk_path/modules/terraform-aws-vpn/modules/openvpn-server-ami/base-ami/build.sh &
 P3=$!
 
 wait $P1 $P2 $P3
