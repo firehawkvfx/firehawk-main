@@ -397,7 +397,7 @@ build {
       " set -x; vault_ip=$(dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }')",            # check default lookup will resolve vault
       " echo \"vault_ip=$vault_ip\"",
       " if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed' >&2; dig vault.service.consul; exit 1; fi"
-      "fi",
+      "fi"
     ]
     inline_shebang = "/bin/bash -e"
     # only = ["amazon-ebs.ubuntu18-ami"]
