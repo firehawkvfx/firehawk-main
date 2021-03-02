@@ -26,6 +26,10 @@ terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 # terraform destroy --auto-approve -input=false $SCRIPTDIR/modules/vault # Destroy vault instances. Data is persisted to S3.
 
+cd $SCRIPTDIR/modules/terraform-aws-vpc-main-cloud9-peering
+terraform plan -out=tfplan -input=false -destroy
+terraform apply -input=false tfplan # Stop bastion hosts.
+
 cd $SCRIPTDIR/modules/vpc
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan # Stop bastion hosts.
