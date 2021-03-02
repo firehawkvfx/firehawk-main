@@ -1,4 +1,5 @@
-# further changes are required for this to be used.  We need to restrict the access to the key to a profile that the vault instamces will use.
+# further changes are required for this to be used.  We need to restrict the access to the key to a profile / vpc that the vault instamces will use.
+# https://docs.aws.amazon.com/kms/latest/developerguide/kms-vpc-endpoint.html#vpce-policy
 
 myKey:
   Type: AWS::KMS::Key

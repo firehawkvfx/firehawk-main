@@ -36,14 +36,14 @@ locals {
     "network/onsite_private_subnet_cidr" = {
       "name" = "onsite_private_subnet_cidr",
       "description": "This is the IP range of your subnet onsite that the firehawkserver vm will reside in, and that other onsite nodes reside in.  The below example (in CIDR notation) would denote the range 192.168.29.0 - 192.168.29.255",
-      "default": "${var.onsite_private_subnet_cidr}",
+      "default": var.onsite_private_subnet_cidr,
       "example_1": "192.168.29.0/24",
     },
     "network/onsite_public_ip" = {
       "name" = "onsite_public_ip",
       "description": "Your remote public IP address you will use to access the VPN / Bastion hosts from.",
-      "default": "${var.onsite_public_ip}",
-      "example_1": "180.150.117.212",
+      "default": var.onsite_public_ip,
+      "example_1": "180.150.104.201",
     },
     "network/openvpn_admin_pw" = {
       "name" = "openvpn_admin_pw",

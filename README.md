@@ -13,11 +13,15 @@ This deployment uses Cloud 9 to simplify management of AWS Secret Keys.  You wil
 
 - In AWS Management Console | Cloud9: Select Create Environment
 
-Ensure you have selected:
+- Ensure you have selected:
 `Create a new no-ingress EC2 instance for environment (access via Systems Manager)`
 This will create a Cloud 9 instance with no inbound access.
 
-Ensure you add tags:
+- Ensure the EBS volume size is 20GB.  If you need to expand the volume more later you can use firehawk-main/scripts/resize.sh
+
+- Ensure the instance type is the recommended type for production (m5.large)
+
+- Ensure you add tags:
 ```
 resourcetier=main
 ```
@@ -130,3 +134,29 @@ vault login (Root Token)
 ```
 
 - Store all sensitive output in an encrypted password manager for later use.
+
+- exit the vault instance, and ensure you are joined to the consul cluster in the cloud9 instance.
+```
+sudo /opt/consul/bin/run-consul --client --cluster-tag-key "$${consul_cluster_tag_key}" --cluster-tag-value "$${consul_cluster_tag_value}"
+consul catalog services
+```
+This should show 2 services: consul and vault.
+
+- login to vault on your current instance (using the root token when prompted).  This is the first and only time you will use your root token:
+```
+vault login
+```
+
+- Configure vault with firehawk defaults.
+```
+cd modules/vault-configuration
+./generate-plan-init
+terraform apply "tfplan"
+```
+
+- Ensure updates to the vault config will work 
+```
+terraform apply "tfplan"
+./generate-plan
+terraform apply "tfplan"
+```
