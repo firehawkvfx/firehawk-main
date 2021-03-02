@@ -28,6 +28,10 @@ cd $SCRIPTDIR/modules/vpc
 ./generate-plan
 terraform apply -input=false tfplan # Ensure Main VPC exists
 
+cd $SCRIPTDIR/modules/terraform-aws-vpc-main-cloud9-peering
+./generate-plan
+terraform apply -input=false tfplan # Ensure VPC is peered with this cloud9 VPC
+
 cd $SCRIPTDIR/modules/vault
 ./generate-plan
 terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.

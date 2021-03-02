@@ -121,5 +121,6 @@ module "vault_client" {
   # route_public_domain_name = var.route_public_domain_name
   # route_zone_id            = local.route_zone_id
   # public_domain_name       = local.public_domain_name
+  aws_key_name = var.aws_key_name
   common_tags = local.common_tags
 }

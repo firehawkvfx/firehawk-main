@@ -47,11 +47,11 @@ variable "security_group_ids" {
   type        = list(string)
   default     = null
 }
-# variable "aws_key_name" {
-#   description = "The name of the AWS PEM key for access to the VPN instance"
-#   type        = string
-#   default     = null
-# }
+variable "aws_key_name" {
+  description = "The name of the AWS PEM key for access to the VPN instance"
+  type        = string
+  default     = null
+}
 variable "private_subnet_ids" {
   description = "The list of private subnets to deploy into.  Currently only the first subnet is used."
   type        = list(string)
