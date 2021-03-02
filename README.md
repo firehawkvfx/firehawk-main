@@ -153,12 +153,34 @@ cd modules/vault-configuration
 ./generate-plan-init
 terraform apply "tfplan"
 ```
+- Now you can create an admin token
+```
+vault token create -policy=admins
+```
 
-- Ensure updates to the vault config will work 
+- And login with the new admin token.
+```
+vault login
+```
+
+- Now ensure updates to the vault config will work with your admin token. 
 ```
 terraform apply "tfplan"
 ./generate-plan
 terraform apply "tfplan"
 ```
 
-- Sign your cloud9 SSH Key and add known hosts certificate.
+Congratulations!  You now have a fully configured vault.
+
+- Add known hosts certificate, sign your cloud9 host Key, and sign your host as an SSH Client to other hosts.
+```
+./sign-host-key/known_hosts.sh
+./sign-host-key/sign_host_key.sh
+./sign-ssh-key/sign_ssh_key.sh 
+```
+All hosts now have the capability for authenticated SSH with certificates!  The default time to live (TTL) on SSH client certificates is one month, at which point you can just run this step again.
+
+## Build images for the bastion, internal vault client, and vpn server
+
+```
+modules/terraform-aws-bastion/modules/bastion-ami/base-ami/build.sh
