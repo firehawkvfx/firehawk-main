@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build all required amis.
+# Build all required amis.  see this for variations on parallelism https://stackoverflow.com/questions/3004811/how-do-you-run-multiple-programs-in-parallel-from-a-bash-script
 set -e # Exit on error
 
 # Raise error if var isn't defined.

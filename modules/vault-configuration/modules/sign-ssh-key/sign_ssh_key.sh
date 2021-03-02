@@ -121,6 +121,11 @@ function install {
         trusted_ca="$2"
         shift
         ;;
+      --cert)
+        assert_not_empty "$key" "$2"
+        cert="$2"
+        shift
+        ;;
       --help)
         print_usage
         exit
