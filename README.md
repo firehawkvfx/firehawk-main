@@ -85,18 +85,28 @@ terraform apply tfplan
 cd modules/vault
 ./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
 ```
-
-- Create a policy enabling Packer to build images with vault access.  You only need to ensure these policies exist once per resourcetier (dev/green/blue/prod).
-```
-cd modules/terraform-aws-iam-s3
-./generate-plan
-terraform apply tfplan
-```
+## Build images for the bastion, internal vault client, and vpn server
 
 - Build Vault and Consul Images
 ```
 cd $TF_VAR_firehawk_path
 ./build.sh
+```
+
+For each client instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
+
+- Run this script to automate all subsequent builds.
+```
+scripts/build_vault_clients.sh
+```
+- Check that you have images for the bastion, vault client, and vpn server in you AWS Management Console | Ami's.  If any are missing you may wish to try running the contents of the script manually.
+
+
+- Create a policy enabling Packer to build images with vault access.  You only need to ensure these policies exist once per resourcetier (dev/green/blue/prod). These policies are not required to build images in the main account, but may be used to build images for rendering.
+```
+cd modules/terraform-aws-iam-s3
+./generate-plan
+terraform apply tfplan
 ```
 
 - Create KMS Keys to auto unseal the vault
@@ -186,15 +196,4 @@ The remote host you intend to run the vpn on will need to do the same.
 - 
 
 All hosts now have the capability for authenticated SSH with certificates!  The default time to live (TTL) on SSH client certificates is one month, at which point you can just run this step again.
-
-
-## Build images for the bastion, internal vault client, and vpn server
-
-For each instance we build a base AMI to run os updates (you only need to do this infrequently).  Then we build the complete AMI from the base AMI to speed up subsequent builds (and provide a better foundation from ever changing software updates).
-
-- Run this script to automate all builds.
-```
-scripts/build_vault_clients.sh
-```
-- Check that you have images for the bastion, vault client, and vpn server in you AWS Management Console | Ami's.  If any are missing you may wish to try running the contents of the script manually.
 
