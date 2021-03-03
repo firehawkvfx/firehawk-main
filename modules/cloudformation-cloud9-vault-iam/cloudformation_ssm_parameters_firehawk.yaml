@@ -10,12 +10,17 @@ Metadata:
           default: "Network Configuration"
         Parameters: 
           - resourcetier
+          - vpccidr
+          - privatesubnets
+          - publicsubnets
           - onsitepublicip
           - onsiteprivatesubnetcidr
           - globalbucketextension
     ParameterLabels: 
       resourcetier: 
         default: "Deployment Environment (resourcetier)"
+      vpccidr: 
+        default: "The Network CIDR Range"
       onsitepublicip: 
         default: "Your Onsite Public IP Address"
       onsiteprivatesubnetcidr:
@@ -33,15 +38,28 @@ Parameters:
     - blue
     - main
     Default: main
+  vpccidr:
+    Description: 'The IP range used for the main VPC.  DHCP will place cloud hosts within this range. eg: 10.4.0.0/16'
+    Type: String
+    Default: "10.4.0.0/16"
+    AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([1-2][0-9]|3[0-2]))?$"
+  privatesubnets: 
+    Description: "Comma-delimited list of CIDR blocks for your private subnets.  Currently only one is used for Vault."
+    Type: CommaDelimitedList
+    Default: "10.4.1.0/24, 10.4.2.0/24, 10.4.3.0/24"
+    # AllowedPattern: ^((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/([1-2][0-9]|3[0-2]))(,?\s?))*$
+  publicsubnets: 
+    Description: "Comma-delimited list of CIDR blocks for your public subnets.  Currently only one is used for Vault."
+    Type: CommaDelimitedList
+    Default: "10.4.101.0/24, 10.4.102.0/24, 10.4.103.0/24"
+    # AllowedPattern: ^((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/([1-2][0-9]|3[0-2]))(,?\s?))*$
   onsitepublicip:
     Description: 'The public IP of your onsite connection used to connect to the cloud infra. Google "what is my ip" for the value. If you do not have a static IP, Terraform may need to update more frequently.'
     Type: String
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
-    # Default: ''
   onsiteprivatesubnetcidr:
     Description: 'The private subnet IP range used for your onsite hosts.  Your router will usually use DHCP to place hosts within this range. eg: 192.168.29.0/24'
     Type: String
-    # AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-3]|[0-9]))$"
     AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([1-2][0-9]|3[0-2]))?$"
   globalbucketextension:
     Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com  eg2: myemailatgmaildotcom'
@@ -49,6 +67,42 @@ Parameters:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
     ConstraintDescription: bucket name can include numbers, lowercase letters, uppercase letters, dots (.) and hyphens (-). It cannot start or end with a dot (.) or hyphen (-).
 Resources:
+  SSMVPCCIDR:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /vpc_cidr
+      Type: String
+      Value: !Ref vpccidr
+      Description: 'The IP range used for the main VPC.'
+  SSMPrivateSubnets:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /private_subnets
+      Type: String
+      Value: !Ref privatesubnets
+      Description: 'The IP ranges used for the public subnets.'
+  SSMPublicSubnets:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /public_subnets
+      Type: String
+      Value: !Ref publicsubnets
+      Description: 'The IP ranges used for the public subnets.'
   SSMOnsitePublicIp:
     Type: AWS::SSM::Parameter
     Properties:
