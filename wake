@@ -65,9 +65,5 @@ cd $SCRIPTDIR/modules/terraform-aws-vpn
 ./generate-plan
 terraform apply -input=false tfplan
 
-# Deprecated. bastions have their own module now.
-# cd $SCRIPTDIR/modules/vpc
-# # ./s3-backend-template/generate-s3-backend
-# terraform init -input=false
-# terraform plan -out=tfplan -input=false
-# terraform apply -input=false tfplan # Start bastion hosts in Main VPC after the servers for immedite connection to consul service discovery
+cd $SCRIPTDIR/modules/terraform-aws-vault-client
+terraform output

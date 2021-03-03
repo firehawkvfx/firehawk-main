@@ -11,6 +11,22 @@ cd "$SCRIPTDIR"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly DEFAULT_TRUSTED_CA="/etc/ssh/trusted-user-ca-keys.pem"
 readonly DEFAULT_SSH_KNOWN_HOSTS="$HOME/.ssh/ssh_known_hosts_fragment"
+readonly DEFAULT_EXTERNAL_DOMAIN="$TF_VAR_aws_external_domain"
+
+function print_usage {
+  echo
+  echo "Usage: known_hosts.sh [OPTIONS]"
+  echo
+  echo "If authenticated to Vault, signs a public key with Vault for use as an SSH client, generating a public certificate in the same directory as the public key with the suffix '-cert.pub'."
+  echo
+  echo "Example: Sign this hosts key with Vault."
+  echo
+  echo "  known_hosts.sh"
+  echo
+  echo "Example: Configure a provided CA file and trusted known hosts CA where vault access is not available, specifying a valid external dns name"
+  echo
+  echo "  known_hosts.sh --external-domain ap-southeast-2.compute.amazonaws.com --trusted-ca ~/Downloads/trusted-user-ca-keys.pem --ssh-known-hosts ~/Downloads/ssh_known_hosts_fragment"
+}
 
 function log {
   local -r level="$1"
@@ -34,7 +50,16 @@ function log_error {
   log "ERROR" "$message"
 }
 
-aws_external_domain=$TF_VAR_aws_external_domain
+function assert_not_empty {
+  local -r arg_name="$1"
+  local -r arg_value="$2"
+
+  if [[ -z "$arg_value" ]]; then
+    log_error "The value for '$arg_name' cannot be empty"
+    print_usage
+    exit 1
+  fi
+}
 
 function request_trusted_ca {
   local -r trusted_ca="$1"
@@ -63,8 +88,14 @@ function request_ssh_known_hosts {
 
 function configure_ssh_known_hosts {
   local -r ssh_known_hosts_fragment="$1"
+  local -r external_domain="$2"
   local -r key=$(cat $ssh_known_hosts_fragment)
-  local -r ssh_known_hosts_path="/etc/ssh/ssh_known_hosts"
+  
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    local -r ssh_known_hosts_path="/usr/local/etc/ssh/ssh_known_hosts"
+  else
+    local -r ssh_known_hosts_path="/etc/ssh/ssh_known_hosts"
+  fi
 
   if sudo test ! -f $ssh_known_hosts_path; then
       echo "Creating $ssh_known_hosts_path"
@@ -84,9 +115,9 @@ function configure_ssh_known_hosts {
   fi
 
   # init the cert auth line
-  sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo "@cert-authority *.consul,*.$aws_external_domain" | sudo tee --append $ssh_known_hosts_path
-  # sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul,*.$aws_external_domain $key#g" $ssh_known_hosts_path
-  sudo python $SCRIPTDIR/replace_value.py -f $ssh_known_hosts_path "@cert-authority *.consul,*.$aws_external_domain " "$key"
+  sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo "@cert-authority *.consul,*.$external_domain" | sudo tee -a $ssh_known_hosts_path
+  # sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul,*.$external_domain $key#g" $ssh_known_hosts_path
+  sudo python $SCRIPTDIR/replace_value.py -f $ssh_known_hosts_path "@cert-authority *.consul" ",*.$external_domain $key"
 
   echo "Added CA to $ssh_known_hosts_path."
 
@@ -104,6 +135,7 @@ function configure_ssh_known_hosts {
 function install {
   local ssh_known_hosts=""
   local trusted_ca=""
+  local external_domain="$DEFAULT_EXTERNAL_DOMAIN"
 
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -116,6 +148,11 @@ function install {
       --trusted-ca)
         assert_not_empty "$key" "$2"
         trusted_ca="$2"
+        shift
+        ;;
+      --external-domain)
+        assert_not_empty "$key" "$2"
+        external_domain="$2"
         shift
         ;;
       --help)
@@ -153,7 +190,11 @@ function install {
     ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
   fi
   log_info "Configure this host to use trusted CA"
-  configure_ssh_known_hosts "$ssh_known_hosts" # configure trusted ca for our host
+  if [[ -z "$external_domain" ]]; then
+    log_error "You must provide a value for --external-domain"
+    exit 1
+  fi
+  configure_ssh_known_hosts "$ssh_known_hosts" "$external_domain" # configure trusted ca for our host
 
   log_info "Complete!"
 }
