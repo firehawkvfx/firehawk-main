@@ -79,29 +79,17 @@ locals {
       "default": "10.1.0.0/16",
       "example_1": "10.1.0.0/16"
     },
-    "network/private_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.1.1.0/24",
-      "example_1": "10.1.1.0/24"
+    "network/private_subnets" = {
+      "name" = "private_subnets",
+      "description": "The list of IP ranges for private subnets.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.1.1.0/24, 10.1.2.0/24",
+      "example_1": "10.1.1.0/24, 10.1.2.0/24"
     },
-    "network/private_subnet2" = {
-      "name" = "private_subnet2",
-      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.1.2.0/24",
-      "example_1": "10.1.2.0/24"
-    },
-    "network/public_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.1.101.0/24",
-      "example_1": "10.1.101.0/24"
-    },
-    "network/public_subnet2" = {
-      "name" = "public_subnet2",
-      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.1.102.0/24",
-      "example_1": "10.1.102.0/24"
+    "network/public_subnets" = {
+      "name" = "public_subnets",
+      "description": "The list of IP ranges for public subnets.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.1.101.0/24, 10.1.102.0/24",
+      "example_1": "10.1.101.0/24, 10.1.102.0/24"
     },
     "network/private_domain" = {
       "name" = "private_domain",
@@ -131,29 +119,17 @@ locals {
       "default": "10.2.0.0/16",
       "example_1": "10.2.0.0/16"
     },
-    "network/private_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.2.1.0/24",
-      "example_1": "10.2.1.0/24"
+    "network/private_subnets" = {
+      "name" = "private_subnets",
+      "description": "The list of IP ranges for private subnets.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.2.1.0/24, 10.2.2.0/24",
+      "example_1": "10.2.1.0/24, 10.2.2.0/24"
     },
-    "network/private_subnet2" = {
-      "name" = "private_subnet2",
-      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.2.2.0/24",
-      "example_1": "10.2.2.0/24"
-    },
-    "network/public_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.2.101.0/24",
-      "example_1": "10.2.101.0/24"
-    },
-    "network/public_subnet2" = {
-      "name" = "public_subnet2",
-      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.2.102.0/24",
-      "example_1": "10.2.102.0/24"
+    "network/public_subnets" = {
+      "name" = "public_subnets",
+      "description": "The list of IP ranges for public subnets.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.2.101.0/24, 10.2.102.0/24",
+      "example_1": "10.2.101.0/24, 10.2.102.0/24"
     },
     "network/private_domain" = {
       "name" = "private_domain",
@@ -183,29 +159,17 @@ locals {
       "default": "10.3.0.0/16",
       "example_1": "10.3.0.0/16"
     },
-    "network/private_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.3.1.0/24",
-      "example_1": "10.3.1.0/24"
+    "network/private_subnets" = {
+      "name" = "private_subnets",
+      "description": "The list of IP ranges for private subnets.  This subnet is accessed via VPN or bastion hosts.",
+      "default": "10.3.1.0/24, 10.3.2.0/24",
+      "example_1": "10.3.1.0/24, 10.3.2.0/24"
     },
-    "network/private_subnet2" = {
-      "name" = "private_subnet2",
-      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.3.2.0/24",
-      "example_1": "10.3.2.0/24"
-    },
-    "network/public_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.3.101.0/24",
-      "example_1": "10.3.101.0/24"
-    },
-    "network/public_subnet2" = {
-      "name" = "public_subnet2",
-      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.3.102.0/24",
-      "example_1": "10.3.102.0/24"
+    "network/public_subnets" = {
+      "name" = "public_subnets",
+      "description": "The list of IP ranges for public subnets.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": "10.3.101.0/24, 10.3.102.0/24",
+      "example_1": "10.3.101.0/24, 10.3.102.0/24"
     },
     "network/private_domain" = {
       "name" = "private_domain",
@@ -225,38 +189,26 @@ locals {
     "network/vpn_cidr" = {
       "name" = "vpn_cidr",
       "description": "Open VPN sets up DHCP in this range for every connection in the dev env to provide a unique ip on each side of the VPN for every system. Dont change this from the default for now. Reference for potential ranges https://www.arin.net/reference/research/statistics/address_filters/",
-      "default": "172.20.232.0/24",
+      "default": var.vpn_cidr,
       "example_1": "172.20.232.0/24"
     },
     "network/vpc_cidr" = {
       "name" = "vpc_cidr",
       "description": "This is the IP range (CIDR notation) of your cloud subnet that all AWS private addresses will reside in.",
-      "default": "10.4.0.0/16",
+      "default": var.vpc_cidr,
       "example_1": "10.4.0.0/16"
     },
-    "network/private_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for private subnet 1 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.4.1.0/24",
-      "example_1": "10.4.1.0/24"
+    "network/private_subnets" = {
+      "name" = "private_subnets",
+      "description": "The list of IP ranges for private subnets.  This subnet is accessed via VPN or bastion hosts.",
+      "default": var.private_subnets,
+      "example_1": "10.4.1.0/24, 10.4.2.0/24"
     },
-    "network/private_subnet2" = {
-      "name" = "private_subnet2",
-      "description": "The IP range for private subnet 2 for workers.  This subnet is accessed via VPN or bastion hosts.",
-      "default": "10.4.2.0/24",
-      "example_1": "10.4.2.0/24"
-    },
-    "network/public_subnet1" = {
-      "name" = "private_subnet1",
-      "description": "The IP range for public subnet 1 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.4.101.0/24",
-      "example_1": "10.4.101.0/24"
-    },
-    "network/public_subnet2" = {
-      "name" = "public_subnet2",
-      "description": "The IP range for public subnet 2 for public facing systems.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
-      "default": "10.4.102.0/24",
-      "example_1": "10.4.102.0/24"
+    "network/public_subnets" = {
+      "name" = "public_subnets",
+      "description": "The list of IP ranges for public subnets.  Examples are your VPN access server instance, or bastion host for provisioning other instances in the private network.",
+      "default": var.public_subnets,
+      "example_1": "10.4.101.0/24, 10.4.102.0/24"
     },
     "network/private_domain" = {
       "name" = "private_domain",
