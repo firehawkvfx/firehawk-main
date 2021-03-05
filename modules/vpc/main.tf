@@ -59,7 +59,7 @@ module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the resource tier 
 module "vaultvpc_all_subnet_cidrs" { # all private/public subnet ranges 
   source = "hashicorp/subnets/cidr"
 
-  base_cidr_block = module.resourcetier_all_vpc_cidrs.network_cidr_blocks["vault_vpc"]
+  base_cidr_block = module.resourcetier_all_vpc_cidrs.network_cidr_blocks["vaultvpc"]
   networks = [
     {
       name     = "privatesubnets"
