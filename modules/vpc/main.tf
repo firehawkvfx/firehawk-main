@@ -30,7 +30,7 @@ locals {
 module "vpc" {
   source                       = "../terraform-aws-vpc"
   vpc_name                     = "${var.resourcetier}_vpc"
-  vpc_cidr                     = module.vaultvpc_subnet_cidrs.base_cidr_block
+  vpc_cidr                     = module.vaultvpc_all_subnet_cidrs.base_cidr_block
   public_subnets               = [module.vaultvpc_all_public_subnet_cidrs.network_cidr_blocks["publicsubnet1"]]
   private_subnets              = [module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks["privatesubnet1"]]
   sleep                        = var.sleep
