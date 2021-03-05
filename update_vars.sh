@@ -96,12 +96,12 @@ export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
 
-get_parameters=$(aws ssm get-parameters --names \
+get_parameters=$( aws ssm get-parameters --names \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_public_ip" \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_private_subnet_cidr" \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/global_bucket_extension") \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/combined_vpcs_cidr") \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/vpn_cidr")
+    "/firehawk/resourcetier/${TF_VAR_resourcetier}/global_bucket_extension" \
+    "/firehawk/resourcetier/${TF_VAR_resourcetier}/combined_vpcs_cidr" \
+    "/firehawk/resourcetier/${TF_VAR_resourcetier}/vpn_cidr" )
 
 num_invalid=$(echo $get_parameters | jq '.InvalidParameters| length')
 
