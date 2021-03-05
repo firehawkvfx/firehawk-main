@@ -103,7 +103,7 @@ variable "vault_vpc_subnet_count" { # If adjusting the max here, consider 2^new_
       var.vault_vpc_subnet_count <= 4 &&
       var.vault_vpc_subnet_count > 1
     )
-    error_message = "vault_vpc_subnet_count must be between 1-4 (inclusive)"
+    error_message = "The var vault_vpc_subnet_count must be between 1-4 (inclusive)."
   }
 }
 
