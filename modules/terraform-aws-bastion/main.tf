@@ -70,13 +70,13 @@ data "vault_generic_secret" "private_domain" { # Get the map of data at the path
   path = "${local.mount_path}/network/private_domain"
 }
 
-data "vault_generic_secret" "onsite_public_ip" { # The remote onsite IP address
-  path = "${local.mount_path}/network/onsite_public_ip"
-}
+# data "vault_generic_secret" "onsite_public_ip" { # The remote onsite IP address
+#   path = "${local.mount_path}/network/onsite_public_ip"
+# }
 
-data "vault_generic_secret" "onsite_private_subnet_cidr" { # Get the map of data at the path
-  path = "${local.mount_path}/network/onsite_private_subnet_cidr"
-}
+# data "vault_generic_secret" "onsite_private_subnet_cidr" { # Get the map of data at the path
+#   path = "${local.mount_path}/network/onsite_private_subnet_cidr"
+# }
 
 locals {
   mount_path                 = var.resourcetier
@@ -88,7 +88,7 @@ locals {
   private_subnets            = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
   private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
-  onsite_public_ip           = lookup(data.vault_generic_secret.onsite_public_ip.data, "value")
+  onsite_public_ip           = var.onsite_public_ip
   private_route_table_ids    = data.aws_route_tables.private.ids
   public_route_table_ids     = data.aws_route_tables.public.ids
   public_domain_name         = "none"

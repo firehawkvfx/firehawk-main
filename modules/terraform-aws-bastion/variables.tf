@@ -64,3 +64,7 @@ variable "consul_cluster_tag_key" {
   description = "The tag the Consul EC2 Instances will look for to automatically discover each other and form a cluster."
   type        = string
 }
+variable "onsite_public_ip" {
+  description = "The public ip address of your onsite location to enable access to security groups and openVPN."
+  type = string
+}
