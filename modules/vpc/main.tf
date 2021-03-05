@@ -30,6 +30,9 @@ locals {
 module "vpc" {
   source                       = "../terraform-aws-vpc"
   vpc_name                     = "${var.resourcetier}_vpc"
+  vpc_cidr                     = module.vaultvpc_subnet_cidrs.base_cidr_block
+  public_subnets               = [module.vaultvpc_all_public_subnet_cidrs.network_cidr_blocks["publicsubnet1"]]
+  private_subnets              = [module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks["privatesubnet1"]]
   sleep                        = var.sleep
   deployer_ip_cidr             = var.deployer_ip_cidr
   remote_cloud_public_ip_cidr  = var.remote_cloud_public_ip_cidr
@@ -37,22 +40,70 @@ module "vpc" {
   common_tags                  = local.common_tags
 }
 
-module "dev_cidrs" {
+module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the resource tier dev / green / blue / main
   source = "hashicorp/subnets/cidr"
 
   base_cidr_block = "10.1.0.0/16"
   networks = [
     {
-      name     = "vault_vpc"
+      name     = "vaultvpc"
       new_bits = 8
     },
     {
-      name     = "render_vpc"
+      name     = "rendervpc"
       new_bits = 1
     }
   ]
 }
 
-output "dev_cidrs" {
-  value = module.dev_cidrs.network_cidr_blocks
+module "vaultvpc_all_subnet_cidrs" { # all private/public subnet ranges 
+  source = "hashicorp/subnets/cidr"
+
+  base_cidr_block = module.resourcetier_all_vpc_cidrs.network_cidr_blocks["vault_vpc"]
+  networks = [
+    {
+      name     = "privatesubnets"
+      new_bits = 1
+    },
+    {
+      name     = "publicsubnets"
+      new_bits = 1
+    }
+  ]
+}
+
+module "vaultvpc_all_private_subnet_cidrs" {
+  source = "hashicorp/subnets/cidr"
+
+  base_cidr_block = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks["privatesubnets"]
+  networks = [
+    {
+      name     = "privatesubnet1"
+      new_bits = 2
+    },
+    {
+      name     = "privatesubnet2"
+      new_bits = 2
+    }
+  ]
+}
+
+module "vaultvpc_all_public_subnet_cidrs" {
+  source = "hashicorp/subnets/cidr"
+
+  base_cidr_block = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks["publicsubnets"]
+  networks = [
+    {
+      name     = "publicsubnet1"
+      new_bits = 2
+    },
+    {
+      name     = "publicsubnet2"
+      new_bits = 2
+    }
+  ]
+}
+
+output "resourcetier_all_vpc_cidrs" {
+  value = module.resourcetier_all_vpc_cidrs.network_cidr_blocks
 }
