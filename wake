@@ -28,11 +28,16 @@ cd $SCRIPTDIR/modules/vpc
 ./generate-plan
 terraform apply -input=false tfplan # Ensure Main VPC exists
 
+cd $SCRIPTDIR/modules/terraform-aws-vpc-main-cloud9-peering
+./generate-plan
+terraform apply -input=false tfplan # Ensure VPC is peered with this cloud9 VPC
+
 cd $SCRIPTDIR/modules/vault
 ./generate-plan
-terraform apply -input=false tfplan # Start Vault / Consul instances, and configure VPC peering with the current cloud 9 VPC.
-# ./install-consul-vault-client --vault-module-version v0.13.11  --vault-version 1.5.5 --consul-module-version v0.8.0 --consul-version 1.8.4 --build amazonlinux2 --cert-file-path /home/ec2-user/.ssh/tls/ca.crt.pem
+terraform apply -input=false tfplan # Ensure Vault / Consul instances are running, and configure VPC peering with the current cloud 9 VPC.
+
 if [[ ! -f "/opt/consul/bin/run-consul" ]]; then
+    echo "You have not yet installed consul."
     exit 0 # if the user hasn't installed consul yet, this step must be performed manually.
 fi
 
@@ -60,9 +65,5 @@ cd $SCRIPTDIR/modules/terraform-aws-vpn
 ./generate-plan
 terraform apply -input=false tfplan
 
-# Deprecated. bastions have their own module now.
-# cd $SCRIPTDIR/modules/vpc
-# # ./s3-backend-template/generate-s3-backend
-# terraform init -input=false
-# terraform plan -out=tfplan -input=false
-# terraform apply -input=false tfplan # Start bastion hosts in Main VPC after the servers for immedite connection to consul service discovery
+cd $SCRIPTDIR/modules/terraform-aws-vault-client
+terraform output

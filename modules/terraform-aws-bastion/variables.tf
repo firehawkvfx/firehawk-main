@@ -1,5 +1,6 @@
 variable "aws_key_name" {
-  default = "main-deployment"
+  type = string
+  default = null
 }
 
 variable "bastion_ami_id" {
@@ -13,10 +14,14 @@ variable "sleep" {
   default     = false
 }
 
+variable "environment" {
+  description = "The environment.  eg: dev/prod"
+  type        = string
+}
+
 variable "resourcetier" {
     description = "The resource tier speicifies a unique name for a resource based on the environment.  eg:  dev, green, blue, main."
     type = string
-    default = "main"
 }
 
 variable "pipelineid" {
@@ -49,4 +54,17 @@ variable "aws_internal_domain" {
 variable "aws_external_domain" {
   description = "The domain used to resolve external FQDN hostnames.  Since we always provide the CA for externals connections, the default for public ec2 instances is acceptable, but in production it is best configure it with your own domain."
   type        = string
+}
+
+variable "consul_cluster_name" {
+  description = "What to name the Consul server cluster and all of its associated resources"
+  type        = string
+}
+variable "consul_cluster_tag_key" {
+  description = "The tag the Consul EC2 Instances will look for to automatically discover each other and form a cluster."
+  type        = string
+}
+variable "onsite_public_ip" {
+  description = "The public ip address of your onsite location to enable access to security groups and openVPN."
+  type = string
 }

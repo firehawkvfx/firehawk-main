@@ -10,7 +10,7 @@ resource "aws_security_group" "vault_client" {
   #   protocol    = "-1"
   #   from_port   = 0
   #   to_port     = 0
-  #   cidr_blocks = var.remote_ip_cidr_list
+  #   cidr_blocks = var.permitted_cidr_list
 
   #   description = "all incoming traffic from vpc, vpn dhcp, and remote subnet"
   # }
@@ -19,7 +19,7 @@ resource "aws_security_group" "vault_client" {
     protocol        = "tcp"
     from_port       = 22
     to_port         = 22
-    cidr_blocks     = var.remote_ip_cidr_list
+    cidr_blocks     = var.permitted_cidr_list
     security_groups = var.security_group_ids
     description     = "SSH"
   }
@@ -27,7 +27,7 @@ resource "aws_security_group" "vault_client" {
     protocol        = "tcp"
     from_port       = 8200
     to_port         = 8200
-    cidr_blocks     = var.remote_ip_cidr_list
+    cidr_blocks     = var.permitted_cidr_list
     security_groups = var.security_group_ids
     description     = "Vault Web UI Forwarding"
   }
@@ -35,7 +35,7 @@ resource "aws_security_group" "vault_client" {
     protocol    = "icmp"
     from_port   = 8
     to_port     = 0
-    cidr_blocks = var.remote_ip_cidr_list
+    cidr_blocks = var.permitted_cidr_list
     description = "ICMP ping traffic"
   }
   egress {

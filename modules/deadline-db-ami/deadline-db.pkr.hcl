@@ -54,6 +54,10 @@ variable "consul_cluster_tag_value" {
   type = string
 }
 
+variable "provisioner_iam_profile_name" {
+  type = string
+}
+
 locals {
   timestamp    = regex_replace(timestamp(), "[- TZ:]", "")
   template_dir = path.root
@@ -72,7 +76,7 @@ source "amazon-ebs" "ubuntu18-ami" {
   ami_name        = "firehawk-deadlinedb-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  iam_instance_profile = var.provisioner_iam_profile_name
   source_ami      = "${var.general_host_ubuntu18_ami}"
   ssh_username    = "ubuntu"
   vpc_id = "${var.vpc_id}"

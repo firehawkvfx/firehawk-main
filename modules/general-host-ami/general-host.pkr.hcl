@@ -72,12 +72,16 @@ locals {
   template_dir = path.root
 }
 
+variable "provisioner_iam_profile_name" {
+  type = string
+}
+
 source "amazon-ebs" "general-host-ubuntu18-ami" {
   ami_description = "An Ubuntu 18.04 AMI containing a Deadline DB server."
   ami_name        = "firehawk-general-host-vault-client-ubuntu18-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
-  iam_instance_profile = "provisioner_instance_role_pipeid0"
+  iam_instance_profile = var.provisioner_iam_profile_name
   source_ami      = "${var.bastion_ubuntu18_ami}"
   ssh_username    = "ubuntu"
 }

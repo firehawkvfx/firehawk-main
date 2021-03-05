@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
+EXECDIR="$(pwd)"
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+cd $SCRIPTDIR
 
 export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 
@@ -18,6 +20,9 @@ if [[ -f "$manifest" ]]; then
 
     export PKR_VAR_amazon_linux_2_ami="$(jq -r '.builds[] | select(.name == "amazon-linux-2-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
     echo "Found amazon_linux_2_ami in manifest: PKR_VAR_amazon_linux_2_ami=$PKR_VAR_amazon_linux_2_ami"
+else
+    echo "Manifest for base ami does not exist.  Build the base ami and try again."
+    exit 1
 fi
 
 # Packer Vars
@@ -35,3 +40,4 @@ echo "Using Security Group: $PKR_VAR_security_group_id"
 export PKR_VAR_manifest_path="$SCRIPTDIR/manifest.json"
 rm -f $PKR_VAR_manifest_path
 packer build "$@" $SCRIPTDIR/vault-client.pkr.hcl
+cd $EXECDIR

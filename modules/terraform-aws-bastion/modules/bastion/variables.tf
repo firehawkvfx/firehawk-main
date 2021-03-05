@@ -37,7 +37,7 @@ variable "public_domain_name" {
   type        = string
   default     = null
 }
-variable "remote_ip_cidr_list" {
+variable "permitted_cidr_list" {
   description = "The list of remote CIDR blocks that will be able to access the host."
   type        = list(string)
 }
@@ -52,11 +52,11 @@ variable "public_subnet_ids" {
   type        = list(string)
   default     = []
 }
-# variable "aws_key_name" {
-#   description = "The name of the AWS PEM key for access to the VPN instance"
-#   type        = string
-#   default     = null
-# }
+variable "aws_key_name" {
+  description = "The name of the AWS PEM key for access to the VPN instance"
+  type        = string
+  default     = null
+}
 variable "instance_type" {
   description = "The AWS instance type to use."
   type        = string
@@ -70,12 +70,10 @@ variable "node_skip_update" {
 variable "consul_cluster_name" {
   description = "What to name the Consul server cluster and all of its associated resources"
   type        = string
-  default     = "consul-example"
 }
 variable "consul_cluster_tag_key" {
   description = "The tag the Consul EC2 Instances will look for to automatically discover each other and form a cluster."
   type        = string
-  default     = "consul-servers"
 }
 variable "aws_internal_domain" {
   description = "The domain used to resolve internal FQDN hostnames."

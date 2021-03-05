@@ -1,12 +1,6 @@
-[submodule "modules/terraform-aws-vpc-vpn"]
-	path = modules/terraform-aws-vpc-vpn
-	url = ../terraform-aws-vpc-vpn.git
 [submodule "modules/terraform-aws-vault"]
 	path = modules/terraform-aws-vault
 	url = ../terraform-aws-vault.git
-[submodule "ansible"]
-	path = ansible
-	url = ../ansible.git
 [submodule "modules/deadline-db-ami/ansible/collections/ansible_collections/firehawkvfx/core"]
 	path = modules/deadline-db-ami/ansible/collections/ansible_collections/firehawkvfx/core
 	url = https://github.com/firehawkvfx/ansible_collection_core.git
@@ -16,3 +10,6 @@
 [submodule "modules/terraform-aws-vpn"]
 	path = modules/terraform-aws-vpn
 	url = ../terraform-aws-vpn.git
+[submodule "modules/terraform-aws-vpc"]
+	path = modules/terraform-aws-vpc
+	url = git@github.com:firehawkvfx/terraform-aws-vpc.git

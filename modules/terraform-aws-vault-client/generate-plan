@@ -28,6 +28,9 @@ if [[ -f "$manifest" ]]; then
     echo "Found centos7_ami in manifest: TF_VAR_centos7_ami=$TF_VAR_centos7_ami"
     export TF_VAR_vault_client_ami_id=$TF_VAR_centos7_ami
     echo "TF_VAR_vault_client_ami_id=$TF_VAR_vault_client_ami_id"
+else
+    echo "Manifest for ami does not exist.  Build the base ami and try again."
+    exit 1
 fi
 
 cd "$SCRIPTDIR/../terraform-aws-bastion"
@@ -38,7 +41,7 @@ echo "TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
 terraform init \
     -input=false \
     -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
-    -backend-config="key=main/terraform-aws-vault-client/terraform.tfstate" \
+    -backend-config="key=$TF_VAR_resourcetier/terraform-aws-vault-client/terraform.tfstate" \
     -backend-config="region=$AWS_DEFAULT_REGION" \
     -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
 terraform plan -out=tfplan -input=false

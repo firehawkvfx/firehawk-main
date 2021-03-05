@@ -27,7 +27,7 @@ variable "vpc_cidr" {
 #   type        = string
 # }
 
-# variable "remote_ip_cidr" {
+# variable "deployer_ip_cidr" {
 #   description = "The remote public address that will connect to the bastion instance and other public instances.  This is used to limit inbound access to public facing hosts like the VPN from your site's public IP."
 #   type        = string
 #   default     = null
@@ -38,7 +38,7 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
-variable "remote_ip_cidr_list" {
+variable "permitted_cidr_list" {
   description = "The list of remote CIDR blocks that will be able to access the host."
   type        = list(string)
 }
@@ -47,11 +47,11 @@ variable "security_group_ids" {
   type        = list(string)
   default     = null
 }
-# variable "aws_key_name" {
-#   description = "The name of the AWS PEM key for access to the VPN instance"
-#   type        = string
-#   default     = null
-# }
+variable "aws_key_name" {
+  description = "The name of the AWS PEM key for access to the VPN instance"
+  type        = string
+  default     = null
+}
 variable "private_subnet_ids" {
   description = "The list of private subnets to deploy into.  Currently only the first subnet is used."
   type        = list(string)
@@ -69,12 +69,10 @@ variable "node_skip_update" {
 variable "consul_cluster_name" {
   description = "What to name the Consul server cluster and all of its associated resources"
   type        = string
-  default     = "consul-example"
 }
 variable "consul_cluster_tag_key" {
   description = "The tag the Consul EC2 Instances will look for to automatically discover each other and form a cluster."
   type        = string
-  default     = "consul-servers"
 }
 variable "aws_internal_domain" {
   description = "The domain used to resolve internal FQDN hostnames."

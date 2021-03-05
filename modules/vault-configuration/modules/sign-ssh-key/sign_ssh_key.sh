@@ -2,11 +2,18 @@
 
 set -e
 
+EXECDIR="$(pwd)"
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+readonly SCRIPT_NAME="$(basename "$0")"
+cd "$SCRIPTDIR"
+
 readonly DEFAULT_PUBLIC_KEY="$HOME/.ssh/id_rsa.pub"
+readonly DEFAULT_TRUSTED_CA="/etc/ssh/trusted-user-ca-keys.pem"
+readonly DEFAULT_SSH_KNOWN_HOSTS="/etc/ssh/ssh_known_hosts"
 
 # These helper functions are from the sign_ssh_key.sh Hashicorp script
 
-readonly SCRIPT_NAME="$(basename "$0")"
+
 
 function print_usage {
   echo
@@ -18,9 +25,17 @@ function print_usage {
   echo
   echo -e "  --public-key\tThe public key to sign (Must end in .pub lowercase). Optional. Default: $DEFAULT_PUBLIC_KEY."
   echo
-  echo "Example:"
+  echo "Example: Sign this hosts public key with Vault."
   echo
   echo "  sign_ssh_key.sh"
+  echo
+  echo "Example: Sign a non-default public key with Vault."
+  echo
+  echo "  sign_ssh_key.sh --public-key ~/.ssh/remote_host/id_rsa.pub"
+  echo
+  echo "Example: Configure a provided cert file and trusted CA file where vault access is not available."
+  echo
+  echo "  sign_ssh_key.sh --trusted-ca ~/Downloads/trusted-user-ca-keys.pem --cert ~/Downloads/id_rsa-cert.pub"
 }
 
 function log {
@@ -56,21 +71,54 @@ function assert_not_empty {
   fi
 }
 
-function sign_public_key {
-  local -r public_key="$1"
-  local -r cert=${public_key/.pub/-cert.pub}
-
+function request_trusted_ca {
+  local -r trusted_ca="$1"
   # Aquire the public CA cert to approve an authority for known hosts.
-  local -r trusted_ca="/etc/ssh/trusted-user-ca-keys.pem"
   vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
+}
+
+function configure_trusted_ca {
+  local -r trusted_ca="$1"
+  sudo chmod 0644 "$trusted_ca"
   # If TrustedUserCAKeys not defined, then add it to sshd_config
   sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee -a /etc/ssh/sshd_config
   # Ensure the value for TrustedUserCAKeys is configured correctly
-  sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-  # Copy the the tusted ca keys file for the user to download easily from cloud 9.
+  # sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
+  sudo python $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config "TrustedUserCAKeys " "$trusted_ca"
+}
+
+function configure_cert {
+  local -r cert="$1"
+  sudo chmod 0644 "$cert"
+
+  # View result metadata
+  ssh-keygen -Lf "$cert"
+
+  log_info "Restarting SSH service..."
+  # mac / centos / amazon linux, restart ssh service
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
+    sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+  else
+    sudo systemctl restart sshd
+  fi
+
+  log_info "Done signing SSH client key."
+}
+
+function request_sign_public_key {
+  local -r public_key="$1"
+  local -r trusted_ca="$2"
+  local -r cert="$3"
+  local -r ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
+
   if [[ "$public_key"!="$DEFAULT_PUBLIC_KEY" ]]; then
     log "Copying $trusted_ca to $(dirname $public_key). Ensure you download this file to $trusted_ca if you intend to connect from a remote client."
     sudo cp $trusted_ca $(dirname $public_key)
+    log "Configuring known hosts. To ensure $ssh_known_hosts is current before copying to homedir for download."
+    $SCRIPTDIR/../known-hosts/known_hosts.sh
+    log "Copying $ssh_known_hosts to $(dirname $public_key).  Ensure you download this file to $ssh_known_hosts if you intend to connect from a remote client."
+    sudo cp $ssh_known_hosts $(dirname $public_key)
   fi
 
   log_info "Signing public key"
@@ -78,31 +126,9 @@ function sign_public_key {
   vault write ssh-client-signer/sign/ssh-role \
       public_key=@$public_key
 
-  ## This can be customized:
-  #  vault write ssh-client-signer/sign/ssh-role -<<"EOH"
-  # {
-  #   "public_key": "ssh-rsa AAA...",
-  #   "valid_principals": "my-user",
-  #   "key_id": "custom-prefix",
-  #   "extensions": {
-  #     "permit-pty": "",
-  #     "permit-port-forwarding": ""
-  #   }
-  # }
-  # EOH
-
   # Save the signed public cert
   vault write -field=signed_key ssh-client-signer/sign/ssh-role \
       public_key=@$public_key > $cert
-
-  sudo chmod 0644 $cert
-
-  # View result metadata
-  ssh-keygen -Lf $cert
-
-  # centos / amazon linux, restart ssh service
-  sudo systemctl restart sshd
-  log_info "Signing SSH client key done."
 }
 
 # You should be able to ssh into a target host:
@@ -110,7 +136,9 @@ function sign_public_key {
 
 function install {
   local public_key="$DEFAULT_PUBLIC_KEY"
-
+  local trusted_ca=""
+  local cert=""
+  
   while [[ $# > 0 ]]; do
     local key="$1"
 
@@ -118,6 +146,16 @@ function install {
       --public-key)
         assert_not_empty "$key" "$2"
         public_key="$2"
+        shift
+        ;;
+      --trusted-ca)
+        assert_not_empty "$key" "$2"
+        trusted_ca="$2"
+        shift
+        ;;
+      --cert)
+        assert_not_empty "$key" "$2"
+        cert="$2"
         shift
         ;;
       --help)
@@ -133,9 +171,34 @@ function install {
 
     shift
   done
+  
+  if [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
+    trusted_ca="$DEFAULT_TRUSTED_CA"
+    log_info "Requesting Vault provide the trusted CA..."
+    request_trusted_ca "$trusted_ca"
+  else
+    log_info "Trusted CA path provided. Skipping vault request. Copy to standard path..."
+    cp -frv "$trusted_ca" "$DEFAULT_TRUSTED_CA"
+    trusted_ca="$DEFAULT_TRUSTED_CA"
+  fi
+  log_info "Configure this host to use trusted CA"
+  configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
-  sign_public_key "$public_key"
+  if [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
+    log_info "Requesting Vault sign public key for this SSH client..."
+    cert=${public_key/.pub/-cert.pub}
+    request_sign_public_key "$public_key" "$trusted_ca" "$cert"
+  else
+    log_info "Cert path provided: public key already signed. copying to default ssh dir ~/.ssh"
+    sudo cp -frv "$cert" ~/.ssh
+    cert="$(sudo basename $cert)"
+    cert="$HOME/.ssh/$cert"
+  fi
+  log_info "Configure cert for use: $cert"
+  configure_cert "$cert"
   log_info "Complete!"
 }
 
 install "$@"
+
+cd $EXECDIR

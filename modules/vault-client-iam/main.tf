@@ -1,4 +1,23 @@
-# An example profile and role for an EC2 instance to access vault credentials to be used on something like a packer build instance.
+# An example profile and role for an EC2 instance to access vault credentials to be used on something like a packer build instance or other host needing implicit access to vault.
+
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+data "aws_canonical_user_id" "current" {}
+
+locals {
+  common_tags = {
+    environment  = var.environment
+    resourcetier = var.resourcetier
+    conflictkey  = var.conflictkey
+    # The conflict key defines a name space where duplicate resources in different deployments sharing this name are prevented from occuring.  This is used to prevent a new deployment overwriting and existing resource unless it is destroyed first.
+    # examples might be blue, green, dev1, dev2, dev3...dev100.  This allows us to lock deployments on some resources.
+    pipelineid = var.pipelineid
+    owner      = data.aws_canonical_user_id.current.display_name
+    accountid  = data.aws_caller_identity.current.account_id
+    region     = data.aws_region.current.name
+    terraform  = "true"
+  }
+}
 
 resource "aws_iam_instance_profile" "vault_client_profile" {
   path = "/"
@@ -8,6 +27,7 @@ resource "aws_iam_instance_profile" "vault_client_profile" {
 resource "aws_iam_role" "vault_client_role" {
   name        = var.role_name
   assume_role_policy = data.aws_iam_policy_document.vault_client_assume_role.json
+  tags = local.common_tags
 }
 
 # resource "aws_iam_role_policy" "vault_client_assume_role_policy" {
@@ -38,7 +58,7 @@ module "consul_iam_policies_for_client" {
 
 # allow permision to set instance health.
 resource "aws_iam_role_policy" "set_instance_health" {
-  name   = "set-instance-health"
+  name   = "set_instance_health_${var.conflictkey}"
   role   = aws_iam_role.vault_client_role.id
   policy = data.aws_iam_policy_document.set_instance_health.json
 }

@@ -25,7 +25,7 @@ fi
 terraform init \
     -input=false \
     -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
-    -backend-config="key=main/vault/terraform.tfstate" \
+    -backend-config="key=$TF_VAR_resourcetier/vault/terraform.tfstate" \
     -backend-config="region=$AWS_DEFAULT_REGION" \
     -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
 

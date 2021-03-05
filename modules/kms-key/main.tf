@@ -8,24 +8,37 @@ resource "random_pet" "env" {
   length = 2
 }
 
-resource "aws_kms_key" "vault" {
-  description             = "Vault unseal key"
-  deletion_window_in_days = 10
-
-  tags = {
-    Name = "vault-kms-unseal-${random_pet.env.id}"
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+data "aws_canonical_user_id" "current" {}
+locals {
+  common_tags = {
+    environment  = var.environment
+    resourcetier = var.resourcetier
+    conflictkey  = var.resourcetier # The conflict key defines a name space where duplicate resources in different deployments sharing this name can be uniquely recognised. In this case, we only use 1 kms key per resource tier to save costs for creating new keys.  Normally we would also include the pipelineid as well in other circumstances.
+    pipelineid   = var.pipelineid
+    owner        = data.aws_canonical_user_id.current.display_name
+    accountid    = data.aws_caller_identity.current.account_id
+    terraform    = "true"
   }
 }
 
+resource "aws_kms_key" "vault" {
+  description             = "Vault unseal key"
+  deletion_window_in_days = 10
+  tags  = merge(map("Name", "vault-kms-unseal-${random_pet.env.id}"), local.common_tags)
+}
+
 resource "aws_ssm_parameter" "vault_kms_unseal" {
-  name  = "vault_kms_unseal_key_id"
+  name  = "/firehawk/resourcetier/${var.resourcetier}/vault_kms_unseal_key_id"
   type  = "SecureString"
   value = aws_kms_key.vault.id
+  tags  = merge(map("Name", "vault_kms_unseal_key_id"), local.common_tags)
 }
 
 data "aws_ssm_parameter" "vault_kms_unseal" {
   depends_on = [aws_ssm_parameter.vault_kms_unseal]
-  name = "vault_kms_unseal_key_id"
+  name = "/firehawk/resourcetier/${var.resourcetier}/vault_kms_unseal_key_id"
 }
 
 data "aws_kms_key" "vault" {

@@ -49,8 +49,6 @@ resource "vault_policy" "pki_int_policy" {
   policy = file("policies/pki_int.hcl")
 }
 
-
-
 resource "vault_mount" "dev" {
   path        = "dev"
   type        = "kv-v2"
@@ -125,6 +123,22 @@ resource "vault_auth_backend" "aws" {
 
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
+data "aws_canonical_user_id" "current" {}
+
+locals {
+  common_tags = {
+    environment  = var.environment
+    resourcetier = var.resourcetier
+    conflictkey  = var.conflictkey
+    # The conflict key defines a name space where duplicate resources in different deployments sharing this name are prevented from occuring.  This is used to prevent a new deployment overwriting and existing resource unless it is destroyed first.
+    # examples might be blue, green, dev1, dev2, dev3...dev100.  This allows us to lock deployments on some resources.
+    pipelineid = var.pipelineid
+    owner      = data.aws_canonical_user_id.current.display_name
+    accountid  = data.aws_caller_identity.current.account_id
+    region     = data.aws_region.current.name
+    terraform  = "true"
+  }
+}
 
 resource "vault_aws_auth_backend_client" "provisioner" {
   # Sets the access key and secret key that Vault will use when making API requests on behalf of an AWS Auth Backend
@@ -206,11 +220,15 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
 
 module "vault_client_provisioner_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
   source    = "../../modules/vault-client-iam"
-  role_name = "ProvisionerRole"
+  role_name = "ProvisionerRole_${var.conflictkey}"
+  environment  = var.environment
+  resourcetier = var.resourcetier
+  conflictkey  = var.conflictkey
+  pipelineid = var.pipelineid
 }
 resource "aws_iam_instance_profile" "provisioner_instance_profile" {
-  name = "ProvisionerProfile"
-  role = "ProvisionerRole"
+  name = "ProvisionerProfile_${var.conflictkey}"
+  role = "ProvisionerRole_${var.conflictkey}"
 }
 resource "vault_aws_auth_backend_role" "provisioner" {
   backend        = vault_auth_backend.aws.path
@@ -233,12 +251,16 @@ resource "vault_aws_auth_backend_role" "provisioner" {
 module "vault_client_vpn_server_iam" {
   # The arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
   source    = "../../modules/vault-client-iam"
-  role_name = "VPNServerRole"
+  role_name = "VPNServerRole_${var.conflictkey}"
+  environment  = var.environment
+  resourcetier = var.resourcetier
+  conflictkey  = var.conflictkey
+  pipelineid = var.pipelineid
 }
 
 resource "aws_iam_instance_profile" "vpn_server_instance_profile" {
-  name = "VPNServerProfile"
-  role = "VPNServerRole"
+  name = "VPNServerProfile_${var.conflictkey}"
+  role = "VPNServerRole_${var.conflictkey}"
 }
 # resource "vault_aws_auth_backend_role" "vpn_server" {
 #   backend                         = vault_auth_backend.aws.path

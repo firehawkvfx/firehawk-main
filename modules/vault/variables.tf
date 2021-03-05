@@ -30,19 +30,8 @@ variable "vault_public_key" {
   default = ""
 }
 
-variable "remote_ip_cidr" {
-  description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host.."
-  type = string
-}
-
-variable "create_bastion_graphical" {
-  description = "Creates a graphical bastion host for vault configuration."
-  type = bool
-  default = true
-}
-
-variable "remote_ip_graphical_cidr" {
-  description = "The public IP of the host used to connect to the graphical bastion."
+variable "deployer_ip_cidr" {
+  description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host."
   type = string
 }
 
@@ -52,16 +41,9 @@ variable "vault_consul_ami_id" {
   default     = null
 }
 
-variable "bastion_ami_id" {
-  description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/bastion-ami."
+variable "instance_id_main_cloud9" {
+  description = "The instance ID of the cloud9 seed instance in your main account.  This will be used to establish a connection with vault."
   type = string
-  default = null
-}
-
-variable "bastion_graphical_ami_id" {
-  description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/nice-dcv-ami."
-  type = string
-  default = null
 }
 
 variable "vpc_id_main_cloud9" {
@@ -69,7 +51,33 @@ variable "vpc_id_main_cloud9" {
   type = string
 }
 
-variable "instance_id_main_cloud9" {
-  description = "The instance ID of the cloud9 seed instance in your main account.  This will be used to establish a connection with vault."
-  type = string
+variable "environment" {
+  description = "The environment.  eg: dev/prod"
+  type        = string
+}
+
+variable "resourcetier" {
+  description = "The resource tier uniquely defining the deployment area.  eg: dev/green/blue/main"
+  type        = string
+}
+variable "pipelineid" {
+  description = "The pipelineid uniquely defining the deployment instance if using CI.  eg: dev/green/blue/main"
+  type        = string
+}
+
+variable "conflictkey" {
+    description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
+    type = string
+}
+
+variable "consul_cluster_name" {
+  description = "What to name the Consul server cluster and all of its associated resources"
+  type        = string
+  # default     = "consul-example"
+}
+
+variable "consul_cluster_tag_key" {
+  description = "The tag the Consul EC2 Instances will look for to automatically discover each other and form a cluster."
+  type        = string
+  # default     = "consul-servers"
 }
