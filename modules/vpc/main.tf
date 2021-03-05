@@ -126,5 +126,5 @@ output "vaultvpc_all_public_subnet_cidrs" {
   #   for i in range(length(var.private_subnets)) : format("private%s_%s", i, local.name)
   # ]
 output "test" {
- value= [for r in module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks : "${r.key}.${r.value}"]
+ value= [for r in module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks : "${r[key]}.${key}"]
 }
