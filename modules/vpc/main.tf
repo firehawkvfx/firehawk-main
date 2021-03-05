@@ -29,7 +29,7 @@ locals {
 
 module "vpc" {
   source                       = "../terraform-aws-vpc"
-  vpc_name                     = "${var.resourcetier}_vpc"
+  vpc_name                     = "${var.resourcetier}_vault_vpc"
   vpc_cidr                     = module.vaultvpc_all_subnet_cidrs.base_cidr_block
   public_subnets               = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
   private_subnets              = module.vaultvpc_all_private_subnet_cidrs.networks[*].cidr_block
@@ -76,15 +76,18 @@ module "vaultvpc_all_private_subnet_cidrs" {
   source = "hashicorp/subnets/cidr"
 
   base_cidr_block = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks["privatesubnets"]
+  # networks = [
+  #   {
+  #     name     = "privatesubnet1"
+  #     new_bits = 2
+  #   },
+  #   {
+  #     name     = "privatesubnet2"
+  #     new_bits = 2
+  #   }
+  # ]
   networks = [
-    {
-      name     = "privatesubnet1"
-      new_bits = 2
-    },
-    {
-      name     = "privatesubnet2"
-      new_bits = 2
-    }
+    for i in range(var.vault_vpc_subnet_count) : { name = format("privatesubnet%s", i), new_bits = 2 }
   ]
 }
 
@@ -92,15 +95,18 @@ module "vaultvpc_all_public_subnet_cidrs" {
   source = "hashicorp/subnets/cidr"
 
   base_cidr_block = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks["publicsubnets"]
+  # networks = [
+  #   {
+  #     name     = "publicsubnet1"
+  #     new_bits = 2
+  #   },
+  #   {
+  #     name     = "publicsubnet2"
+  #     new_bits = 2
+  #   }
+  # ]
   networks = [
-    {
-      name     = "publicsubnet1"
-      new_bits = 2
-    },
-    {
-      name     = "publicsubnet2"
-      new_bits = 2
-    }
+    for i in range(var.vault_vpc_subnet_count) : { name = format("publicsubnet%s", i), new_bits = 2 }
   ]
 }
 

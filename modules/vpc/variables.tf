@@ -94,3 +94,8 @@ variable "conflictkey" {
     description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
     type = string
 }
+
+variable "vault_vpc_subnet_count" {
+  description = "The number of private and public subnets to use. eg: 1 will result in one public and 1 private subnet in 1AZ.  3 will result in 3 private and public subnets spread across 3 AZ's."
+  default = 3
+}
