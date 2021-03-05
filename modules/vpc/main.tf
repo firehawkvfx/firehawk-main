@@ -32,9 +32,9 @@ module "vpc" {
   vpc_name                     = "${var.resourcetier}_vpc"
   vpc_cidr                     = module.vaultvpc_all_subnet_cidrs.base_cidr_block
   public_subnets               = [module.vaultvpc_all_public_subnet_cidrs.network_cidr_blocks["publicsubnet1"]]
-  public_subnets_map           = module.vaultvpc_all_public_subnet_cidrs.network_cidr_blocks
+  # public_subnets_map           = module.vaultvpc_all_public_subnet_cidrs.network_cidr_blocks
   private_subnets              = [module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks["privatesubnet1"]]
-  private_subnets_map          = module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks
+  # private_subnets_map          = module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks
   sleep                        = var.sleep
   deployer_ip_cidr             = var.deployer_ip_cidr
   remote_cloud_public_ip_cidr  = var.remote_cloud_public_ip_cidr
