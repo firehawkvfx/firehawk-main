@@ -43,7 +43,7 @@ module "vpc" {
 module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the resource tier dev / green / blue / main
   source = "hashicorp/subnets/cidr"
 
-  base_cidr_block = "10.1.0.0/16"
+  base_cidr_block = var.combined_vpcs_cidr
   networks = [
     {
       name     = "vaultvpc"
@@ -76,16 +76,6 @@ module "vaultvpc_all_private_subnet_cidrs" {
   source = "hashicorp/subnets/cidr"
 
   base_cidr_block = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks["privatesubnets"]
-  # networks = [
-  #   {
-  #     name     = "privatesubnet1"
-  #     new_bits = 2
-  #   },
-  #   {
-  #     name     = "privatesubnet2"
-  #     new_bits = 2
-  #   }
-  # ]
   networks = [
     for i in range(var.vault_vpc_subnet_count) : { name = format("privatesubnet%s", i), new_bits = 2 }
   ]
@@ -95,16 +85,6 @@ module "vaultvpc_all_public_subnet_cidrs" {
   source = "hashicorp/subnets/cidr"
 
   base_cidr_block = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks["publicsubnets"]
-  # networks = [
-  #   {
-  #     name     = "publicsubnet1"
-  #     new_bits = 2
-  #   },
-  #   {
-  #     name     = "publicsubnet2"
-  #     new_bits = 2
-  #   }
-  # ]
   networks = [
     for i in range(var.vault_vpc_subnet_count) : { name = format("publicsubnet%s", i), new_bits = 2 }
   ]

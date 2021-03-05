@@ -14,24 +14,24 @@ variable "sleep" {
 
 variable "enable_vault" {
   description = "Deploy Hashicorp Vault into the VPC"
-  type = bool
-  default = true 
+  type        = bool
+  default     = true
 }
 
 variable "bucket_extension" {
   description = "The extension for cloud storage used to label your S3 storage buckets (eg: example.com, my-name-at-gmail.com). This can be any unique name (it must not be taken already, globally).  commonly, it is a domain name you own, or an abbreviated email adress.  No @ symbols are allowed. See this doc for naming restrictions on s3 buckets - https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html"
-  type = string
+  type        = string
 }
 
 variable "aws_private_key_path" {
   description = "The private key path for the key used to ssh into the bastion for provisioning"
-  type = string
-  default = ""
+  type        = string
+  default     = ""
 }
 
 variable "deployer_ip_cidr" {
   description = "The public IP of the host used to ssh to the bastion, this may also potentially be a cloud 9 host.."
-  type = string
+  type        = string
 }
 
 variable "remote_cloud_private_ip_cidr" {
@@ -48,8 +48,8 @@ variable "remote_cloud_public_ip_cidr" {
 
 variable "create_bastion_graphical" {
   description = "Creates a graphical bastion host for vault configuration."
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "vault_consul_ami_id" {
@@ -60,14 +60,14 @@ variable "vault_consul_ami_id" {
 
 variable "bastion_ami_id" {
   description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/bastion-ami."
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "bastion_graphical_ami_id" {
   description = "The prebuilt AMI for the bastion host. This should be a private ami you have build with packer from firehawk-main/modules/terraform-aws-vault/examples/nice-dcv-ami."
-  type = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "create_key_pair" {
@@ -91,11 +91,23 @@ variable "pipelineid" {
 }
 
 variable "conflictkey" {
-    description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
-    type = string
+  description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
+  type        = string
 }
 
-variable "vault_vpc_subnet_count" {
-  description = "The number of private and public subnets to use. eg: 1 will result in one public and 1 private subnet in 1AZ.  3 will result in 3 private and public subnets spread across 3 AZ's."
-  default = 3
+variable "vault_vpc_subnet_count" { # If adjusting the max here, consider 2^new_bits = vault_vpc_subnet_count when constructing the subnets.
+  description = "(1-4) The number of private and public subnets to use. eg: 1 will result in one public and 1 private subnet in 1AZ.  3 will result in 3 private and public subnets spread across 3 AZ's. Currently the vault cluster only uses 1 subnet."
+  default     = 1
+  validation {
+    condition = (
+      var.vault_vpc_subnet_count <= 4 &&
+      var.vault_vpc_subnet_count > 1
+    )
+    error_message = "vault_vpc_subnet_count must be between 1-4 (inclusive)"
+  }
+}
+
+variable "combined_vpcs_cidr" {
+  description = "Terraform will automatically configure multiple VPCs and subnets within this CIDR range for any resourcetier ( dev / green / blue / main )."
+  type        = string
 }
