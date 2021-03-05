@@ -36,3 +36,23 @@ module "vpc" {
   remote_cloud_private_ip_cidr = var.remote_cloud_private_ip_cidr
   common_tags                  = local.common_tags
 }
+
+module "dev_cidrs" {
+  source = "hashicorp/subnets/cidr"
+
+  base_cidr_block = "10.1.0.0/16"
+  networks = [
+    {
+      name     = "vault_vpc"
+      new_bits = 8
+    },
+    {
+      name     = "render_vpc"
+      new_bits = 1
+    }
+  ]
+}
+
+output "dev_cidrs" {
+  value = module.dev_cidrs.network_cidr_blocks
+}
