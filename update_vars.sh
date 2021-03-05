@@ -99,11 +99,11 @@ export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
 get_parameters=$(aws ssm get-parameters --names \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_public_ip" \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_private_subnet_cidr" \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/global_bucket_extension") \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/vpc_cidr") \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/private_subnets") \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/public_subnets") \
-    "/firehawk/resourcetier/${TF_VAR_resourcetier}/vpn_cidr")
+    "/firehawk/resourcetier/${TF_VAR_resourcetier}/global_bucket_extension")
+    # "/firehawk/resourcetier/${TF_VAR_resourcetier}/vpn_cidr"
+    # "/firehawk/resourcetier/${TF_VAR_resourcetier}/vpc_cidr") \
+    # "/firehawk/resourcetier/${TF_VAR_resourcetier}/private_subnets") \
+    # "/firehawk/resourcetier/${TF_VAR_resourcetier}/public_subnets") \
 num_invalid=$(echo $get_parameters | jq '.InvalidParameters| length')
 
 if [[ num_invalid -eq 0 ]]; then
@@ -113,14 +113,14 @@ if [[ num_invalid -eq 0 ]]; then
   error_if_empty "SSM Parameter missing: onsite_private_subnet_cidr" "$TF_VAR_onsite_private_subnet_cidr"
   export TF_VAR_global_bucket_extension=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/global_bucket_extension\")|.Value" --raw-output)
   error_if_empty "SSM Parameter missing: global_bucket_extension" "$TF_VAR_global_bucket_extension"
-  export TF_VAR_vpc_cidr=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/vpc_cidr\")|.Value" --raw-output)
-  error_if_empty "SSM Parameter missing: vpc_cidr" "$TF_VAR_vpc_cidr"
-  export TF_VAR_vpn_cidr=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/vpn_cidr\")|.Value" --raw-output)
-  error_if_empty "SSM Parameter missing: vpn_cidr" "$TF_VAR_vpn_cidr"
-  export TF_VAR_private_subnets=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/private_subnets\")|.Value" --raw-output)
-  error_if_empty "SSM Parameter missing: private_subnets" "$TF_VAR_private_subnets"
-  export TF_VAR_public_subnets=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/public_subnets\")|.Value" --raw-output)
-  error_if_empty "SSM Parameter missing: public_subnets" "$TF_VAR_public_subnets"
+  # export TF_VAR_vpc_cidr=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/vpc_cidr\")|.Value" --raw-output)
+  # error_if_empty "SSM Parameter missing: vpc_cidr" "$TF_VAR_vpc_cidr"
+  # export TF_VAR_vpn_cidr=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/vpn_cidr\")|.Value" --raw-output)
+  # error_if_empty "SSM Parameter missing: vpn_cidr" "$TF_VAR_vpn_cidr"
+  # export TF_VAR_private_subnets=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/private_subnets\")|.Value" --raw-output)
+  # error_if_empty "SSM Parameter missing: private_subnets" "$TF_VAR_private_subnets"
+  # export TF_VAR_public_subnets=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/public_subnets\")|.Value" --raw-output)
+  # error_if_empty "SSM Parameter missing: public_subnets" "$TF_VAR_public_subnets"
 
   export TF_VAR_bucket_extension="$TF_VAR_resourcetier.$TF_VAR_global_bucket_extension"
 else
