@@ -1,5 +1,6 @@
 #!/bin/bash
 
+vpcname="vaultvpc"
 to_abs_path() {
   python -c "import os; print(os.path.abspath('$1'))"
 }
@@ -35,6 +36,12 @@ function error_if_empty {
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
+# Region is required for AWS CLI
+export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
+# Get the resourcetier from the instance tag.
+export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value' --raw-output)" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
+export TF_VAR_vpcname="${TF_VAR_resourcetier}${vpcname}" # Why no underscores? Because the vpc name is used to label terraform state S3 buckets
+
 # Instance and vpc data
 export TF_VAR_deployer_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32" # Initially there will be no remote ip onsite, so we use the cloud 9 ip.
 export TF_VAR_remote_cloud_public_ip_cidr="$(curl http://169.254.169.254/latest/meta-data/public-ipv4)/32" # The cloud 9 IP to provision with.
@@ -42,15 +49,14 @@ export TF_VAR_remote_cloud_private_ip_cidr="$(curl http://169.254.169.254/latest
 macid=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/)
 export TF_VAR_vpc_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/network/interfaces/macs/${macid}/vpc-id) # Aquire the cloud 9 instance's VPC ID to peer with Main VPC
 export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+export TF_VAR_account_id=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '(?<="accountId" : ")[^"]*(?=")')
+export TF_VAR_owner="$(aws s3api list-buckets --query Owner.DisplayName --output text)"
 # region specific vars
-export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
 export PKR_VAR_aws_region="$AWS_DEFAULT_REGION"
 export TF_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
 export PKR_VAR_aws_internal_domain=$AWS_DEFAULT_REGION.compute.internal # used for FQDN resolution
 export TF_VAR_aws_external_domain=$AWS_DEFAULT_REGION.compute.amazonaws.com
 
-# Aquiring the resourcetier from the instance tag.
-export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value' --raw-output)" # Can be dev,green,blue,main.  it is pulled from this instance's tags by default
 if [[ -z "$TF_VAR_resourcetier" ]]; then
   log_error "Could not read resourcetier tag from this instance.  Ensure you have set a tag with resourcetier."
   return
@@ -122,5 +128,17 @@ else
   log_error "SSM parameters are not yet initialised.  You can init SSM parameters with the cloudformation template modules/cloudformation-cloud9-vault-iam/cloudformation_ssm_parameters_firehawk.yaml"
   return
 fi
+
+export TF_VAR_common_tags=$(jq -n -f "$SCRIPTDIR/common_tags.json" \
+  --arg environment "$TF_VAR_environment" \
+  --arg resourcetier "$TF_VAR_resourcetier" \
+  --arg conflictkey "$TF_VAR_conflictkey" \
+  --arg pipelineid "$TF_VAR_pipelineid" \
+  --arg region "$AWS_DEFAULT_REGION" \
+  --arg vpcname "$TF_VAR_vpcname" \
+  --arg accountid "$TF_VAR_account_id" \
+  --arg owner "$TF_VAR_owner" )
+
+echo "TF_VAR_common_tags: $TF_VAR_common_tags"
 
 log_info "Done sourcing vars."
