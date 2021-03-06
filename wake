@@ -50,7 +50,14 @@ fi
 
 echo "Waiting for consul vault service..."
 until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
-vault status
+until vault status | grep -m 1 "Initialized.*true"; do sleep 1 ; done
+vault status | grep -m 1 "Sealed.*true"
+exit_status=$?
+if [[ exit_status -eq 1 ]]; then
+    echo "Vault is not unsealed.  Aborting."
+    exit 1
+fi
+
 vault login --no-print $VAULT_TOKEN
 
 cd $SCRIPTDIR/modules/terraform-aws-bastion
