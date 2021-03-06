@@ -50,11 +50,13 @@ fi
 
 echo "Waiting for consul vault service..."
 until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
-until vault status | grep -m 1 "Initialized.*true"; do sleep 1 ; done
-vault status | grep -m 1 "Sealed.*true"
-exit_status=$?
-if [[ $exit_status -eq 1 ]]; then
-    echo "Vault is not unsealed.  Aborting."
+until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
+
+initialised=true
+vault status | grep -m 1 "Initialized.*true" || initialised=false
+
+if [[ "$initialised" == false ]]; then
+    echo "Vault is not Initialized.  Aborting. You will need to login and initialise the vault"
     exit 1
 fi
 
