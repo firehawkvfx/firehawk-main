@@ -48,7 +48,7 @@ module "consul_client_security_group" {
   permitted_cidr_list = [var.deployer_ip_cidr, var.remote_cloud_private_ip_cidr, var.remote_cloud_public_ip_cidr]
 }
 
-module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the resource tier dev / green / blue / main
+module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the combined_vpcs_cidr (current resource tier dev or green or blue or main)
   source = "hashicorp/subnets/cidr"
 
   base_cidr_block = var.combined_vpcs_cidr
@@ -96,28 +96,4 @@ module "vaultvpc_all_public_subnet_cidrs" {
   networks = [
     for i in range(var.vault_vpc_subnet_count) : { name = format("publicsubnet%s", i), new_bits = 2 }
   ]
-}
-
-output "resourcetier_all_vpc_cidrs" {
-  value = module.resourcetier_all_vpc_cidrs.network_cidr_blocks
-}
-
-output "vaultvpc_all_subnet_cidrs" {
-  value = module.vaultvpc_all_subnet_cidrs.network_cidr_blocks
-}
-
-output "vaultvpc_all_private_subnet_cidrs" {
-  value = module.vaultvpc_all_private_subnet_cidrs.network_cidr_blocks
-}
-
-output "vaultvpc_all_public_subnet_cidrs" {
-  value = module.vaultvpc_all_public_subnet_cidrs.network_cidr_blocks
-}
-
-output "vaultvpc_all_public_subnet_cidr_list" {
-  value = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
-}
-
-output "vaultvpc_all_private_subnet_cidr_list" {
-  value = module.vaultvpc_all_private_subnet_cidrs.networks[*].cidr_block
 }
