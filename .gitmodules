@@ -7,3 +7,6 @@
 [submodule "modules/terraform-aws-vpc"]
 	path = modules/terraform-aws-vpc
 	url = git@github.com:firehawkvfx/terraform-aws-vpc.git
+[submodule "modules/vpc/modules/terraform-aws-vpc"]
+	path = modules/vpc/modules/terraform-aws-vpc
+	url = git@github.com:firehawkvfx/terraform-aws-vpc.git
