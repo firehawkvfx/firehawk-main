@@ -3,7 +3,6 @@ provider "null" {
 }
 
 provider "aws" {
-  #  if you haven't installed and configured the aws cli, you will need to provide your aws access key and secret key.
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
   version = "~> 3.15.0"
 }
@@ -38,6 +37,15 @@ module "vpc" {
   remote_cloud_public_ip_cidr  = var.remote_cloud_public_ip_cidr
   remote_cloud_private_ip_cidr = var.remote_cloud_private_ip_cidr
   common_tags                  = local.common_tags
+}
+
+module "consul_client_security_group" {
+  source              = "./modules/consul-client-security-group"
+  common_tags         = local.common_tags
+  create_vpc          = true
+  vpc_id              = module.vpc.vpc_id
+  vpc_cidr            = module.resourcetier_all_vpc_cidrs.base_cidr_block
+  permitted_cidr_list = [var.deployer_ip_cidr, var.remote_cloud_private_ip_cidr, var.remote_cloud_public_ip_cidr]
 }
 
 module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the resource tier dev / green / blue / main
