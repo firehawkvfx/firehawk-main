@@ -22,6 +22,7 @@ locals {
     owner      = data.aws_canonical_user_id.current.display_name
     accountid  = data.aws_caller_identity.current.account_id
     region     = data.aws_region.current.name
+    vpc        = "${var.resourcetier}_vault_vpc"
     terraform  = "true"
   }
 }
