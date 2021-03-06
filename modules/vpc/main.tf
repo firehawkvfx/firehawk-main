@@ -27,7 +27,7 @@ locals {
 }
 
 module "vpc" {
-  source                       = "modules/terraform-aws-vpc"
+  source                       = "./modules/terraform-aws-vpc"
   vpc_name                     = "${var.resourcetier}_vault_vpc"
   vpc_cidr                     = module.vaultvpc_all_subnet_cidrs.base_cidr_block
   public_subnets               = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
