@@ -125,10 +125,6 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 data "aws_canonical_user_id" "current" {}
 
-locals {
-  common_tags = var.common_tags
-}
-
 resource "vault_aws_auth_backend_client" "provisioner" {
   # Sets the access key and secret key that Vault will use when making API requests on behalf of an AWS Auth Backend
   backend                    = vault_auth_backend.aws.path
@@ -142,7 +138,7 @@ resource "vault_auth_backend" "example" {
 
 resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
   role_name        = "vpn-server-vault-token-creds-role"
-  allowed_policies = ["vpn_server","ssh_host"]
+  allowed_policies = ["vpn_server", "ssh_host"]
   # disallowed_policies = ["default"]
   # token_bound_cidrs = ["10.0.0.0/16"]
   # token_num_uses   = 1
@@ -215,19 +211,6 @@ data "terraform_remote_state" "provisioner_profile" {
     region = data.aws_region.current.name
   }
 }
-
-# module "vault_client_provisioner_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
-#   source    = "../../modules/vault-client-iam"
-#   role_name = "ProvisionerRole_${var.conflictkey}"
-#   environment  = var.environment
-#   resourcetier = var.resourcetier
-#   conflictkey  = var.conflictkey
-#   pipelineid = var.pipelineid
-# }
-resource "aws_iam_instance_profile" "provisioner_instance_profile" {
-  name = "ProvisionerProfile_${var.conflictkey}"
-  role = "ProvisionerRole_${var.conflictkey}"
-}
 resource "vault_aws_auth_backend_role" "provisioner" {
   backend        = vault_auth_backend.aws.path
   token_ttl      = 60
@@ -239,7 +222,7 @@ resource "vault_aws_auth_backend_role" "provisioner" {
   bound_account_ids = [data.aws_caller_identity.current.account_id]
   # bound_vpc_ids                   = ["vpc-b61106d4"]
   # bound_subnet_ids                = ["vpc-133128f1"]
-  bound_iam_role_arns = concat( [ data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn ] ) # Only instances with this Role ARN May read vault data.
+  bound_iam_role_arns = concat([data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
   # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
@@ -248,14 +231,14 @@ resource "vault_aws_auth_backend_role" "provisioner" {
 
 module "vault_client_vpn_server_iam" {
   # The arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
-  source    = "../../modules/vault-client-iam"
-  role_name = "VPNServerRole_${var.conflictkey}"
+  source       = "../../modules/vault-client-iam"
+  role_name    = "VPNServerRole_${var.conflictkey}"
   environment  = var.environment
   resourcetier = var.resourcetier
   conflictkey  = var.conflictkey
-  pipelineid = var.pipelineid
+  pipelineid   = var.pipelineid
+  common_tags  = var.common_tags
 }
-
 resource "aws_iam_instance_profile" "vpn_server_instance_profile" {
   name = "VPNServerProfile_${var.conflictkey}"
   role = "VPNServerRole_${var.conflictkey}"
