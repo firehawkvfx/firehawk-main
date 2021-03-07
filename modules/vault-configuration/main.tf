@@ -13,32 +13,30 @@ resource "vault_policy" "admin_policy" {
   name   = "admins"
   policy = file("policies/admin_policy.hcl")
 }
-
 resource "vault_policy" "dev_policy" {
   name   = "dev"
   policy = file("policies/dev_policy.hcl")
 }
-
 resource "vault_policy" "green_policy" {
   name   = "green"
   policy = file("policies/green_policy.hcl")
 }
-
 resource "vault_policy" "blue_policy" {
   name   = "blue"
   policy = file("policies/blue_policy.hcl")
 }
-
 resource "vault_policy" "main_policy" {
   name   = "main"
   policy = file("policies/main_policy.hcl")
 }
-
+resource "vault_policy" "deadline_db_policy" {
+  name   = "deadline_db"
+  policy = file("policies/deadline_db_policy.hcl")
+}
 resource "vault_policy" "provisioner_policy" {
   name   = "provisioner"
   policy = file("policies/provisioner_policy.hcl")
 }
-
 resource "vault_policy" "vpn_server_policy" {
   name   = "vpn_server"
   policy = file("policies/vpn_server_policy.hcl")
@@ -223,6 +221,31 @@ resource "vault_aws_auth_backend_role" "provisioner" {
   # bound_vpc_ids                   = ["vpc-b61106d4"]
   # bound_subnet_ids                = ["vpc-133128f1"]
   bound_iam_role_arns = concat([data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
+  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  inferred_entity_type = "ec2_instance"
+  inferred_aws_region  = data.aws_region.current.name
+  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+}
+data "terraform_remote_state" "deadline_db_profile" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "${var.resourcetier}/terraform-aws-iam-profile-deadline-db/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+resource "vault_aws_auth_backend_role" "deadline_db" {
+  backend        = vault_auth_backend.aws.path
+  token_ttl      = 60
+  token_max_ttl  = 120
+  token_policies = ["deadline_db"]
+  role           = "deadline-db-vault-role"
+  auth_type      = "iam"
+  # bound_ami_ids                   = ["ami-8c1be5f6"]
+  bound_account_ids = [data.aws_caller_identity.current.account_id]
+  # bound_vpc_ids                   = ["vpc-b61106d4"]
+  # bound_subnet_ids                = ["vpc-133128f1"]
+  bound_iam_role_arns = concat([data.terraform_remote_state.deadline_db_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
   # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name

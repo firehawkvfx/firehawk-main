@@ -1,4 +1,4 @@
-### This role and profile allows instances access to S3 buckets to aquire and push back downloaded softwre to provision with.  It also has prerequisites for consul and vault access.
+### This role and profile allows instances access to S3 buckets to aquire and push back downloaded softwre to provision with.  It also has prerequisites for consul and Cault IAM access.
 resource "aws_iam_role" "instance_role" {
   name = "deadlinedb_instance_role_${var.conflictkey}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
@@ -18,6 +18,12 @@ data "aws_iam_policy_document" "assume_role" { # Determines the services able to
     }
   }
 }
+# Required for the IAM Profile Auth method since the Deadline DB host will generally not be accessible to users, it must manage certificates itself.
+module "iam_policies_vault_iam_auth" {
+  source = "../../modules/aws-iam-policies-vault-iam-auth"
+  name = "VaultIAMAuth_${var.conflictkey}"
+  iam_role_id = aws_iam_role.instance_role.id
+}
 # Policy Allowing Read and write access to S3
 module "iam_policies_s3_read_write" {
   source = "../../modules/aws-iam-policies-s3-read-write"
@@ -33,6 +39,5 @@ module "iam_policies_get_caller_identity" {
 # Adds policies necessary for running Consul
 module "consul_iam_policies_for_client" {
   source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
-
   iam_role_id = aws_iam_role.instance_role.id
 }
