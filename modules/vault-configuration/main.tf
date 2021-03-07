@@ -253,7 +253,7 @@ resource "vault_aws_auth_backend_role" "deadline_db" {
 }
 
 module "vault_client_vpn_server_iam" {
-  # The arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
+  # The arn of a role will turn into an id when it is created, which may change, so we may get issues refs in vault will be incorrect.  To fix this if it is encountered, or If the VPN role requires any more permissions, do not modify the modules/aws-iam-role-vault-client, since it is just a method to generate minimum permissions with a unique name - rather create a seperate profile similar to the deadline DB example.
   source       = "../../modules/aws-iam-role-vault-client"
   role_name    = "VPNServerRole_${var.conflictkey}"
   environment  = var.environment
