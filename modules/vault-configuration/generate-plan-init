@@ -12,8 +12,8 @@ exit_if_error() {
     }
 }
 
-export TF_VAR_vault_client_role_arns="[\"$(cd ../terraform-aws-iam-profile-provisioner; terraform output -json "instance_role_arn" | jq -r '.')\"]"
-echo "vault_client_role_arns: $TF_VAR_vault_client_role_arns"
+# export TF_VAR_vault_client_role_arns="[\"$(cd ../terraform-aws-iam-profile-provisioner; terraform output -json "instance_role_arn" | jq -r '.')\"]"
+# echo "vault_client_role_arns: $TF_VAR_vault_client_role_arns"
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 

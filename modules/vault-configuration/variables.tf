@@ -3,10 +3,10 @@ variable "global_bucket_extension" {
   type = string
 }
 
-variable "vault_client_role_arns" {
-  description = "The list of Role ARNS the provide access to the vault provisioner role"
-  type = list(string)
-}
+# variable "vault_client_role_arns" { # Deprecated in favour of using S3 remote state.
+#   description = "The list of Role ARNS the provide access to the vault provisioner role"
+#   type = list(string)
+# }
 
 variable "onsite_public_ip" {
   description = "The public ip address of your onsite location to enable access to security groups and openVPN."
