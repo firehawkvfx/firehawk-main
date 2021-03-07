@@ -158,7 +158,7 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
 # }
 
 # module "vault_client_provisioner_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
-#   source = "../../modules/vault-client-iam"
+#   source = "../../modules/aws-iam-role-vault-client"
 #   role_name = "VaultUserRole"
 # }
 # resource "vault_aws_secret_backend_role" "vault_vpn_role" {
@@ -207,7 +207,7 @@ data "terraform_remote_state" "provisioner_profile" {
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension}"
-    key    = "${var.resourcetier}/${var.vpcname}-terraform-aws-iam-profile-provisioner/terraform.tfstate"
+    key    = "${var.resourcetier}/${var.common_tags["vpcname"]}-terraform-aws-iam-profile-provisioner/terraform.tfstate"
     region = data.aws_region.current.name
   }
 }
@@ -231,7 +231,7 @@ resource "vault_aws_auth_backend_role" "provisioner" {
 
 module "vault_client_vpn_server_iam" {
   # The arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
-  source       = "../../modules/vault-client-iam"
+  source       = "../../modules/aws-iam-role-vault-client"
   role_name    = "VPNServerRole_${var.conflictkey}"
   environment  = var.environment
   resourcetier = var.resourcetier
