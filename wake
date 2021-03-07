@@ -28,9 +28,13 @@ cd $SCRIPTDIR/modules/terraform-aws-iam-profile-provisioner
 ./generate-plan
 terraform apply -input=false tfplan # Ensure Required Roles exist
 
+cd $SCRIPTDIR/modules/terraform-aws-iam-profile-deadline-db
+./generate-plan
+terraform apply -input=false tfplan # Ensure Required Roles exist
+
 cd $SCRIPTDIR/modules/vpc
 ./generate-plan
-terraform apply -input=false tfplan # Ensure Main VPC exists
+terraform apply -input=false tfplan # Ensure Main Vault VPC exists
 
 cd $SCRIPTDIR/modules/terraform-aws-vpc-main-cloud9-peering
 ./generate-plan
