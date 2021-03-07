@@ -39,6 +39,6 @@ data "aws_iam_policy_document" "vault_iam_auth" {
         "iam:ListAccessKeys",
         "iam:UpdateAccessKey"
     ]
-    resources = ["arn:aws:iam::*:user/${aws:username}"]
+    resources = ["arn:aws:iam::*:user/$${aws:username}"]
   }
 }
