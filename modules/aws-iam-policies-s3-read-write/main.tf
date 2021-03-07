@@ -7,7 +7,7 @@ terraform {
 
 resource "aws_iam_role_policy" "s3_read_write" {
   name   = var.name
-  role   = var.role
+  role   = var.iam_role_id
   policy = data.aws_iam_policy_document.s3_read_write.json
 }
 

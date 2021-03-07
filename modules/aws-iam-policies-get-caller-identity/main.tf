@@ -7,7 +7,7 @@ terraform {
 
 resource "aws_iam_role_policy" "get_caller_identity" {
   name = var.name
-  role = var.role
+  role = var.iam_role_id
   policy = data.aws_iam_policy_document.get_caller_identity.json
 }
 

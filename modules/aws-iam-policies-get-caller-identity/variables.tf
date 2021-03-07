@@ -4,7 +4,7 @@ variable "name" {
     default = "STSGetCallerIdentityPolicy"
 }
 
-variable "role" {
+variable "iam_role_id" {
     description = "The aws_iam_role role id to attach the policy to"
     type = string
 }
