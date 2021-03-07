@@ -32,4 +32,8 @@ terraform apply -input=false tfplan # Stop bastion hosts.
 
 cd $SCRIPTDIR/modules/vpc
 terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan # Stop bastion hosts.
+terraform apply -input=false tfplan
+
+cd $SCRIPTDIR/modules/terraform-aws-iam-profile-provisioner
+terraform plan -out=tfplan -input=false -destroy
+terraform apply -input=false tfplan

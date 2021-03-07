@@ -29,7 +29,7 @@ terraform init \
     -backend-config="region=$AWS_DEFAULT_REGION" \
     -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
 
-export TF_VAR_vault_client_role_arns="[\"$(cd ../terraform-aws-iam-s3; terraform output -json "provisioner_instance_role_arn" | jq -r '.')\"]"
+export TF_VAR_vault_client_role_arns="[\"$(cd ../terraform-aws-iam-profile-provisioner; terraform output -json "instance_role_arn" | jq -r '.')\"]"
 echo "vault_client_role_arns: $TF_VAR_vault_client_role_arns"
 
 terraform plan -out=tfplan -input=false

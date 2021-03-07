@@ -116,7 +116,7 @@ export PKR_VAR_test_consul=true
 
 - Create a policy enabling Packer to build images with vault access.  You only need to ensure these policies exist once per resourcetier (dev/green/blue/prod). These policies are not required to build images in the main account, but may be used to build images for rendering.
 ```
-cd modules/terraform-aws-iam-s3
+cd modules/terraform-aws-iam-profile-provisioner
 ./generate-plan
 terraform apply tfplan
 ```

@@ -24,6 +24,10 @@ if [[ -z "$TF_VAR_bucket_extension" ]]; then
     exit_if_error 1 "TF_VAR_bucket_extension not defined."
 fi
 
+cd $SCRIPTDIR/modules/terraform-aws-iam-profile-provisioner
+./generate-plan
+terraform apply -input=false tfplan # Ensure Required Roles exist
+
 cd $SCRIPTDIR/modules/vpc
 ./generate-plan
 terraform apply -input=false tfplan # Ensure Main VPC exists
