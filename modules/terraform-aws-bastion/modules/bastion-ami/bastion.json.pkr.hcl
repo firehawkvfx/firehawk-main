@@ -154,7 +154,7 @@ source "amazon-ebs" "centos7-ami" {
   # }
   ssh_username = "centos"
 
-  user_data_file = "${local.template_dir}/cloud-init.yaml"
+  user_data_file = "${local.template_dir}/cloud-init.yaml" # This is a fix for some instance types with Centos 7
 
   vpc_id               = "${var.vpc_id}"
   subnet_id            = "${var.subnet_id}"
