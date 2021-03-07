@@ -68,7 +68,6 @@ variable "onsite_public_ip" {
   description = "The public ip address of your onsite location to enable access to security groups and openVPN."
   type = string
 }
-
 variable "common_tags" {
   description = "Common tags for all resources in a deployment run."
   type        = map(string)

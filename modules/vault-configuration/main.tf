@@ -126,18 +126,7 @@ data "aws_caller_identity" "current" {}
 data "aws_canonical_user_id" "current" {}
 
 locals {
-  common_tags = {
-    environment  = var.environment
-    resourcetier = var.resourcetier
-    conflictkey  = var.conflictkey
-    # The conflict key defines a name space where duplicate resources in different deployments sharing this name are prevented from occuring.  This is used to prevent a new deployment overwriting and existing resource unless it is destroyed first.
-    # examples might be blue, green, dev1, dev2, dev3...dev100.  This allows us to lock deployments on some resources.
-    pipelineid = var.pipelineid
-    owner      = data.aws_canonical_user_id.current.display_name
-    accountid  = data.aws_caller_identity.current.account_id
-    region     = data.aws_region.current.name
-    terraform  = "true"
-  }
+  common_tags = var.common_tags
 }
 
 resource "vault_aws_auth_backend_client" "provisioner" {
@@ -227,14 +216,14 @@ data "terraform_remote_state" "provisioner_profile" {
   }
 }
 
-module "vault_client_provisioner_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
-  source    = "../../modules/vault-client-iam"
-  role_name = "ProvisionerRole_${var.conflictkey}"
-  environment  = var.environment
-  resourcetier = var.resourcetier
-  conflictkey  = var.conflictkey
-  pipelineid = var.pipelineid
-}
+# module "vault_client_provisioner_iam" { # the arn of a role will turn into an id when it is created, which may change, so we probably only want to do this once, or the refs in vault will be incorrect.
+#   source    = "../../modules/vault-client-iam"
+#   role_name = "ProvisionerRole_${var.conflictkey}"
+#   environment  = var.environment
+#   resourcetier = var.resourcetier
+#   conflictkey  = var.conflictkey
+#   pipelineid = var.pipelineid
+# }
 resource "aws_iam_instance_profile" "provisioner_instance_profile" {
   name = "ProvisionerProfile_${var.conflictkey}"
   role = "ProvisionerRole_${var.conflictkey}"
@@ -250,7 +239,7 @@ resource "vault_aws_auth_backend_role" "provisioner" {
   bound_account_ids = [data.aws_caller_identity.current.account_id]
   # bound_vpc_ids                   = ["vpc-b61106d4"]
   # bound_subnet_ids                = ["vpc-133128f1"]
-  bound_iam_role_arns = concat( [ data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn ], [ module.vault_client_provisioner_iam.vault_client_role_arn ]) # Only instances with this Role ARN May read vault data.
+  bound_iam_role_arns = concat( [ data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn ] ) # Only instances with this Role ARN May read vault data.
   # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
@@ -286,15 +275,13 @@ resource "aws_iam_instance_profile" "vpn_server_instance_profile" {
 #   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
 # }
 
+# output "vault_client_role_arn" {
+#   value = module.vault_client_provisioner_iam.vault_client_role_arn
+# }
 
-
-output "vault_client_role_arn" {
-  value = module.vault_client_provisioner_iam.vault_client_role_arn
-}
-
-output "vault_client_profile_arn" {
-  value = module.vault_client_provisioner_iam.vault_client_profile_arn
-}
+# output "vault_client_profile_arn" {
+#   value = module.vault_client_provisioner_iam.vault_client_profile_arn
+# }
 
 # Produce certificates for mongo
 
