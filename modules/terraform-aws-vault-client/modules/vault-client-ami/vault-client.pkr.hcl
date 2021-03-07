@@ -225,7 +225,6 @@ build {
   provisioner "shell" {
     inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
   }
-
   #could not parse template for following block: "template: generated:3: function \"template_dir\" not defined"
   provisioner "file" {
     destination = "/tmp/terraform-aws-vault/modules"
@@ -307,7 +306,6 @@ build {
     ]
     only = ["amazon-ebs.amazon-linux-2-ami"]
   }
-  # Install python and pip
   provisioner "shell" {
     inline = [
       "sudo yum install -y python python3.7 python3-pip",
@@ -316,7 +314,6 @@ build {
     ]
     only = ["amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }
-
   ### This block will install Vault and Consul Agent
   provisioner "shell" { # Vault client probably wont be installed on vault clients in future, but most hosts that will authenticate will require it.
     inline = [
@@ -327,27 +324,13 @@ build {
       "fi"
     ]
   }
-
-  # provisioner "shell" {
-  #   inline = [
-  #     "sudo apt-get install -y git",
-  #     "if [[ '${var.install_auth_signing_script}' == 'true' ]]; then",
-  #     "sudo apt-get install -y python-pip",
-  #     "LC_ALL=C && sudo pip install boto3",
-  #   "fi"]
-  #   inline_shebang = "/bin/bash -e"
-  #   # only           = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.ubuntu18-ami"]
-  # }
-
-  provisioner "shell" { # jq requires this repo on centos 7, and the dig command is also required
+  provisioner "shell" { # jq required and the dig command is also required
     inline = [
       # "sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm",
       "sudo yum -y install bind-utils jq"
     ]
     only = ["amazon-ebs.centos7-ami"]
   }
-
-
   provisioner "shell" {
     inline = [
       "git clone --branch ${var.consul_module_version} https://github.com/hashicorp/terraform-aws-consul.git /tmp/terraform-aws-consul",
@@ -357,7 +340,6 @@ build {
       " /tmp/terraform-aws-consul/modules/install-consul/install-consul --version ${var.consul_version};",
     "fi"]
   }
-
   provisioner "shell" { # configure systemd-resolved per https://unix.stackexchange.com/questions/442598/how-to-configure-systemd-resolved-and-systemd-networkd-to-use-local-dns-server-f
     inline = [
       "set -x; sudo sed -i \"s/#Domains=/Domains=service.consul ~consul/g\" /etc/systemd/resolved.conf",
@@ -376,7 +358,6 @@ build {
       ]
     only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
   }
-
   provisioner "shell" {
     inline = [
       "echo 'Reconfigure network interfaces...'", # the centos 7 base ami has issues with sudo.  These hacks here are unfortunate.
@@ -385,7 +366,6 @@ build {
       ]
     only   = ["amazon-ebs.centos7-ami"]
   }
-
   provisioner "shell" { # Generate certificates with vault.
     inline = [
       "if [[ \"${var.test_consul}\" == true ]]; then", # only test the connection if the var is set.
@@ -396,13 +376,12 @@ build {
       " set -x; dig @localhost vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'", # check localhost will resolve vault
       " set -x; vault_ip=$(dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }')",            # check default lookup will resolve vault
       " echo \"vault_ip=$vault_ip\"",
-      " if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed' >&2; dig vault.service.consul; exit 1; fi"
+      " if [[ -n \"$vault_ip\" ]]; then echo 'Build Success'; else echo 'Build Failed' >&2; dig vault.service.consul; exit 1; fi",
       "fi"
     ]
     inline_shebang = "/bin/bash -e"
     # only = ["amazon-ebs.ubuntu18-ami"]
   }
-
   post-processor "manifest" {
     output     = "${local.template_dir}/manifest.json"
     strip_path = true
