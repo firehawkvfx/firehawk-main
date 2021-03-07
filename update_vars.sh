@@ -2,7 +2,7 @@
 
 vpcname="vaultvpc"
 to_abs_path() {
-  python -c "import os; print(os.path.abspath('$1'))"
+  python3 -c "import os; print(os.path.abspath('$1'))"
 }
 
 function log {

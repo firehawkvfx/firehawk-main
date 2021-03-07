@@ -107,7 +107,7 @@ function configure_ssh_known_hosts {
   else
       octal_permissions=$(sudo stat --format '%a' "$ssh_known_hosts_path" | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev) # clip to 4 zeroes
   fi
-  octal_permissions=$( python -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
+  octal_permissions=$( python3 -c "print( \"$octal_permissions\".zfill(4) )" ) # pad to 4 zeroes
   echo "$ssh_known_hosts_path octal_permissions currently $octal_permissions."
   if [[ "$octal_permissions" != "0644" ]]; then
       echo "...Setting to 0644"
