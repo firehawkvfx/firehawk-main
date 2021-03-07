@@ -201,7 +201,7 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
 # export VAULT_ADDR=https://vault.service.consul:8200
 # vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
 
-data "terraform_remote_state" "provisioner_profile" {
+data "terraform_remote_state" "provisioner_profile" { # read the arn with data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.provisioner_profile.outputs.instance_profile_name
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension}"
