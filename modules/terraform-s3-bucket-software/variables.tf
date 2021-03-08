@@ -37,8 +37,11 @@ variable "role_name" {
   type = string
   default = "multi_account_role"
 }
-
 variable "common_tags" {
   description = "Common tags for all resources in a deployment run."
   type        = map(string)
+}
+variable "conflictkey" {
+    description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
+    type = string
 }

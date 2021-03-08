@@ -24,11 +24,9 @@ locals {
 #   count = var.use_vault ? 1 : 0
 #   path = "main/aws/installers_bucket"
 # }
-
 resource "aws_s3_bucket" "shared_bucket" {
   bucket = local.bucket_name
   acl    = "private"
-
   versioning {
     enabled = false
   }
@@ -40,13 +38,11 @@ resource "aws_s3_bucket" "shared_bucket" {
       }
     }
   }
-
   tags = merge(
     {"description" = "Used for storing files for reuse accross accounts."},
     local.common_tags,
   )
 }
-
 resource "aws_s3_bucket_public_access_block" "backend" { # https://medium.com/dnx-labs/terraform-remote-states-in-s3-d74edd24a2c4
   bucket = aws_s3_bucket.shared_bucket.id
 
@@ -55,150 +51,33 @@ resource "aws_s3_bucket_public_access_block" "backend" { # https://medium.com/dn
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-
-resource "aws_s3_bucket_policy" "shared_bucket_policy" {
-  bucket = aws_s3_bucket.shared_bucket.id
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "s3MultiAccountSharePolicy",
-  "Statement": [
-    {
-      "Action": [
-        "s3:*"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "${aws_s3_bucket.shared_bucket.arn}",
-        "${aws_s3_bucket.shared_bucket.arn}/*"
-      ],
-      "Principal": {
-        "AWS": [
-          "${data.aws_caller_identity.current.account_id}"
-        ]
-      }
-    },
-    {
-      "Action": [
-        "s3:GetObject",
-        "s3:ListBucket"
-      ],
-      "Effect": "Allow",
-      "Resource": [
-        "${aws_s3_bucket.shared_bucket.arn}",
-        "${aws_s3_bucket.shared_bucket.arn}/*"
-      ],
-      "Principal": {
-        "AWS": [
-          "${aws_iam_role.multiple_account_assume_role.arn}"
-        ]
-      }
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": [
-          "${aws_iam_role.multiple_account_assume_role.arn}"
-        ]
-      },
-      "Action": [
-        "s3:PutObject",
-        "s3:PutObjectAcl"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.shared_bucket.arn}/*"
-      ],
-      "Condition": {
-          "StringEquals": {
-              "s3:x-amz-acl": "bucket-owner-full-control"
-          }
-      }
-    }
-  ]
-}
-POLICY
-}
-
 # we create a role that would be used for cross account access to the bucket.
-
-data "aws_iam_policy_document" "multiple_account_assume_role_policy" {
+resource "aws_iam_role" "multi_account_role" {
+  name               = var.role_name
+  assume_role_policy = data.aws_iam_policy_document.multi_account_assume_role_policy.json
+}
+# Define who is allowed to assume the role
+data "aws_iam_policy_document" "multi_account_assume_role_policy" {
   statement {
     effect = "Allow"
-
     principals {
       type        = "AWS"
       identifiers = local.share_with_arns
     }
-
     actions = ["sts:AssumeRole"]
   }
 }
-
-resource "aws_iam_role" "multiple_account_assume_role" {
-  name               = var.role_name
-  assume_role_policy = data.aws_iam_policy_document.multiple_account_assume_role_policy.json
+# Define policy for the bucket restricting access to the role
+module "iam_policies_s3_shared_bucket" {
+  source = "../../modules/aws-iam-policies-s3-shared-bucket"
+  bucket_name = local.bucket_name
+  multi_account_role_arn = aws_iam_role.multi_account_role.arn
 }
 
-resource "aws_iam_role_policy_attachment" "multiple_account_assume_role" {
-  count = length(local.policy_arns)
-  role       = aws_iam_role.multiple_account_assume_role.name
-  policy_arn = element(local.policy_arns, count.index)
+# Define policy for the role allowing access to the bucket.
+module "iam_policies_s3_multi_account_role" {
+  source = "../../modules/aws-iam-policies-s3-multi-account-role"
+  name = "MultiAccountRolePolicyS3BucketAccess_${var.conflictkey}"
+  iam_role_id = aws_iam_role.multi_account_role.id
+  shared_bucket_arn = aws_s3_bucket.shared_bucket.arn
 }
-
-locals {
-  policy_arns = [ aws_iam_policy.multiple_account_iam_policy_s3_bucket.arn ] # multiple polices can be attached to the role here.
-}
-
-resource "aws_iam_policy" "multiple_account_iam_policy_s3_bucket" {
-  name        = "multiple_account_iam_policy_s3_bucket"
-  path        = "/"
-  description = "Policy for multiple accounts to access s3 bucket"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:ListAllMyBuckets",
-        "s3:GetBucketLocation"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListBucket",
-      "Resource": "${aws_s3_bucket.shared_bucket.arn}"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject"
-      ],
-      "Resource": "${aws_s3_bucket.shared_bucket.arn}/*"
-    }
-  ]
-}
-EOF
-}
-
-# If a user has restricted permissions the following IAM permissions are required to use the bucket
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Action": "s3:ListBucket",
-#       "Resource": "arn:aws:s3:::mybucket"
-#     },
-#     {
-#       "Effect": "Allow",
-#       "Action": ["s3:GetObject", "s3:PutObject"],
-#       "Resource": "arn:aws:s3:::mybucket/path/to/something"
-#     }
-#   ]
-# 
