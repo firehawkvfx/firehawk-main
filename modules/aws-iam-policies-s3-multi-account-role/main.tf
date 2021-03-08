@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "multi_account_policy_s3_bucket" {
     actions = [
       "s3:ListBucket"
     ]
-    resources = ["${var.shared_bucket_arn}"]
+    resources = [var.shared_bucket_arn]
   }
   statement {
     effect = "Allow"

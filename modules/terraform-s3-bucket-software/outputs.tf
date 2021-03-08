@@ -3,7 +3,7 @@ output "s3_bucket_software_bucket_domain_name" {
 }
 
 output "multiple_account_iam_role" {
-  value = aws_iam_role.multiple_account_assume_role.arn
+  value = aws_iam_role.multi_account_role.arn
 }
 
 output "bucket_name" {
