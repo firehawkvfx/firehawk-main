@@ -6,9 +6,7 @@ provider "aws" {
   version = "~> 3.15.0"
 }
 
-data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
-data "aws_canonical_user_id" "current" {}
 
 locals {
   common_tags = merge( var.common_tags, { role = "shared bucket" } )
