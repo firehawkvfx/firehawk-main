@@ -5,3 +5,7 @@ output "s3_bucket_software_bucket_domain_name" {
 output "multiple_account_iam_role" {
   value = aws_iam_role.multiple_account_assume_role.arn
 }
+
+output "bucket_name" {
+  value = local.bucket_name
+}

@@ -4,16 +4,21 @@ variable "share_with_arns" {
   default = []
 }
 
-variable "use_vault" {
-  description = "If true, will aquire the bucket name from vault"
-  type = bool
-  default = true
-}
+# variable "use_vault" {
+#   description = "If true, will aquire the bucket name from vault"
+#   type = bool
+#   default = true
+# }
 
-variable "bucket_name" {
-  description = "The name of the s3 bucket to create if not using a vault path."
+# variable "bucket_name" {
+#   description = "The name of the s3 bucket to create if not using a vault path."
+#   type = string
+#   default = ""
+# }
+
+variable "installers_bucket" {
+  description = "The S3 Bucket to persist installation and software to"
   type = string
-  default = ""
 }
 
 # variable "bucket_extension" {
@@ -31,4 +36,9 @@ variable "role_name" {
   description = "Name of the role that multiple accounts can assume for access to the bucket."
   type = string
   default = "multi_account_role"
+}
+
+variable "common_tags" {
+  description = "Common tags for all resources in a deployment run."
+  type        = map(string)
 }
