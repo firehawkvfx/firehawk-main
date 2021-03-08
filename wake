@@ -68,7 +68,11 @@ if [[ "$initialised" == false ]]; then
     exit 1
 fi
 
+vault token lookup
+
 vault login --no-print $VAULT_TOKEN
+
+vault token lookup
 
 cd $SCRIPTDIR/modules/terraform-aws-bastion
 ./generate-plan
