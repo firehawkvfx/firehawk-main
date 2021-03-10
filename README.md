@@ -36,18 +36,6 @@ Your instance should now have permission to create and destroy any resource with
 
 ## Create the Hashicorp Vault deployment
 
-- In the cloud 9 instance, generate an ssh keypair at the deault path and with no password.
-```
-ssh-keygen
-```
-
-- Copy the output of your public key
-```
-cat ~/.ssh/id_rsa.pub
-```
-
-- Paste it into the AWS Management Console | Key Pairs | Import Key Pair.  Name the keypair 'deployuser-main' (Or replace main with the resource tier you are using to deploy into)
-
 - Clone the repo, and install required binaries and packages.
 ```
 git clone --recurse-submodules https://github.com/firehawkvfx/firehawk-main.git
@@ -59,18 +47,9 @@ cd firehawk-main; ./install_packages.sh
 source ./update_vars.sh
 ```
 
-- Setup an S3 bucket for terraform remote state (Only do this once per resourcetier dev/green/blue/main)
+- Initialise an S3 bucket for terraform remote state / the Vault back end (Only do this once per resourcetier or account dev/green/blue/main).  This will also initialise an IAM profile for packer builds to access S3.
 ```
-cd modules/terraform-s3-bucket-remote-backend
-./generate-plan
-terraform apply tfplan
-```
-
-- Setup an S3 bucket for vault. (Only do this once per resourcetier dev/green/blue/main)
-```
-cd modules/terraform-s3-bucket-vault-backend
-./generate-plan
-terraform apply tfplan
+./init
 ```
 
 - Create TLS Certificates for your Vault images
@@ -123,7 +102,7 @@ terraform apply tfplan
 
 - Create KMS Keys to auto unseal the vault
 ```
-cd modules/kms-key
+cd modules/terraform-aws-kms-key
 ./generate-plan
 terraform apply tfplan
 ```

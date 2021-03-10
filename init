@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# This scirpt initialises the requirements for terraform and vault to persist their state.  It only needs to be performed once per acount ever, unless you wish to update permissions.
+
+set -e
+
+exit_if_error() {
+  local exit_code=$1
+  shift
+  [[ $exit_code ]] &&               # do nothing if no error code passed
+    ((exit_code != 0)) && {         # do nothing if error code is 0
+      printf 'ERROR: %s\n' "$@" >&2 # we can use better logging here
+      exit "$exit_code"             # we could also check to make sure
+                                    # error code is numeric when passed
+    }
+}
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+
+source $SCRIPTDIR/update_vars.sh
+
+# Raise error if var isn't defined.
+if [[ -z "$AWS_DEFAULT_REGION" ]]; then
+    exit_if_error 1 "AWS_DEFAULT_REGION not defined."
+fi
+if [[ -z "$TF_VAR_bucket_extension" ]]; then
+    exit_if_error 1 "TF_VAR_bucket_extension not defined."
+fi
+
+local -r private_key_path="/home/$HOME/.ssh/id_rsa"
+if test ! -f "$private_key_path"; then
+    echo "Generating private / public key pair"
+    ssh-keygen -q -t rsa -f  -C "" -N ""
+fi
+
+source $SCRIPTDIR/update_vars.sh
+
+cd $SCRIPTDIR/modules/terraform-s3-bucket-remote-backend
+./generate-plan
+terraform apply -input=false tfplan
+
+cd $SCRIPTDIR/modules/terraform-s3-bucket-software
+./generate-plan
+terraform apply -input=false tfplan # Ensure S3 Bucket exists to persist software
+
+cd $SCRIPTDIR/modules/terraform-s3-bucket-vault-backend
+./generate-plan
+terraform apply -input=false tfplan # Ensure S3 ucket exists to persist vault back end
+
+cd $SCRIPTDIR/modules/terraform-aws-iam-profile-packer
+./generate-plan
+terraform apply -input=false tfplan # Ensure profile exists enabling S3 Access.
+
+cd $SCRIPTDIR/modules/terraform-aws-instance-key-pair
+./generate-plan
+terraform apply -input=false tfplan # Ensure RSA key is available for instances
+
+cd $SCRIPTDIR/modules/terraform-aws-kms-key
+./generate-plan
+terraform apply -input=false tfplan # Ensure KMS key exists for vault

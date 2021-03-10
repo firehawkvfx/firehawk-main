@@ -21,3 +21,8 @@ variable "conflictkey" {
     description = "The conflictkey is a unique name for each deployement usuallly consisting of the resourcetier and the pipeid."
     type = string
 }
+
+variable "common_tags" {
+  description = "Common tags for all resources in a deployment run."
+  type        = map(string)
+}

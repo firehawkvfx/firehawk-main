@@ -13,8 +13,13 @@ exit_if_error() {
 }
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+namespace="$TF_VAR_vpcname-$(basename $SCRIPTDIR)"
+echo "Namespace for terraform remote state: $namespace"
 
 # Raise error if var isn't defined.
+if [[ -z "$TF_VAR_resourcetier" ]]; then
+    exit_if_error 1 "TF_VAR_resourcetier not defined."
+fi
 if [[ -z "$AWS_DEFAULT_REGION" ]]; then
     exit_if_error 1 "AWS_DEFAULT_REGION not defined."
 fi
@@ -25,8 +30,7 @@ fi
 terraform init \
     -input=false \
     -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
-    -backend-config="key=$TF_VAR_resourcetier/kms-key/terraform.tfstate" \
+    -backend-config="key=$TF_VAR_resourcetier/$namespace/terraform.tfstate" \
     -backend-config="region=$AWS_DEFAULT_REGION" \
     -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
-
-terraform plan -out=tfplan -input=false
+terraform plan -out=tfplan -input=false -var "sleep=false"
