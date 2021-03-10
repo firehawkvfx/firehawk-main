@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# This scirpt initialises the requirements for terraform and vault to persist their state.  It only needs to be performed once per acount ever, unless you wish to update permissions.
+
+set -e
+
+exit_if_error() {
+  local exit_code=$1
+  shift
+  [[ $exit_code ]] &&               # do nothing if no error code passed
+    ((exit_code != 0)) && {         # do nothing if error code is 0
+      printf 'ERROR: %s\n' "$@" >&2 # we can use better logging here
+      exit "$exit_code"             # we could also check to make sure
+                                    # error code is numeric when passed
+    }
+}
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+
+source $SCRIPTDIR/update_vars.sh
+
+cd $SCRIPTDIR/modules/terraform-s3-bucket-remote-backend
+./init
+./generate-plan
+terraform apply -input=false tfplan

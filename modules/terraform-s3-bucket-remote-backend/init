@@ -27,11 +27,9 @@ if [[ -z "$TF_VAR_bucket_extension" ]]; then
     exit_if_error 1 "TF_VAR_bucket_extension not defined."
 fi
 
-# Init the s3 backend if it doesn't exist.
+# Init the s3 bucket without the backend, since it doesn't exist yet.
 terraform init \
-    -input=false \
-    -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
-    -backend-config="key=$TF_VAR_resourcetier/$namespace/terraform.tfstate" \
-    -backend-config="region=$AWS_DEFAULT_REGION" \
-    -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
-terraform plan -out=tfplan -input=false
+    -input=false
+terraform plan -out=tfplan -input=false -var
+
+terraform apply -input=false tfplan

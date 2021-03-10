@@ -47,9 +47,14 @@ cd firehawk-main; ./install_packages.sh
 source ./update_vars.sh
 ```
 
-- Initialise an S3 bucket for terraform remote state / the Vault back end (Only do this once per resourcetier or account dev/green/blue/main).  This will also initialise an IAM profile for packer builds to access S3.
+- Initialise an S3 bucket for terraform remote state.  This only needs to be done once per account / tier (main/dev/green/blue)
 ```
-./init
+./init_backend
+```
+
+- Initialise the cloud9 host & Vault back end. This will also initialise an IAM profile for packer builds to access S3.  You will need to do this each time you create a new cloud 9 host.  This will ensure you have an RSA key and configure it to ssh into hosts for testing.  It also ensures your S3 backed is functioning correctly.
+```
+./init_host
 ```
 
 - Create TLS Certificates for your Vault images
