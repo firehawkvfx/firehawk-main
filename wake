@@ -67,7 +67,8 @@ if [[ "$initialised" == false ]]; then
     echo "Vault is not Initialized.  Aborting. You will need to login and initialise the vault"
     exit 1
 fi
-
+sleep 3
+echo "vault token lookup"
 vault token lookup
 
 vault login --no-print $VAULT_TOKEN
