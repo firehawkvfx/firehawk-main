@@ -8,5 +8,5 @@ module "key_pair" {
 
   key_name   = "deployuser-${var.resourcetier}"
   public_key = var.vault_public_key
-  tags = var.common_tags
+  tags       = var.common_tags
 }

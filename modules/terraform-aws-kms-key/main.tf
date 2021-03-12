@@ -14,7 +14,7 @@ locals {
 resource "aws_kms_key" "vault" {
   description             = "Vault unseal key"
   deletion_window_in_days = 10
-  tags  = merge(map("Name", "vault-kms-unseal-${random_pet.env.id}"), local.common_tags)
+  tags                    = merge(map("Name", "vault-kms-unseal-${random_pet.env.id}"), local.common_tags)
 }
 
 resource "aws_ssm_parameter" "vault_kms_unseal" {
@@ -26,7 +26,7 @@ resource "aws_ssm_parameter" "vault_kms_unseal" {
 
 data "aws_ssm_parameter" "vault_kms_unseal" {
   depends_on = [aws_ssm_parameter.vault_kms_unseal]
-  name = "/firehawk/resourcetier/${var.resourcetier}/vault_kms_unseal_key_id"
+  name       = "/firehawk/resourcetier/${var.resourcetier}/vault_kms_unseal_key_id"
 }
 
 data "aws_kms_key" "vault" {
