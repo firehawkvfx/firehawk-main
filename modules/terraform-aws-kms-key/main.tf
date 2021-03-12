@@ -7,20 +7,8 @@ provider "aws" {
 resource "random_pet" "env" {
   length = 2
 }
-
-data "aws_region" "current" {}
-data "aws_caller_identity" "current" {}
-data "aws_canonical_user_id" "current" {}
 locals {
-  common_tags = {
-    environment  = var.environment
-    resourcetier = var.resourcetier
-    conflictkey  = var.resourcetier # The conflict key defines a name space where duplicate resources in different deployments sharing this name can be uniquely recognised. In this case, we only use 1 kms key per resource tier to save costs for creating new keys.  Normally we would also include the pipelineid as well in other circumstances.
-    pipelineid   = var.pipelineid
-    owner        = data.aws_canonical_user_id.current.display_name
-    accountid    = data.aws_caller_identity.current.account_id
-    terraform    = "true"
-  }
+  common_tags = var.common_tags
 }
 
 resource "aws_kms_key" "vault" {
