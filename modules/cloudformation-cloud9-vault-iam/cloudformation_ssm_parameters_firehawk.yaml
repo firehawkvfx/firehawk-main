@@ -15,6 +15,9 @@ Metadata:
           - onsiteprivatesubnetcidr
           - vpncidr
           - globalbucketextension
+          - houdinilicenseserveraddress
+          - sesiclientid
+          - sesiclientsecretkey
     ParameterLabels: 
       resourcetier: 
         default: "Deployment Environment (resourcetier)"
@@ -28,6 +31,12 @@ Metadata:
         default: "The CIDR range Open VPN will use internally for routing"
       globalbucketextension:
         default: "Your Global Bucket Extension"
+      houdinilicenseserveraddress:
+        default: "Your Houdini License Server IP Address"
+      sesiclientid:
+        default: "You Side FX Account API Client ID"
+      sesiclientsecretkey:
+        default: "You Side FX Account API Secret Key"
 
 Parameters:
   resourcetier:
@@ -57,6 +66,17 @@ Parameters:
     Type: String
     Default: "172.20.232.0/24"
     AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([1-2][0-9]|3[0-2]))?$"
+  sesiclientid:
+    Description: 'The client secret key generated from your Side FX Account to automatically download Houdini.'
+    Type: String
+  sesiclientsecretkey:
+    NoEcho: true
+    Description: 'The client ID generated from your Side FX Account to automatically download Houdini.'
+    Type: String
+  houdinilicenseserveraddress:
+    Description: 'The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS).'
+    Type: String
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
   globalbucketextension:
     Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com  eg2: myemailatgmaildotcom'
     Type: String
@@ -126,3 +146,40 @@ Resources:
       Value: !Ref globalbucketextension
       Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com eg2: myemailatgmaildotcom'
       AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
+# For Houdini
+  SSMHoudiniLicenseServerAddress:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /houdini_license_server_address
+      Type: String
+      Value: !Ref houdinilicenseserveraddress
+      Description: 'The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS).'
+      AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+  SSMSESIClientID:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /sesi_client_id
+      Type: String
+      Value: !Ref sesiclientid
+      Description: 'The client ID generated from your Side FX Account to automatically download Houdini.'
+  SSMSESIClientSecretKey:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /sesi_client_secret_key
+      SecretString: !Ref sesiclientsecretkey
+      Description: 'The client secret key generated from your Side FX Account to automatically download Houdini.'
