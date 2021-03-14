@@ -1,0 +1,55 @@
+#!/bin/bash
+set +e
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+
+source $SCRIPTDIR/update_vars.sh
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-vpn
+export TF_VAR_openvpn_server_ami=none
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-vault-client
+export TF_VAR_vault_client_ami_id=none
+export TF_VAR_bastion_public_dns=none
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-bastion
+export TF_VAR_bastion_ami_id=none
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/vault
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-vpc-main-cloud9-peering
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan # Stop peering connection
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/vpc
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-deadline-db
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-openvpn
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-provisioner
+# terraform plan -out=tfplan -input=false -destroy
+# terraform apply -input=false tfplan
+terraform destroy --auto-approve
