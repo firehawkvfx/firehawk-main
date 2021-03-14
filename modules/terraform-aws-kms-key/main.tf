@@ -20,6 +20,7 @@ resource "aws_kms_key" "vault" {
 resource "aws_ssm_parameter" "vault_kms_unseal" {
   name  = "/firehawk/resourcetier/${var.resourcetier}/vault_kms_unseal_key_id"
   type  = "SecureString"
+  overwrite = true
   value = aws_kms_key.vault.id
   tags  = merge(map("Name", "vault_kms_unseal_key_id"), local.common_tags)
 }
