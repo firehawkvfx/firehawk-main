@@ -5,39 +5,39 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 
 source $SCRIPTDIR/update_vars.sh
 
-cd $SCRIPTDIR/modules/terraform-aws-vpn
+cd $TF_VAR_firehawk_path/modules/terraform-aws-vpn
 export TF_VAR_openvpn_server_ami=none
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
-cd $SCRIPTDIR/modules/terraform-aws-vault-client
+cd $TF_VAR_firehawk_path/modules/terraform-aws-vault-client
 export TF_VAR_vault_client_ami_id=none
 export TF_VAR_bastion_public_dns=none
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
-cd $SCRIPTDIR/modules/terraform-aws-bastion
+cd $TF_VAR_firehawk_path/modules/terraform-aws-bastion
 export TF_VAR_bastion_ami_id=none
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
-cd $SCRIPTDIR/modules/vault
+cd $TF_VAR_firehawk_path/modules/vault
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
-# terraform destroy --auto-approve -input=false $SCRIPTDIR/modules/vault # Destroy vault instances. Data is persisted to S3.
+# terraform destroy --auto-approve -input=false $TF_VAR_firehawk_path/modules/vault # Destroy vault instances. Data is persisted to S3.
 
-cd $SCRIPTDIR/modules/terraform-aws-vpc-main-cloud9-peering
+cd $TF_VAR_firehawk_path/modules/terraform-aws-vpc-main-cloud9-peering
 terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan # Stop bastion hosts.
+terraform apply -input=false tfplan # Stop peering connection
 
-cd $SCRIPTDIR/modules/vpc
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
-
-cd $SCRIPTDIR/modules/terraform-aws-iam-profile-deadline-db
+cd $TF_VAR_firehawk_path/modules/vpc
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
-cd $SCRIPTDIR/modules/terraform-aws-iam-profile-provisioner
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-deadline-db
+terraform plan -out=tfplan -input=false -destroy
+terraform apply -input=false tfplan
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-provisioner
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
