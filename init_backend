@@ -19,6 +19,8 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 
 source $SCRIPTDIR/update_vars.sh
 
+echo "You will only have to initialise the bucket for Teraform remote backend once.  So long as the bucket exist, you only need to do this once per resourcetier"
+
 cd $SCRIPTDIR/modules/terraform-s3-bucket-remote-backend
 ./init
 ./generate-plan
