@@ -19,9 +19,9 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 
 source $SCRIPTDIR/update_vars.sh
 
-cd $SCRIPTDIR/modules/terraform-s3-bucket-remote-backend
-./generate-plan
-terraform apply -input=false tfplan # state can be persisted to bucket
+# cd $SCRIPTDIR/modules/terraform-s3-bucket-remote-backend
+# ./generate-plan
+# terraform apply -input=false tfplan # state can be persisted to bucket
 
 cd $SCRIPTDIR/modules/terraform-s3-bucket-software
 ./generate-plan
