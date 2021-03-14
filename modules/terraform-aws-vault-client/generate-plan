@@ -51,10 +51,15 @@ export TF_VAR_bastion_public_dns=$(terraform output public_dns)
 cd "$SCRIPTDIR"
 echo "TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
 
-terraform init \
-    -input=false \
-    -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
-    -backend-config="key=$TF_VAR_resourcetier/terraform-aws-vault-client/terraform.tfstate" \
-    -backend-config="region=$AWS_DEFAULT_REGION" \
-    -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
-terraform plan -out=tfplan -input=false
+# If sourced, dont execute
+(return 0 2>/dev/null) && sourced=1 || sourced=0
+echo "Script sourced: $sourced"
+if [[ "$sourced" -eq 0 ]]; then
+  terraform init \
+      -input=false \
+      -backend-config="bucket=state.terraform.$TF_VAR_bucket_extension" \
+      -backend-config="key=$TF_VAR_resourcetier/terraform-aws-vault-client/terraform.tfstate" \
+      -backend-config="region=$AWS_DEFAULT_REGION" \
+      -backend-config="dynamodb_table=locks.state.terraform.$TF_VAR_bucket_extension"
+  terraform plan -out=tfplan -input=false
+fi
