@@ -23,15 +23,15 @@ source $SCRIPTDIR/update_vars.sh
 # ./generate-plan
 # terraform apply -input=false tfplan # state can be persisted to bucket
 
-cd $SCRIPTDIR/modules/terraform-s3-bucket-software
+cd $TF_VAR_firehawk_path/modules/terraform-s3-bucket-software
 ./generate-plan
 terraform apply -input=false tfplan # Ensure S3 Bucket exists to persist software
 
-cd $SCRIPTDIR/modules/terraform-s3-bucket-vault-backend
+cd $TF_VAR_firehawk_path/modules/terraform-s3-bucket-vault-backend
 ./generate-plan
 terraform apply -input=false tfplan # Ensure S3 ucket exists to persist vault back end
 
-cd $SCRIPTDIR/modules/terraform-aws-iam-profile-packer
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-packer
 ./generate-plan
 terraform apply -input=false tfplan # Ensure profile exists enabling S3 Access.
 
@@ -55,10 +55,10 @@ fi
 
 source $SCRIPTDIR/update_vars.sh
 
-cd $SCRIPTDIR/modules/terraform-aws-instance-key-pair
+cd $TF_VAR_firehawk_path/modules/terraform-aws-instance-key-pair
 ./generate-plan
 terraform apply -input=false tfplan # Ensure RSA key is available for instances
 
-cd $SCRIPTDIR/modules/terraform-aws-kms-key
+cd $TF_VAR_firehawk_path/modules/terraform-aws-kms-key
 ./generate-plan
 terraform apply -input=false tfplan # Ensure KMS key exists for vault
