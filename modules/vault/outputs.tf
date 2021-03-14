@@ -8,6 +8,7 @@ output "Instructions" {
   ssh ubuntu@(Vault Private IP)
   export VAULT_ADDR=https://127.0.0.1:8200
   vault operator init -recovery-shares=1 -recovery-threshold=1
+  vault login (Root token provided above)
 
   Store the initial root token provided in a password manager (encrypted).
 
