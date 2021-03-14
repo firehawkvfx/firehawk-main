@@ -82,7 +82,7 @@ query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" -
 if [[ "$query" != "null" ]]; then
     # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     export TF_VAR_vault_consul_ami_id="$query"
-    echo "Found vault_consul_ami with tag matching commit: TF_VAR_vault_consul_ami_id=$TF_VAR_vault_consul_ami_id"
+    echo "Found $ami_role with tag matching commit: TF_VAR_vault_consul_ami_id=$TF_VAR_vault_consul_ami_id"
 fi
 if [[ -z "$TF_VAR_vault_consul_ami_id" ]]; then
   log_warn "Images required for deployment are not present.  You will need to build them before continuing."
@@ -95,7 +95,7 @@ echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
 query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
 if [[ "$query" != "null" ]]; then
     export TF_VAR_vault_client_ami_id="$query"
-    echo "Found vault_client_ami with tag matching commit: TF_VAR_vault_client_ami_id=$TF_VAR_vault_client_ami_id"
+    echo "Found $ami_role with tag matching commit: TF_VAR_vault_client_ami_id=$TF_VAR_vault_client_ami_id"
 fi
 if [[ -z "$TF_VAR_vault_client_ami_id" ]]; then
   log_warn "Images required for deployment are not present.  You will need to build them before continuing."
@@ -109,7 +109,7 @@ query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" -
 if [[ "$query" != "null" ]]; then
     # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     export TF_VAR_bastion_ami_id="$query"
-    echo "Found vault_consul_ami with tag matching commit: TF_VAR_bastion_ami_id=$TF_VAR_bastion_ami_id"
+    echo "Found $ami_role with tag matching commit: TF_VAR_bastion_ami_id=$TF_VAR_bastion_ami_id"
 fi
 if [[ -z "$TF_VAR_bastion_ami_id" ]]; then
   log_warn "Images required for deployment are not present.  You will need to build them before continuing."
@@ -122,7 +122,7 @@ echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
 query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
 if [[ "$query" != "null" ]]; then
     export TF_VAR_openvpn_server_ami="$query"
-    echo "Found openvpn_server_ami with tag matching commit: TF_VAR_openvpn_server_ami=$TF_VAR_openvpn_server_ami"
+    echo "Found $ami_role with tag matching commit: TF_VAR_openvpn_server_ami=$TF_VAR_openvpn_server_ami"
 fi
 if [[ -z "$TF_VAR_openvpn_server_ami" ]]; then
   log_warn "Images required for deployment are not present.  You will need to build them before continuing."
