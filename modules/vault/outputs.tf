@@ -23,7 +23,7 @@ output "Instructions" {
   You should be able to login from this instance with:
   vault login
 
-  continue to modules/vault-configuration to intialise values for first time use:
+  continue to `cd modules/vault-configuration` to intialise values for first time use:
   ./generate-plan-init
   terraform apply "tfplan"
 
@@ -35,9 +35,9 @@ output "Instructions" {
   terraform apply "tfplan"
 
   You can now sign the cloud 9 host for SSH in modules by running
-  known-hosts/known_hosts.sh
-  sign-host-key/sign_host_key.sh
-  sign-ssh-key/sign_ssh_key.sh
+  ./modules/known-hosts/known_hosts.sh
+  ./modules/sign-host-key/sign_host_key.sh
+  ./modules/sign-ssh-key/sign_ssh_key.sh
 
   # after this one time initialisation you can use the "wake" script to continue. 
 EOF
