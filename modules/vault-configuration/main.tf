@@ -252,20 +252,26 @@ resource "vault_aws_auth_backend_role" "deadline_db" {
   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
 }
 
-module "vault_client_vpn_server_iam" {
-  # The arn of a role will turn into an id when it is created, which may change, so we may get issues refs in vault will be incorrect.  To fix this if it is encountered, or If the VPN role requires any more permissions, do not modify the modules/aws-iam-role-vault-client, since it is just a method to generate minimum permissions with a unique name - rather create a seperate profile similar to the deadline DB example.
-  source       = "../../modules/aws-iam-role-vault-client"
-  role_name    = "VPNServerRole_${var.conflictkey}"
-  environment  = var.environment
-  resourcetier = var.resourcetier
-  conflictkey  = var.conflictkey
-  pipelineid   = var.pipelineid
-  common_tags  = var.common_tags
+data "terraform_remote_state" "openvpn_profile" { # read the arn with data.terraform_remote_state.openvpn_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.openvpn_profile.outputs.instance_profile_name
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "${var.resourcetier}/${var.common_tags["vpcname"]}-terraform-aws-iam-profile-openvpn/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
 }
-resource "aws_iam_instance_profile" "vpn_server_instance_profile" {
-  name = "VPNServerProfile_${var.conflictkey}"
-  role = "VPNServerRole_${var.conflictkey}"
-}
+
+# module "vault_client_vpn_server_iam" { # temp disabled until this can be provisioned correctly
+#   # The arn of a role will turn into an id when it is created, which may change, so we may get issues refs in vault will be incorrect.  To fix this if it is encountered, or If the VPN role requires any more permissions, do not modify the modules/aws-iam-role-vault-client, since it is just a method to generate minimum permissions with a unique name - rather create a seperate profile similar to the deadline DB example.
+#   source       = "../../modules/aws-iam-role-vault-client"
+#   role_name    = "VPNServerRole_${var.conflictkey}"
+#   environment  = var.environment
+#   resourcetier = var.resourcetier
+#   conflictkey  = var.conflictkey
+#   pipelineid   = var.pipelineid
+#   common_tags  = var.common_tags
+# }
+
 # resource "vault_aws_auth_backend_role" "vpn_server" {
 #   backend                         = vault_auth_backend.aws.path
 #   token_ttl                       = 60
