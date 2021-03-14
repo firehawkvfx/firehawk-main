@@ -5,6 +5,7 @@ output "security_group_id_consul_cluster" {
 output "Instructions" {
   value = <<EOF
   To initialise the vault on first start ssh to a vault server and run:
+  export VAULT_ADDR=https://vault.service.consul:8200
   vault operator init -recovery-shares=1 -recovery-threshold=1
   Store the initial root token provided in a password manager (encrypted).
 
