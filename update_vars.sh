@@ -72,12 +72,19 @@ else
 fi
 export TF_VAR_firehawk_path=$SCRIPTDIR
 
-# Packer Vars
-if [[ -f "$SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json" ]]; then
-    export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
-    echo "Found vault_consul_ami in manifest: PKR_VAR_vault_consul_ami=$PKR_VAR_vault_consul_ami"
-    export TF_VAR_vault_consul_ami_id=$PKR_VAR_vault_consul_ami
+# AMI query by commit
+export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
+echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
+query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=firehawk_ubuntu18_vault_consul_server_ami" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+if [[ "$query" != "null" ]]; then
+    # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+    export TF_VAR_vault_consul_ami_id="$query"
+    echo "Found vault_consul_ami with tag matching commit: TF_VAR_vault_consul_ami_id=$TF_VAR_vault_consul_ami_id"
 fi
+if [[ -z "$TF_VAR_vault_consul_ami_id" ]]; then
+  log_warn "Images required for deployment are not present.  You will need to build them before continuing."
+fi
+
 export PACKER_LOG=1
 export PACKER_LOG_PATH="packerlog.log"
 export TF_VAR_provisioner_iam_profile_name="provisioner_instance_role_$TF_VAR_conflictkey"
@@ -102,9 +109,6 @@ export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
-export TF_VAR_ami_commit_hash="$(cd $SCRIPTDIR/../packer-firehawk-amis/firehawk-ami; git rev-parse HEAD)"
-echo "Query AMI for Vault server"
-aws ec2 describe-images --filters "Name=tag:ami_role,Values=firehawk_ubuntu18_vault_consul_server_ami" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'Images[*]' --output json
 
 get_parameters=$( aws ssm get-parameters --names \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_public_ip" \
