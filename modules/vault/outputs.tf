@@ -6,9 +6,12 @@ output "Instructions" {
   value = <<EOF
   To initialise the vault on first start ssh to a vault server and init:
   ssh ubuntu@(Vault Private IP)
+  export VAULT_ADDR=https://vault.service.consul:8200
+  or
   export VAULT_ADDR=https://127.0.0.1:8200
   vault operator init -recovery-shares=1 -recovery-threshold=1
   vault login (Root token provided above)
+  vault status
 
   Store the initial root token provided in a password manager (encrypted).  Next you will configure vault policies...
 
