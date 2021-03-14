@@ -79,30 +79,30 @@ if [[ "$PKR_VAR_resourcetier" != "dev" ]]; then
   latest_ami=false
 fi
 
-# # AMI query by commit - Vault and Consul Servers
-# export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
-# ami_role="firehawk_ubuntu18_vault_consul_server_ami"
+# AMI query by commit - Vault and Consul Servers
+export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
+ami_role="firehawk_ubuntu18_vault_consul_server_ami"
 
-# if [[ "$latest_ami" == true ]]; then
-#   ami_filters="Name=tag:ami_role,Values=$ami_role"
-#   printf "\n...Query latest AMI"
-# else
-#   ami_filters="Name=tag:ami_role,Values=$ami_role Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash"
-#   printf "\n...Query AMI with commit: $TF_VAR_ami_commit_hash"
-# fi
+if [[ "$latest_ami" == true ]]; then
+  ami_filters="Name=tag:ami_role,Values=$ami_role"
+  printf "\n...Query latest AMI"
+else
+  ami_filters="Name=tag:ami_role,Values=$ami_role Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash"
+  printf "\n...Query AMI with commit: $TF_VAR_ami_commit_hash"
+fi
 
-# query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
-# if [[ "$query" != "null" ]]; then
-#     # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
-#     export TF_VAR_vault_consul_ami_id="$query"
-#     printf "\nFound $ami_role TF_VAR_vault_consul_ami_id="
-#     printf "\n  $TF_VAR_vault_consul_ami_id\n"
-# fi
-# if [[ -z "$TF_VAR_vault_consul_ami_id" ]]; then
-#   log_warn "Images required for deployment are not present.  You will need to build them before continuing."
-# fi
+query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+if [[ "$query" != "null" ]]; then
+    # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+    export TF_VAR_vault_consul_ami_id="$query"
+    printf "\nFound $ami_role TF_VAR_vault_consul_ami_id="
+    printf "\n  $TF_VAR_vault_consul_ami_id\n"
+fi
+if [[ -z "$TF_VAR_vault_consul_ami_id" ]]; then
+  log_warn "Images required for deployment are not present.  You will need to build them before continuing."
+fi
 
-export TF_VAR_vault_consul_ami_id="ami-00fc4f49f138d7970" # temp debugging
+# export TF_VAR_vault_consul_ami_id="ami-00fc4f49f138d7970" # temp debugging to override ami
 
 # AMI query by commit - Vault and Consul Client
 ami_role="firehawk_centos7_ami"

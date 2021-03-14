@@ -4,9 +4,11 @@ output "security_group_id_consul_cluster" {
 
 output "Instructions" {
   value = <<EOF
-  To initialise the vault on first start ssh to a vault server and run:
-  export VAULT_ADDR=https://vault.service.consul:8200
+  To initialise the vault on first start ssh to a vault server and init:
+  ssh ubuntu@(Vault Private IP)
+  export VAULT_ADDR=https://127.0.0.1:8200
   vault operator init -recovery-shares=1 -recovery-threshold=1
+
   Store the initial root token provided in a password manager (encrypted).
 
   To connect this current instance to the vault for the first time, and updating the certificate, install vault without sudo:
