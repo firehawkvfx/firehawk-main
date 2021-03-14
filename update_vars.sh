@@ -91,7 +91,7 @@ else
   printf "\n...Query AMI with commit: $TF_VAR_ami_commit_hash"
 fi
 
-query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[-1]' --raw-output)
 if [[ "$query" != "null" ]]; then
     # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     export TF_VAR_vault_consul_ami_id="$query"
@@ -116,7 +116,7 @@ else
   printf "\n...Query AMI with commit: $TF_VAR_ami_commit_hash"
 fi
 
-query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[-1]' --raw-output)
 if [[ "$query" != "null" ]]; then
     export TF_VAR_vault_client_ami_id="$query"
     printf "\nFound $ami_role TF_VAR_vault_client_ami_id="
@@ -138,7 +138,7 @@ else
   printf "\n...Query AMI with commit: $TF_VAR_ami_commit_hash"
 fi
 
-query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[-1]' --raw-output)
 if [[ "$query" != "null" ]]; then
     # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     export TF_VAR_bastion_ami_id="$query"
@@ -161,7 +161,7 @@ else
   printf "\n...Query AMI with commit: $TF_VAR_ami_commit_hash"
 fi
 
-query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+query=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[-1]' --raw-output)
 if [[ "$query" != "null" ]]; then
     export TF_VAR_openvpn_server_ami="$query"
     printf "\nFound $ami_role TF_VAR_openvpn_server_ami="
