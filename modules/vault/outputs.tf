@@ -27,8 +27,18 @@ output "Instructions" {
   ./generate-plan-init
   terraform apply "tfplan"
 
+  Create a new token under th admins policy, and do not use the root token from now on:
+  vault token create -policy=admins
+
   The apply the rest of the policies,  this step can be performed at any time you wish to update policies provided you are logged in as an admin.
   ./generate-plan
   terraform apply "tfplan"
+
+  You can now sign the cloud 9 host for SSH in modules by running
+  known-hosts/known_hosts.sh
+  sign-host-key/sign_host_key.sh
+  sign-ssh-key/sign_ssh_key.sh
+
+  # after this one time initialisation you can use the "wake" script to continue. 
 EOF
 }
