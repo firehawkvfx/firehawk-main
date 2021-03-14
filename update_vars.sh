@@ -102,6 +102,9 @@ export TF_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export PKR_VAR_consul_cluster_tag_key="$consul_cluster_tag_key"
 export TF_VAR_consul_cluster_name="$consul_cluster_tag_value"
 export PKR_VAR_consul_cluster_tag_value="$consul_cluster_tag_value"
+export TF_VAR_ami_commit_hash="$(cd $SCRIPTDIR/../packer-firehawk-amis/firehawk-ami; git rev-parse HEAD)"
+echo "Query AMI for Vault server"
+aws ec2 describe-images --filters "Name=tag:ami_role,Values=firehawk_ubuntu18_vault_consul_server_ami" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'Images[*]' --output json
 
 get_parameters=$( aws ssm get-parameters --names \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_public_ip" \
