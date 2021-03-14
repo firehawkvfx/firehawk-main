@@ -33,19 +33,6 @@ fi
 #     exit 1
 # fi
 
-# AMI query by commit
-ami_role="firehawk_centos7_ami"
-export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
-echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
-query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$firehawk_centos7_ami" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
-if [[ "$query" != "null" ]]; then
-    export TF_VAR_vault_client_ami_id="$query"
-    echo "Found vault_client_ami with tag matching commit: TF_VAR_vault_client_ami_id=$TF_VAR_vault_client_ami_id"
-fi
-if [[ -z "$TF_VAR_vault_client_ami_id" ]]; then
-  exit_if_error 1 "Images required for deployment are not present.  You will need to build them before continuing."
-fi
-
 cd "$SCRIPTDIR/../terraform-aws-bastion"
 export TF_VAR_bastion_public_dns=$(terraform output public_dns)
 cd "$SCRIPTDIR"

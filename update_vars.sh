@@ -72,16 +72,59 @@ else
 fi
 export TF_VAR_firehawk_path=$SCRIPTDIR
 
-# AMI query by commit
+### Query existance of images required for deployment of instances.  Some parts of infrastructure can be deployed without images
+
+# AMI query by commit - Vault and Consul Servers
 export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
+ami_role="firehawk_ubuntu18_vault_consul_server_ami"
 echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
-query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=firehawk_ubuntu18_vault_consul_server_ami" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
 if [[ "$query" != "null" ]]; then
     # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
     export TF_VAR_vault_consul_ami_id="$query"
     echo "Found vault_consul_ami with tag matching commit: TF_VAR_vault_consul_ami_id=$TF_VAR_vault_consul_ami_id"
 fi
 if [[ -z "$TF_VAR_vault_consul_ami_id" ]]; then
+  log_warn "Images required for deployment are not present.  You will need to build them before continuing."
+fi
+
+# AMI query by commit - Vault and Consul Client
+ami_role="firehawk_centos7_ami"
+export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
+echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
+query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+if [[ "$query" != "null" ]]; then
+    export TF_VAR_vault_client_ami_id="$query"
+    echo "Found vault_client_ami with tag matching commit: TF_VAR_vault_client_ami_id=$TF_VAR_vault_client_ami_id"
+fi
+if [[ -z "$TF_VAR_vault_client_ami_id" ]]; then
+  log_warn "Images required for deployment are not present.  You will need to build them before continuing."
+fi
+
+# AMI query by commit - Bastion Host
+ami_role="firehawk_centos7_ami"
+export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
+echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
+query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+if [[ "$query" != "null" ]]; then
+    # export PKR_VAR_vault_consul_ami="$(jq -r '.builds[] | select(.name == "ubuntu18-ami") | .artifact_id' $SCRIPTDIR/modules/terraform-aws-vault/examples/vault-consul-ami/manifest.json | tail -1 | cut -d ":" -f2)"
+    export TF_VAR_bastion_ami_id="$query"
+    echo "Found vault_consul_ami with tag matching commit: TF_VAR_bastion_ami_id=$TF_VAR_bastion_ami_id"
+fi
+if [[ -z "$TF_VAR_bastion_ami_id" ]]; then
+  log_warn "Images required for deployment are not present.  You will need to build them before continuing."
+fi
+
+# AMI query by commit - Open VPN Server
+ami_role="firehawk_openvpn_server_ami"
+export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
+echo "Query AMI for Vault server with commit: $TF_VAR_ami_commit_hash"
+query=$(aws ec2 describe-images --filters "Name=tag:ami_role,Values=$ami_role" --filters "Name=tag:commit_hash,Values=$TF_VAR_ami_commit_hash" --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[0]' --raw-output)
+if [[ "$query" != "null" ]]; then
+    export TF_VAR_openvpn_server_ami="$query"
+    echo "Found openvpn_server_ami with tag matching commit: TF_VAR_openvpn_server_ami=$TF_VAR_openvpn_server_ami"
+fi
+if [[ -z "$TF_VAR_openvpn_server_ami" ]]; then
   log_warn "Images required for deployment are not present.  You will need to build them before continuing."
 fi
 
