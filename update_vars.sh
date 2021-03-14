@@ -73,6 +73,7 @@ fi
 export TF_VAR_firehawk_path=$SCRIPTDIR
 
 ### Query existance of images required for deployment of instances.  Some parts of infrastructure can be deployed without images
+# latest=true
 
 # AMI query by commit - Vault and Consul Servers
 export TF_VAR_ami_commit_hash="$(cd $TF_VAR_firehawk_path/../packer-firehawk-amis/modules/firehawk-ami; git rev-parse HEAD)"
