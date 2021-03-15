@@ -73,7 +73,16 @@ if [[ "$initialised" == false ]]; then
 fi
 sleep 3
 echo "vault token lookup"
-vault token lookup
+
+output=$(vault token lookup) && exit_status=0 || exit_status=$?
+errors=$(echo "$output") | grep '^{' | jq -r .errors
+echo "$output"
+if [[ $exit_status -eq 0 && -z "$errors" ]]; then
+    echo "$output"
+else
+    echo "Wake iterrupted. To continue, first use: vault login"
+    exit 0
+fi
 
 vault login --no-print $VAULT_TOKEN
 
