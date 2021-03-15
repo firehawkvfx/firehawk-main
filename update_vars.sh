@@ -184,9 +184,14 @@ export PKR_VAR_packer_iam_profile_name="packer_instance_role_$TF_VAR_conflictkey
 # Terraform Vars
 export TF_VAR_general_use_ssh_key="$HOME/.ssh/id_rsa" # For debugging deployment of most resources- not for production use.
 export TF_VAR_aws_private_key_path="$TF_VAR_general_use_ssh_key"
+
+# SSH Public Key is used for debugging instances only.  Not for general use.  Use SSH Certificates instead.
+export TF_VAR_aws_key_name="cloud9_$TF_VAR_cloud9_instance_name"
+# export TF_VAR_aws_key_name="deployer-key-$TF_VAR_resourcetier"
 public_key_path="$HOME/.ssh/id_rsa.pub"
 if [[ ! -f $public_key_path ]] ; then
     echo "File $public_key_path is not there, aborting. Ensure you have initialised a keypair with ssh-keygen"
+    # ssh-keygen -t rsa -C "my-key" -f ~/.ssh/my-key
     return
 fi
 export TF_VAR_vault_public_key=$(cat $public_key_path)
