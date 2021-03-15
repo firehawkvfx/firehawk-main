@@ -53,7 +53,7 @@ variable "public_subnet_ids" {
   default     = []
 }
 variable "aws_key_name" {
-  description = "The name of the AWS PEM key for access to the VPN instance"
+  description = "The name of the AWS PEM key for access to the instance"
   type        = string
   default     = null
 }

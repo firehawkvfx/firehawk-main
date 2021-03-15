@@ -11,3 +11,8 @@ variable "common_tags" {
   description = "Common tags for all resources in a deployment run."
   type        = map(string)
 }
+
+variable "aws_key_name" {
+  description = "The name of the AWS PEM key for access to the instance"
+  type        = string
+}
