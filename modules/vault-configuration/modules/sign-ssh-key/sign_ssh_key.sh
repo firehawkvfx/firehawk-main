@@ -185,6 +185,13 @@ function install {
   configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
   if [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
+    # if public key doesn't exist, allow user to paste it in
+    if test ! -f "$public_key"; then
+      log_info "Public key not present at location.  You can paste the contents of the new file here:"
+      mkdir -p $(dirname "$public_key")
+      read public_key_content
+      echo "$public_key_content" | tee "$public_key"
+    fi
     log_info "Requesting Vault sign public key for this SSH client..."
     cert=${public_key/.pub/-cert.pub}
     request_sign_public_key "$public_key" "$trusted_ca" "$cert"

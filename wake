@@ -80,12 +80,9 @@ echo "$output"
 if [[ $exit_status -eq 0 && -z "$errors" ]]; then
     echo "$output"
 else
-    echo "Wake iterrupted. To continue, first use: vault login"
-    exit 0
+    echo "...logging in. Or exit and use: vault login --no-print"
+    vault login --no-print $VAULT_TOKEN
 fi
-
-vault login --no-print $VAULT_TOKEN
-
 vault token lookup
 
 cd $SCRIPTDIR/modules/terraform-aws-bastion
