@@ -41,6 +41,10 @@ resource "vault_policy" "vpn_server_policy" {
   name   = "vpn_server"
   policy = file("policies/vpn_server_policy.hcl")
 }
+resource "vault_policy" "vpn_read_config_policy" {
+  name   = "vpn_server"
+  policy = file("policies/vpn_read_config_policy.hcl")
+}
 
 resource "vault_policy" "pki_int_policy" {
   name   = "pki_int"

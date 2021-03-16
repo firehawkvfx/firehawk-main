@@ -47,16 +47,16 @@ locals {
     # },
     "network/openvpn_admin_pw": {
       "name": "openvpn_admin_pw",
-      "description": "The password for the admin to configure OpenVPN Access Server (at least 8 characters).",
+      "description": "The dynamic password for the admin to configure OpenVPN Access Server (at least 8 characters).",
       "default": "",
       "example_1": "MySecretAdminPassword",
     },
-    # "network/openvpn_user_pw": {
-    #   "name": "openvpn_user_pw",
-    #   "description": "The password for the user to establish a vpn connection (at least 8 characters).",
-    #   "default": "",
-    #   "example_1": "MySecretUserPassword",
-    # }    
+    "network/openvpn_user_pw": {
+      "name": "openvpn_user_pw",
+      "description": "The dynamic password for the user to establish a vpn connection (at least 8 characters).",
+      "default": "",
+      "example_1": "MySecretUserPassword",
+    }    
   } )
   dev = merge(local.defaults, tomap( {
     "aws/bucket_extension": {
