@@ -16,6 +16,15 @@ path "auth/token/renew-self" {
   capabilities = ["update"]
 }
 
+# This is used to query capabilities, for diagnostic https://www.vaultproject.io/docs/commands/token/capabilities
+path "/sys/capabilities" {
+  capabilities = ["list", "read"]
+}
+
+path "/sys/capabilities-self" {
+  capabilities = ["list", "read"]
+}
+
 # The provisioner policy is for packer instances and other automation that requires read access to vault
 
 path "dev/data/network/*"

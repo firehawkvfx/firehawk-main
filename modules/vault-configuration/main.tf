@@ -42,7 +42,7 @@ resource "vault_policy" "vpn_server_policy" {
   policy = file("policies/vpn_server_policy.hcl")
 }
 resource "vault_policy" "vpn_read_config_policy" {
-  name   = "vpn_server"
+  name   = "vpn_read_config"
   policy = file("policies/vpn_read_config_policy.hcl")
 }
 
@@ -144,7 +144,7 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
   # disallowed_policies = ["default"]
   # token_bound_cidrs = ["10.0.0.0/16"]
   # token_num_uses   = 1
-  token_period           = 600
+  token_period           = 1200
   renewable              = true
   token_explicit_max_ttl = 86400
   # orphan           = true
