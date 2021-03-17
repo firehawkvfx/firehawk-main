@@ -8,6 +8,11 @@ path "auth/token/revoke-accessor" {
   capabilities = ["update"]
 }
 
+path "dev/data/user"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 # provide ability to read stored vpn file paths
 
 path "dev/data/files/usr/local/openvpn_as/scripts/seperate/*"
