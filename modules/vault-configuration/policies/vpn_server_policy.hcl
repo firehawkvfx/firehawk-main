@@ -17,11 +17,11 @@ path "auth/token/renew-self" {
 }
 
 # This is used to query capabilities, for diagnostic https://www.vaultproject.io/docs/commands/token/capabilities
-path "/sys/capabilities" {
+path "sys/capabilities" {
   capabilities = ["list", "read"]
 }
 
-path "/sys/capabilities-self" {
+path "sys/capabilities-self" {
   capabilities = ["list", "read"]
 }
 
