@@ -8,10 +8,10 @@ path "auth/token/revoke-accessor" {
   capabilities = ["update"]
 }
 
-path "dev/data/user"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+# path "dev/data/user"
+# {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
 # provide ability to read stored vpn file paths
 
