@@ -17,12 +17,13 @@ path "auth/token/renew-self" {
 }
 
 # This is used to query capabilities, for diagnostic https://www.vaultproject.io/docs/commands/token/capabilities
+# https://discuss.hashicorp.com/t/any-vault-cli-query-to-check-if-i-am-logged-in/21773/5
 path "sys/capabilities" {
-  capabilities = ["list", "read"]
+  capabilities = ["list", "read", "update"]
 }
 
 path "sys/capabilities-self" {
-  capabilities = ["list", "read"]
+  capabilities = ["list", "read", "update"]
 }
 
 # The provisioner policy is for packer instances and other automation that requires read access to vault
