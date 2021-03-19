@@ -51,7 +51,7 @@ function retrieve_ami {
   # this query by aws will return null presently if invalid
   ami_result=$(aws ec2 describe-images --filters $ami_filters --owners self --region $AWS_DEFAULT_REGION --query 'sort_by(Images, &CreationDate)[].ImageId' --output json | jq '.[-1]' --raw-output)
 
-  return $ami_result
+  echo "$ami_result"
 }
 
 function warn_if_invalid {
