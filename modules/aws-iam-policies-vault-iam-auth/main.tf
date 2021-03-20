@@ -3,6 +3,10 @@
 terraform {
   required_version = ">= 0.13.5"
 }
+data "aws_caller_identity" "current" {}
+locals {
+  share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
+}
 
 resource "aws_iam_role_policy" "vault_iam_auth" {
   name   = var.name
@@ -21,13 +25,14 @@ data "aws_iam_policy_document" "vault_iam_auth" {
     ]
     resources = ["*"]
   }
-  # statement { # This block is only required for cross account access
-  #   effect = "Allow"
-  #   actions = [
-  #     "sts:AssumeRole"
-  #   ]
-  #   resources = ["arn:aws:iam::<AccountId>:role/<VaultRole>"]
-  # }
+  statement { # This block is only required for cross account access
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    # resources = ["arn:aws:iam::<AccountId>:role/<VaultRole>"]
+    resources = share_with_arns
+  }
   statement {
     sid = "ManageOwnAccessKeys"
     effect = "Allow"

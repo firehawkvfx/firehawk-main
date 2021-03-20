@@ -16,8 +16,23 @@ data "aws_iam_policy_document" "assume_role" { # Determines the services able to
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
+    # principals {
+    #   type        = "AWS"
+    #   identifiers = local.share_with_arns
+    # }
   }
 }
+# Define who is allowed to assume the role
+# data "aws_iam_policy_document" "multi_account_assume_role_policy" {
+#   statement {
+#     effect = "Allow"
+#     principals {
+#       type        = "AWS"
+#       identifiers = local.share_with_arns
+#     }
+#     actions = ["sts:AssumeRole"]
+#   }
+# }
 # Required for the IAM Profile Auth method since the Deadline DB host will generally not be accessible to users, it must manage certificates itself.
 module "iam_policies_vault_iam_auth" {
   source = "../../modules/aws-iam-policies-vault-iam-auth"

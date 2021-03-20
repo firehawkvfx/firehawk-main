@@ -7,7 +7,6 @@ provider "aws" {
 }
 
 data "aws_caller_identity" "current" {}
-
 locals {
   common_tags = merge( var.common_tags, { role = "shared bucket" } )
   share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
