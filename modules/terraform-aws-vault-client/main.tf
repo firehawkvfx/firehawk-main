@@ -69,6 +69,7 @@ locals {
     route = "public"
   })
   common_tags = var.common_tags
+  vpcname     = local.common_tags["vpcname"]
   mount_path  = var.resourcetier
   vpc_id      = data.aws_vpc.primary.id
   vpc_cidr    = data.aws_vpc.primary.cidr_block
@@ -95,9 +96,9 @@ module "vault_client" {
   permitted_cidr_list    = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr, local.onsite_private_subnet_cidr, local.vpn_cidr]
   security_group_ids     = [data.terraform_remote_state.bastion_security_group.outputs.security_group_id]
 
-  aws_key_name           = var.aws_key_name
-  common_tags            = local.common_tags
-  vpcname                = local.common_tags["vpcname"]
+  aws_key_name = var.aws_key_name
+  common_tags  = local.common_tags
+
   bucket_extension_vault = var.bucket_extension_vault
   resourcetier_vault     = var.resourcetier_vault
   vpcname_vault          = var.vpcname_vault
