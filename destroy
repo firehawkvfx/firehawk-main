@@ -36,6 +36,9 @@ destroy "$aggressive"
 cd $TF_VAR_firehawk_path/modules/vault
 destroy "$aggressive"
 
+cd $TF_VAR_firehawk_path/modules/terraform-aws-sg-bastion
+destroy "$aggressive"
+
 cd $TF_VAR_firehawk_path/modules/terraform-aws-vpc-main-cloud9-peering
 destroy "$aggressive"
 
@@ -49,9 +52,6 @@ cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-openvpn
 destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-bastion
-destroy "$aggressive"
-
-cd $TF_VAR_firehawk_path/modules/terraform-aws-sg-bastion
 destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-vault-client

@@ -38,9 +38,6 @@ apply
 cd $SCRIPTDIR/modules/terraform-aws-iam-profile-bastion
 apply
 
-cd $SCRIPTDIR/modules/terraform-aws-sg-bastion
-apply
-
 cd $SCRIPTDIR/modules/terraform-aws-iam-profile-openvpn
 apply
 
@@ -51,6 +48,9 @@ cd $SCRIPTDIR/modules/vpc
 apply
 
 cd $SCRIPTDIR/modules/terraform-aws-vpc-main-cloud9-peering
+apply
+
+cd $SCRIPTDIR/modules/terraform-aws-sg-bastion
 apply
 
 cd $SCRIPTDIR/modules/vault
