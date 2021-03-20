@@ -3,48 +3,59 @@ set -e
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
+aggressive=false
+if [[ "$1" == "aggressive" ]];
+    set +e
+    aggressive=true
+fi
+
+function destroy {
+    if [[ "$1"==true ]]; then
+        terraform destroy --auto-approve
+    else
+        terraform plan -out=tfplan -input=false -destroy
+        terraform apply -input=false tfplan
+    fi
+}
+
 source $SCRIPTDIR/update_vars.sh
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-vpn
 export TF_VAR_openvpn_server_ami=none
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-vault-client
 export TF_VAR_vault_client_ami_id=none
 export TF_VAR_bastion_public_dns=none
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-bastion
 export TF_VAR_bastion_ami_id=none
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/vault
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-vpc-main-cloud9-peering
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan # Stop peering connection
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/vpc
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-deadline-db
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-openvpn
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
+
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-bastion
+destroy "$aggressive"
+
+cd $TF_VAR_firehawk_path/modules/modules/terraform-aws-sg-bastion
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-vault-client
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"
 
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-provisioner
-terraform plan -out=tfplan -input=false -destroy
-terraform apply -input=false tfplan
+destroy "$aggressive"

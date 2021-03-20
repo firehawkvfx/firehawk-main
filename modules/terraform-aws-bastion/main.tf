@@ -92,4 +92,7 @@ module "bastion" {
   route_zone_id            = local.route_zone_id
   public_domain_name       = local.public_domain_name
   common_tags              = local.common_tags
+  bucket_extension_vault = var.bucket_extension_vault
+  resourcetier_vault = var.resourcetier_vault
+  vpcname_vault = var.vpcname_vault
 }
