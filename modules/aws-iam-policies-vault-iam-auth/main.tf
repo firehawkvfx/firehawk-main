@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "vault_iam_auth" {
       "sts:AssumeRole"
     ]
     # resources = ["arn:aws:iam::<AccountId>:role/<VaultRole>"]
-    resources = share_with_arns
+    resources = local.share_with_arns
   }
   statement {
     sid = "ManageOwnAccessKeys"
