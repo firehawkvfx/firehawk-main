@@ -33,10 +33,10 @@ fi
 #     exit 1
 # fi
 
-cd "$SCRIPTDIR/../terraform-aws-bastion"
-export TF_VAR_bastion_public_dns=$(terraform output public_dns)
-cd "$SCRIPTDIR"
-echo "TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
+# cd "$SCRIPTDIR/../terraform-aws-bastion"
+# export TF_VAR_bastion_public_dns=$(terraform output public_dns)
+# cd "$SCRIPTDIR"
+# echo "TF_VAR_bastion_public_dns: $TF_VAR_bastion_public_dns"
 
 # If sourced, dont execute
 (return 0 2>/dev/null) && sourced=1 || sourced=0
