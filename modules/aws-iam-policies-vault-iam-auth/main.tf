@@ -6,7 +6,7 @@ terraform {
 data "aws_caller_identity" "current" {}
 locals {
   # share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
-  share_with_arns = concat( [ data.aws_iam_role.vault_iam_role.id ], var.share_with_arns )
+  share_with_arns = concat( [ data.aws_iam_role.vault_iam_role.arn ], var.share_with_arns )
 }
 
 resource "aws_iam_role_policy" "vault_iam_auth" {
