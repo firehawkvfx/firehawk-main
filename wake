@@ -38,7 +38,7 @@ apply
 cd $SCRIPTDIR/modules/terraform-aws-iam-profile-bastion
 apply
 
-cd $SCRIPTDIR/modules/modules/terraform-aws-sg-bastion
+cd $SCRIPTDIR/modules/terraform-aws-sg-bastion
 apply
 
 cd $SCRIPTDIR/modules/terraform-aws-iam-profile-openvpn
