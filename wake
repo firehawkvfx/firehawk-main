@@ -28,6 +28,10 @@ cd $SCRIPTDIR/modules/terraform-aws-iam-profile-provisioner
 ./generate-plan
 terraform apply -input=false tfplan # Ensure Required Roles exist
 
+cd $SCRIPTDIR/modules/terraform-aws-iam-profile-vault-client
+./generate-plan
+terraform apply -input=false tfplan # Ensure Required Roles exist
+
 cd $SCRIPTDIR/modules/terraform-aws-iam-profile-openvpn
 ./generate-plan
 terraform apply -input=false tfplan # Ensure Required Roles exist

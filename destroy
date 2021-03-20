@@ -41,6 +41,10 @@ cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-openvpn
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
 
+cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-vault-client
+terraform plan -out=tfplan -input=false -destroy
+terraform apply -input=false tfplan
+
 cd $TF_VAR_firehawk_path/modules/terraform-aws-iam-profile-provisioner
 terraform plan -out=tfplan -input=false -destroy
 terraform apply -input=false tfplan
