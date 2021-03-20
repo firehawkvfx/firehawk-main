@@ -86,7 +86,7 @@ module "bastion" {
   aws_external_domain      = var.aws_external_domain
   vpc_id                   = local.vpc_id
   vpc_cidr                 = local.vpc_cidr
-  permitted_cidr_list      = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
+  # permitted_cidr_list      = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr]
   public_subnet_ids        = local.public_subnets
   route_public_domain_name = var.route_public_domain_name
   route_zone_id            = local.route_zone_id

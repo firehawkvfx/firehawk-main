@@ -37,10 +37,10 @@ variable "public_domain_name" {
   type        = string
   default     = null
 }
-variable "permitted_cidr_list" {
-  description = "The list of remote CIDR blocks that will be able to access the host."
-  type        = list(string)
-}
+# variable "permitted_cidr_list" {
+#   description = "The list of remote CIDR blocks that will be able to access the host."
+#   type        = list(string)
+# }
 variable "route_public_domain_name" {
   description = "Defines if a public DNS name is to be used"
   type        = bool
