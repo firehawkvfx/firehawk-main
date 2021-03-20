@@ -108,4 +108,8 @@ module "vault_client" {
 
   aws_key_name = var.aws_key_name
   common_tags = local.common_tags
+
+  bucket_extension_vault = var.bucket_extension_vault
+  resourcetier_vault = var.resourcetier_vault
+  vpcname_vault = var.vpcname_vault
 }
