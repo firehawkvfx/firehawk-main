@@ -1,12 +1,12 @@
 provider "null" {
   version = "~> 3.0"
 }
-
 provider "aws" {
   #  if you haven't installed and configured the aws cli, you will need to provide your aws access key and secret key.
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
   version = "~> 3.15.0"
 }
+data "aws_region" "current" {}
 data "aws_vpc" "primary" { # this vpc
   default = false
   tags    = local.common_tags
@@ -45,9 +45,18 @@ data "aws_route_tables" "private" {
   tags = merge( local.common_tags, { "area" : "public" } )
 }
 
-data "aws_security_group" "bastion" { # Aquire the security group ID for external bastion hosts, these will require SSH access to this internal host.  Since multiple deployments may exist, the pipelineid allows us to distinguish between unique deployments.
-  tags = merge( local.common_tags, local.bastion_tags ) # Since we deploy vault alongside this account, pipelineid will probably not be an issue...  At some point we will need to create a dependency of the vault vpc output and what tags we should be using with multi account and CI.
-  vpc_id = data.aws_vpc.vaultvpc.id
+# data "aws_security_group" "bastion" { # Aquire the security group ID for external bastion hosts, these will require SSH access to this internal host.  Since multiple deployments may exist, the pipelineid allows us to distinguish between unique deployments.
+#   tags = merge( local.common_tags, local.bastion_tags ) # Since we deploy vault alongside this account, pipelineid will probably not be an issue...  At some point we will need to create a dependency of the vault vpc output and what tags we should be using with multi account and CI.
+#   vpc_id = data.aws_vpc.vaultvpc.id
+# }
+
+data "terraform_remote_state" "bastion_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension_vault}"
+    key    = "${var.resourcetier_vault}/${var.vpcname_vault}-terraform-aws-sg-bastion/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
 }
 
 locals {
@@ -55,11 +64,10 @@ locals {
     vpcname = var.vpcname_vault,
     projectname = "firehawk-main"
   }
-  bastion_tags = {
-    vpcname = var.vpcname_vault
+  bastion_tags = merge( local.common_tags, {
     role    = "bastion"
     route   = "public"
-  }
+  } )
   common_tags = var.common_tags
   mount_path  = var.resourcetier
   vpc_id      = data.aws_vpc.primary.id
@@ -75,7 +83,7 @@ locals {
 }
 module "vault_client" {
   source              = "./modules/vault-client"
-  name                = "vaultclient_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  name                = "${local.vpcname}_vaultclient_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
   vault_client_ami_id = var.vault_client_ami_id
 
   consul_cluster_name    = var.consul_cluster_name
@@ -86,7 +94,7 @@ module "vault_client" {
 
   private_subnet_ids  = local.private_subnet_ids
   permitted_cidr_list = ["${local.onsite_public_ip}/32", var.remote_cloud_public_ip_cidr, var.remote_cloud_private_ip_cidr, local.onsite_private_subnet_cidr, local.vpn_cidr]
-  security_group_ids  = [data.aws_security_group.bastion.id]
+  security_group_ids  = [ data.terraform_remote_state.bastion_security_group.outputs.security_group_id ]
 
   aws_key_name = var.aws_key_name
   common_tags = local.common_tags
