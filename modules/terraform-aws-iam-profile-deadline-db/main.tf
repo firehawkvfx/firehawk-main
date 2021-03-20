@@ -38,7 +38,9 @@ module "iam_policies_vault_iam_auth" {
   source = "../../modules/aws-iam-policies-vault-iam-auth"
   name = "VaultIAMAuth_${var.conflictkey}"
   iam_role_id = aws_iam_role.instance_role.id
+  iam_role_name = aws_iam_role.instance_role.name
 }
+
 # Policy Allowing Read and write access to S3
 module "iam_policies_s3_read_write" {
   source = "../../modules/aws-iam-policies-s3-read-write"
