@@ -92,10 +92,12 @@ vault token lookup
 cd $SCRIPTDIR/modules/terraform-aws-bastion
 ./generate-plan
 terraform apply -input=false tfplan
+bastion_public_dns=$(terraform output public_dns)
 
 cd $SCRIPTDIR/modules/terraform-aws-vault-client
 ./generate-plan
 terraform apply -input=false tfplan
+vault_client_consul_private_dns=$(terraform output consul_private_dns)
 
 cd $SCRIPTDIR/modules/terraform-aws-vpn
 ./generate-plan
@@ -103,3 +105,6 @@ terraform apply -input=false tfplan
 
 cd $SCRIPTDIR/modules/terraform-aws-vault-client
 terraform output
+
+printf "\nA private Vault client can be used to forward the Vault UI to your remote onsite web browser (address https://127.0.0.1:8200/ui) via the bastion by forwarding the web service. From your remote host, enable forwarding with:\n"
+printf "ssh -J centos@${bastion_public_dns} centos@${vault_client_consul_private_dns} -L 8200:vault.service.consul:8200\n"
