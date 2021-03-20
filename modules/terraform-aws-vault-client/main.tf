@@ -53,7 +53,7 @@ data "aws_security_group" "bastion" { # Aquire the security group ID for externa
 locals {
   vaultvpc_tags = {
     vpcname = var.vpcname_vault,
-    projectname = firehawk-main
+    projectname = "firehawk-main"
   }
   bastion_tags = {
     vpcname = var.vpcname_vault
