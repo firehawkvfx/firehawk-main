@@ -6,7 +6,7 @@ terraform {
 data "aws_caller_identity" "current" {}
 locals {
   # share_with_arns = concat( [ data.aws_caller_identity.current.account_id ], var.share_with_arns )
-  share_with_arns = concat( [ data.aws_iam_role.vault_iam_role.arn ], var.share_with_arns )
+  share_with_arns = var.share_with_arns
 }
 
 resource "aws_iam_role_policy" "vault_iam_auth" {
@@ -15,9 +15,9 @@ resource "aws_iam_role_policy" "vault_iam_auth" {
   policy = data.aws_iam_policy_document.vault_iam_auth.json
 }
 
-data "aws_iam_role" "vault_iam_role" {
-  name = var.iam_role_name
-}
+# data "aws_iam_role" "vault_iam_role" {
+#   name = var.iam_role_name
+# }
 data "aws_iam_policy_document" "vault_iam_auth" {
   statement {
     effect = "Allow"
