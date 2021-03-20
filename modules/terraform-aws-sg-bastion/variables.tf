@@ -11,11 +11,6 @@ variable "vpc_id" {
   default     = null
 }
 
-variable "vpc_cidr" {
-  description = "The CIDR block that contains all subnets within the VPC."
-  type        = string
-}
-
 variable "common_tags" {
   description = "A map of common tags to assign to the resources created by this module"
   type        = map(string)

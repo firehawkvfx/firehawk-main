@@ -13,7 +13,7 @@ resource "aws_security_group" "bastion" {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
-    cidr_blocks = [var.vpc_cidr]
+    cidr_blocks = [data.aws_vpc.thisvpc.cidr_block]
     description = "All incoming traffic from vpc"
   }
   ingress {
