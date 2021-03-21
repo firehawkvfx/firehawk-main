@@ -3,7 +3,9 @@ path "auth/*"
 {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
-# these may be required
+
+# these may be required https://registry.terraform.io/providers/hashicorp/vault/latest/docs#using-vault-credentials-in-terraform-configuration
+# terraform must create other tokens
 path "auth/token/create" {
   capabilities = ["create", "update"]
 }
