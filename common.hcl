@@ -7,17 +7,16 @@ locals {
     vpcname="${local.resourcetier}${local.base_vpcname}"
     vpcname_vault="${local.resourcetier}vaultvpc"
     common_tags={
-        "test" : "Test"
-        # "environment": ${get_env("TF_VAR_environment", "")},
-        # "resourcetier": ${get_env("TF_VAR_resourcetier", "")},
-        # "conflictkey": ${get_env("TF_VAR_conflictkey", "")},
-        # "pipelineid": ${get_env("TF_VAR_pipelineid", "")},
-        # "accountid": ${get_env("TF_VAR_account_id", "")},
-        # "owner": ${get_env("TF_VAR_owner", "")},
-        # "region": ${get_env("AWS_DEFAULT_REGION", "")},
-        # "vpcname": local.vpcname,
-        # "projectname": local.projectname,
-        # "terraform": local.resourcetier,
+        "environment": get_env("TF_VAR_environment", ""),
+        "resourcetier": get_env("TF_VAR_resourcetier", ""),
+        "conflictkey": get_env("TF_VAR_conflictkey", ""),
+        "pipelineid": get_env("TF_VAR_pipelineid", ""),
+        "accountid": get_env("TF_VAR_account_id", ""),
+        "owner": get_env("TF_VAR_owner", ""),
+        "region": get_env("AWS_DEFAULT_REGION", ""),
+        "vpcname": local.vpcname,
+        "projectname": local.projectname,
+        "terraform": local.resourcetier,
     }
 }
 
