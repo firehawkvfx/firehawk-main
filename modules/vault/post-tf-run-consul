@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 if [[ ! -f "/opt/consul/bin/run-consul" ]]; then
     echo "You have not yet installed consul."
     exit 0 # if the user hasn't installed consul yet, this step must be performed manually.
@@ -7,32 +9,3 @@ fi
 
 echo "Running Consul..."
 sudo /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
-
-if [[ -z "$VAULT_TOKEN" ]]; then
-    echo "Instances from this point require you to login to vault.  To avoid this message you can define the var VAULT_TOKEN"
-fi
-
-echo "Waiting for consul vault service..."
-until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
-until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
-
-initialised=true
-vault status | grep -m 1 "Initialized.*true" || initialised=false
-
-if [[ "$initialised" == false ]]; then
-    echo "Vault is not Initialized.  Aborting. You will need to login and initialise the vault"
-    exit 1
-fi
-sleep 3
-echo "vault token lookup"
-
-output=$(vault token lookup) && exit_status=0 || exit_status=$?
-errors=$(echo "$output") | grep '^{' | jq -r .errors
-echo "$output"
-if [[ $exit_status -eq 0 && -z "$errors" ]]; then
-    echo "$output"
-else
-    echo "...logging in. Or exit and use: vault login --no-print"
-    vault login --no-print $VAULT_TOKEN
-fi
-vault token lookup
