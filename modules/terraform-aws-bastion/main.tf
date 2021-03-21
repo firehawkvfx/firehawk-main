@@ -78,7 +78,7 @@ locals {
 module "bastion" {
   source = "./modules/bastion"
   # name                   = "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
-  name                   = "${lookup(local.common_tags, "vpcname", "default")}bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  name                   = "${lookup(local.common_tags, "vpcname", "default")}_bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
   bastion_ami_id         = var.bastion_ami_id
   consul_cluster_tag_key = var.consul_cluster_tag_key
   consul_cluster_name    = var.consul_cluster_name
