@@ -3,7 +3,7 @@
 locals {
     base_vpcname="vaultvpc"
     projectname="firehawk-main" # A tag to recognise resources created in this project
-    resourcetier="${get_env("TF_VAR_resourcetier", "")}"
+    resourcetier=get_env("TF_VAR_resourcetier", "")
     vpcname="${local.resourcetier}${local.base_vpcname}"
     vpcname_vault="${local.resourcetier}vaultvpc"
     common_tags={
