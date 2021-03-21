@@ -15,6 +15,10 @@ path "ssh-client-signer/config/ca" {
 }
 
 # This allows a host to revoke tokens.  It allows it to explicitly terminate the token when done using it.
+path "auth/token/lookup-accessor" {
+  capabilities = ["update"]
+}
+
 path "auth/token/revoke-accessor" {
   capabilities = ["update"]
 }

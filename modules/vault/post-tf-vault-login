@@ -17,7 +17,14 @@ if [[ "$initialised" == false ]]; then
     echo "Vault is not Initialized.  Aborting. You will need to login and initialise the vault"
     exit 1
 fi
-sleep 3
+sleep 10
+
+# Why?
+# vault token lookup
+# Error looking up token: Error making API request.
+# URL: GET https://vault.service.consul:8200/v1/auth/token/lookup-self
+# Code: 500. Errors:
+
 echo "vault token lookup"
 
 output=$(vault token lookup) && exit_status=0 || exit_status=$?

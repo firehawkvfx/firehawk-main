@@ -1,3 +1,11 @@
+path "auth/token/lookup-accessor" {
+  capabilities = ["update"]
+}
+
+path "auth/token/revoke-accessor" {
+  capabilities = ["update"]
+}
+
 path "pki_int/issue/*" {
     capabilities = ["create", "update"]
 }

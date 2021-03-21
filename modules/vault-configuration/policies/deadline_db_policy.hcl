@@ -1,12 +1,12 @@
 # when using the vault_token terraform resource we need to be able to renew and revoke tokens
 
-# path "auth/token/lookup-accessor" {
-#   capabilities = ["update"]
-# }
+path "auth/token/lookup-accessor" {
+  capabilities = ["update"]
+}
 
-# path "auth/token/revoke-accessor" {
-#   capabilities = ["update"]
-# }
+path "auth/token/revoke-accessor" {
+  capabilities = ["update"]
+}
 
 path "auth/token/renew" {
     capabilities = ["update"]
