@@ -9,5 +9,7 @@ locals {
 inputs = local.common_vars.inputs
 
 dependencies {
-  paths = ["../vault"]
+  paths = [
+    "../vault"
+    ]
 }
