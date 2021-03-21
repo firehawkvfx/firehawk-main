@@ -1,6 +1,6 @@
 # common variables to the project
 
-locals {
+locals { # inputs can't reference themselves, so we use locals first
     base_vpcname="vaultvpc"
     projectname="firehawk-main" # A tag to recognise resources created in this project
     resourcetier=get_env("TF_VAR_resourcetier", "")
@@ -20,7 +20,7 @@ locals {
     }
 }
 
-inputs = {
+inputs = { 
   base_vpcname = local.base_vpcname
   projectname = local.projectname
   resourcetier = local.resourcetier

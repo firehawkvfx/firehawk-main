@@ -12,4 +12,11 @@ dependencies {
   paths = ["../vpc"]
 }
 
-skip = true
+terraform {
+  after_hook "after_hook_1" {
+    commands = ["apply"]
+    execute  = ["bash", "post-tf-run-consul"]
+  }
+}
+
+# skip = true
