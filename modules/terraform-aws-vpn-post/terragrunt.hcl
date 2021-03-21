@@ -22,5 +22,3 @@ terraform {
     execute  = ["bash", "instructions"]
   }
 }
-
-# skip = true
