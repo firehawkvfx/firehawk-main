@@ -16,15 +16,15 @@ dependencies {
     ]
 }
 
-terraform {
-  after_hook "after_hook_1" {
-    commands = ["apply"]
-    execute  = ["bash", "post-tf-run-consul"]
-  }
-  after_hook "after_hook_2" {
-    commands = ["apply"]
-    execute  = ["bash", "post-tf-vault-login"]
-  }
-}
+# terraform {
+#   after_hook "after_hook_1" {
+#     commands = ["apply"]
+#     execute  = ["bash", "instructions"]
+#   }
+#   after_hook "after_hook_2" {
+#     commands = ["apply"]
+#     execute  = ["bash", "post-tf-vault-login"]
+#   }
+# }
 
 # skip = true
