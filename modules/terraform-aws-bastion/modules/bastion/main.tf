@@ -34,7 +34,7 @@ resource "aws_instance" "bastion" {
   instance_type          = var.instance_type
   key_name               = var.aws_key_name # The PEM key is disabled for use in production, can be used for debugging.  Instead, signed SSH certificates should be used to access the host.
   subnet_id              = tolist(var.public_subnet_ids)[0]
-  tags                   = local.bastion_tags
+  tags                   = merge(map("Name", var.name), local.bastion_tags)
   user_data              = data.template_file.user_data_auth_client.rendered
   iam_instance_profile   = data.terraform_remote_state.bastion_profile.outputs.instance_profile_name
   vpc_security_group_ids = [ data.terraform_remote_state.bastion_security_group.outputs.security_group_id ]
