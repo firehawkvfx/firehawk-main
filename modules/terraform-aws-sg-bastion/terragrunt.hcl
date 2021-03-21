@@ -11,5 +11,3 @@ inputs = local.common_vars.inputs
 dependencies {
   paths = ["../vpc"]
 }
-
-skip = true
