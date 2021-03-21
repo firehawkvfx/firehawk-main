@@ -4,7 +4,6 @@ data "terraform_remote_state" "bastion_security_group" { # read the arn with dat
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension_vault}"
-    # key    = "${var.resourcetier_vault}/${var.vpcname_vault}-terraform-aws-sg-bastion/terraform.tfstate"
     key    = "firehawk-main/modules/terraform-aws-sg-bastion/terraform.tfstate"
     region = data.aws_region.current.name
   }
@@ -13,7 +12,7 @@ data "terraform_remote_state" "bastion_profile" { # read the arn with data.terra
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension_vault}"
-    key    = "${var.resourcetier_vault}/${var.vpcname_vault}-terraform-aws-iam-profile-bastion/terraform.tfstate"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-bastion/terraform.tfstate"
     region = data.aws_region.current.name
   }
 }

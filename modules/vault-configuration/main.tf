@@ -209,7 +209,7 @@ data "terraform_remote_state" "provisioner_profile" { # read the arn with data.t
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension}"
-    key    = "${var.resourcetier}/${var.common_tags["vpcname"]}-terraform-aws-iam-profile-provisioner/terraform.tfstate"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-provisioner/terraform.tfstate"
     region = data.aws_region.current.name
   }
 }
@@ -234,7 +234,7 @@ data "terraform_remote_state" "deadline_db_profile" {
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension}"
-    key    = "${var.resourcetier}/terraform-aws-iam-profile-deadline-db/terraform.tfstate"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-deadline-db/terraform.tfstate"
     region = data.aws_region.current.name
   }
 }
@@ -260,7 +260,7 @@ data "terraform_remote_state" "openvpn_profile" { # read the arn with data.terra
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension}"
-    key    = "${var.resourcetier}/${var.common_tags["vpcname"]}-terraform-aws-iam-profile-openvpn/terraform.tfstate"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-openvpn/terraform.tfstate"
     region = data.aws_region.current.name
   }
 }
