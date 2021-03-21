@@ -3,7 +3,7 @@ include {
 }
 
 dependencies {
-  paths = [
-    "../vpc"
-    ]
+  paths = ["../vpc"]
 }
+
+skip = true

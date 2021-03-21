@@ -11,3 +11,5 @@ dependencies {
     "../terraform-aws-iam-profile-vault-client",
     ]
 }
+
+skip = true
