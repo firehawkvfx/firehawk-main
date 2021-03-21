@@ -145,7 +145,14 @@ warn_if_invalid "$ami_role" "$TF_VAR_bastion_ami_id" "TF_VAR_bastion_ami_id"
 ami_role="firehawk_openvpn_server_ami"
 export TF_VAR_openvpn_server_ami=$(retrieve_ami $latest_ami $ami_role $TF_VAR_ami_commit_hash)
 warn_if_invalid "$ami_role" "$TF_VAR_openvpn_server_ami" "TF_VAR_openvpn_server_ami"
-
+# AMI query by commit - Deadline DB
+ami_role="firehawk_deadlinedb_ami"
+export TF_VAR_deadline_db_ami_id=$(retrieve_ami $latest_ami $ami_role $TF_VAR_ami_commit_hash)
+warn_if_invalid "$ami_role" "$TF_VAR_deadline_db_ami_id" "TF_VAR_deadline_db_ami_id"
+# AMI query by commit - Render node
+ami_role="firehawk_centos7_rendernode_ami"
+export TF_VAR_centos7_rendernode_ami=$(retrieve_ami $latest_ami $ami_role $TF_VAR_ami_commit_hash)
+warn_if_invalid "$ami_role" "$TF_VAR_centos7_rendernode_ami" "TF_VAR_centos7_rendernode_ami"
 # Terraform Vars
 export TF_VAR_general_use_ssh_key="$HOME/.ssh/id_rsa" # For debugging deployment of most resources- not for production use.
 export TF_VAR_aws_private_key_path="$TF_VAR_general_use_ssh_key"
@@ -200,7 +207,7 @@ if [[ $num_invalid -eq 0 ]]; then
   export TF_VAR_sesi_client_id=$(echo $get_parameters | jq ".Parameters[]| select(.Name == \"/firehawk/resourcetier/${TF_VAR_resourcetier}/sesi_client_id\")|.Value" --raw-output)
   export PKR_VAR_sesi_client_id="$TF_VAR_sesi_client_id"
   error_if_empty "SSM Parameter missing: sesi_client_id" "$TF_VAR_sesi_client_id"
-
+  
   export TF_VAR_bucket_extension="$TF_VAR_resourcetier.$TF_VAR_global_bucket_extension"
   export TF_VAR_installers_bucket="software.$TF_VAR_resourcetier.$TF_VAR_global_bucket_extension" # All installers should be kept in the same bucket.  If a main account is present, packer builds should trigger from the main account.
   export TF_VAR_bucket_extension_vault="$TF_VAR_resourcetier.$TF_VAR_global_bucket_extension" # WARNING: if vault is deployed in a seperate tier for use, then this will probably need to become an SSM driven parameter from the template 
