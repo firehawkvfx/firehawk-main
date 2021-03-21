@@ -3,6 +3,18 @@ path "auth/*"
 {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
+# these may be required
+path "auth/token/create" {
+  capabilities = ["create", "update"]
+}
+
+path "auth/token/renew" {
+  capabilities = ["update"]
+}
+
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}
 
 # Create, update, and delete auth methods
 path "sys/auth/*"
@@ -106,14 +118,6 @@ path "pki/config/*" {
 path "pki/cert/ca" {
   capabilities = ["read"]
 }
-
-# path "auth/token/renew" {
-#   capabilities = ["update"]
-# }
-
-# path "auth/token/renew-self" {
-#   capabilities = ["update"]
-# }
 
 # SSH host certificates
 
