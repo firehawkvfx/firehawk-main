@@ -7,3 +7,5 @@ dependencies {
     "../vpc"
     ]
 }
+
+skip = true
