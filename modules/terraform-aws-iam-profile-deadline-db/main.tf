@@ -33,14 +33,13 @@ data "aws_iam_policy_document" "assume_role" { # Determines the services able to
 #     actions = ["sts:AssumeRole"]
 #   }
 # }
-# Required for the IAM Profile Auth method since the Deadline DB host will generally not be accessible to users, it must manage certificates itself.
-module "iam_policies_vault_iam_auth" {
-  source = "../../modules/aws-iam-policies-vault-iam-auth"
-  name = "VaultIAMAuth_${var.conflictkey}"
-  iam_role_id = aws_iam_role.instance_role.id
-  # iam_role_name = aws_iam_role.instance_role.name
-  share_with_arns = [ aws_iam_role.instance_role.arn ]
-}
+# module "iam_policies_vault_iam_auth" {
+#   source = "../../modules/aws-iam-policies-vault-iam-auth"
+#   name = "VaultIAMAuth_${var.conflictkey}"
+#   iam_role_id = aws_iam_role.instance_role.id
+#   # iam_role_name = aws_iam_role.instance_role.name
+#   share_with_arns = [ aws_iam_role.instance_role.arn ]
+# }
 
 # Policy Allowing Read and write access to S3
 module "iam_policies_s3_read_write" {
