@@ -1,8 +1,8 @@
 ### This role and profile allows instances access to S3 buckets to aquire and push back downloaded softwre to provision with.  It also has prerequisites for consul and Cault IAM access.
 resource "aws_iam_role" "instance_role" {
-  name = "deadlinedb_instance_role_${var.conflictkey}"
+  name = "rendernode_instance_role_${var.conflictkey}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
-  tags = merge( var.common_tags, map( "role", "deadlinedb") )
+  tags = merge( var.common_tags, map( "role", "rendernode") )
 }
 resource "aws_iam_instance_profile" "instance_profile" {
   name = aws_iam_role.instance_role.name
