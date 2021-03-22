@@ -13,3 +13,6 @@ dependencies {
     "../vault"
     ]
 }
+
+# To initialise vault values:
+# TF_VAR_init=true terragrunt plan -out="tfplan" && terragrunt apply "tfplan"
