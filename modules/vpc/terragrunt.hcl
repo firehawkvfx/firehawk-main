@@ -15,6 +15,8 @@ dependencies {
     "../terraform-aws-iam-profile-openvpn",
     "../terraform-aws-iam-profile-provisioner",  
     "../terraform-aws-iam-profile-vault-client",
+    "../terraform-aws-iam-profile-rendernode",
+    "../terraform-aws-iam-profile-deadline-db"
     ]
 }
 
