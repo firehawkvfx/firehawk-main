@@ -38,7 +38,7 @@ path "main/data/files/deadlinedb/*"
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "main/data/user"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
+# path "main/data/user"
+# {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }

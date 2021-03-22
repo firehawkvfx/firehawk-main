@@ -242,7 +242,7 @@ resource "vault_aws_auth_backend_role" "deadline_db" {
   backend        = vault_auth_backend.aws.path
   token_ttl      = 60
   token_max_ttl  = 120
-  token_policies = ["deadline_db"]
+  token_policies = ["deadline_db", "ssh_host", "pki_int"]
   role           = "deadline-db-vault-role"
   auth_type      = "iam"
   # bound_ami_ids                   = ["ami-8c1be5f6"]
