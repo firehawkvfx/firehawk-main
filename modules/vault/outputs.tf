@@ -27,8 +27,8 @@ output "Instructions" {
   ./generate-plan-init
   terraform apply "tfplan"
 
-  Create a new token under th admins policy, and do not use the root token from now on:
-  vault token create -policy=admins
+  Create a new token under th admins policy, and do not use the root token from now on.  We also include other policies you may need to create tokens for:
+  vault token create -policy=admins -policy=vpn_read_config -explicit-max-ttl=720h
 
   The apply the rest of the policies,  this step can be performed at any time you wish to update policies provided you are logged in as an admin.
   ./generate-plan
