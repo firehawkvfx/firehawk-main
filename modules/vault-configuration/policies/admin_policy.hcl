@@ -6,6 +6,11 @@ path "auth/*"
 
 # these may be required https://registry.terraform.io/providers/hashicorp/vault/latest/docs#using-vault-credentials-in-terraform-configuration
 # terraform must create other tokens
+
+path "auth/token/*" {
+  capabilities = ["create", "update", "read", "delete", "list"]
+}
+
 path "auth/token/create" {
   capabilities = ["create", "update"]
 }
@@ -92,6 +97,29 @@ path "blue/*"
 }
 
 path "main/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+# add capabilities so that vpn read policy is subset of admin
+# provide ability to read stored vpn file paths
+
+path "dev/data/files/usr/local/openvpn_as/scripts/seperate/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "green/data/files/usr/local/openvpn_as/scripts/seperate/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/data/files/usr/local/openvpn_as/scripts/seperate/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/data/files/usr/local/openvpn_as/scripts/seperate/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
