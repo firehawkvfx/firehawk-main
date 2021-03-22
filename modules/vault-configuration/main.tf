@@ -264,18 +264,6 @@ data "terraform_remote_state" "openvpn_profile" { # read the arn with data.terra
     region = data.aws_region.current.name
   }
 }
-
-# module "vault_client_vpn_server_iam" { # temp disabled until this can be provisioned correctly
-#   # The arn of a role will turn into an id when it is created, which may change, so we may get issues refs in vault will be incorrect.  To fix this if it is encountered, or If the VPN role requires any more permissions, do not modify the modules/aws-iam-role-vault-client, since it is just a method to generate minimum permissions with a unique name - rather create a seperate profile similar to the deadline DB example.
-#   source       = "../../modules/aws-iam-role-vault-client"
-#   role_name    = "VPNServerRole_${var.conflictkey}"
-#   environment  = var.environment
-#   resourcetier = var.resourcetier
-#   conflictkey  = var.conflictkey
-#   pipelineid   = var.pipelineid
-#   common_tags  = var.common_tags
-# }
-
 resource "vault_aws_auth_backend_role" "vpn_server" {
   backend              = vault_auth_backend.aws.path
   token_ttl            = 3600
@@ -291,13 +279,35 @@ resource "vault_aws_auth_backend_role" "vpn_server" {
   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
 }
 
-# output "vault_client_role_arn" {
-#   value = module.vault_client_provisioner_iam.vault_client_role_arn
-# }
+data "terraform_remote_state" "rendernode_profile" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-rendernode/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+resource "vault_aws_auth_backend_role" "rendernode" {
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 60
+  token_max_ttl        = 120
+  token_policies       = ["ssh_host"]
+  role                 = "rendernode-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.rendernode_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
+  inferred_entity_type = "ec2_instance"
+  inferred_aws_region  = data.aws_region.current.name
+  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  # bound_ami_ids                   = ["ami-8c1be5f6"]
+  # bound_vpc_ids                   = ["vpc-b61106d4"]
+  # bound_subnet_ids                = ["vpc-133128f1"]
+  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+}
 
-# output "vault_client_profile_arn" {
-#   value = module.vault_client_provisioner_iam.vault_client_profile_arn
-# }
+
+
+
 
 # Produce certificates for mongo
 
