@@ -74,11 +74,12 @@ locals {
   public_route_table_ids     = data.aws_route_tables.public.ids
   public_domain_name         = "none"
   route_zone_id              = "none"
+  instance_name              = "${lookup(local.common_tags, "vpcname", "default")}_bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
 }
 module "bastion" {
   source = "./modules/bastion"
   # name                   = "bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
-  name                   = "${lookup(local.common_tags, "vpcname", "default")}_bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  name                   = local.instance_name
   bastion_ami_id         = var.bastion_ami_id
   consul_cluster_tag_key = var.consul_cluster_tag_key
   consul_cluster_name    = var.consul_cluster_name
