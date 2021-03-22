@@ -11,6 +11,10 @@ path "auth/token/*" {
   capabilities = ["create", "update", "read", "delete", "list"]
 }
 
+path "auth/token/accessors" { # you can list accessors with: vault list auth/token/accessors.  revoke with: vault token revoke -accessor <accessor>
+  capabilities = ["create", "update", "read", "delete", "list"]
+}
+
 path "auth/token/create" {
   capabilities = ["create", "update"]
 }
