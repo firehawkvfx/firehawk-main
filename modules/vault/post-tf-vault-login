@@ -6,7 +6,7 @@ if [[ -z "$VAULT_TOKEN" ]]; then
     echo "Instances from this point require you to login to vault.  To avoid this message you can define the var VAULT_TOKEN"
 fi
 
-echo "Waiting for consul vault service..."
+echo "Waiting for consul vault service (Ignore the following connection errors for a reasonable period until connection is established)..."
 until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
 until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
 
