@@ -18,6 +18,15 @@ path "auth/token/renew-self" {
   capabilities = ["update"]
 }
 
+# These are provided to ensure vpn_read_config_policy is a subset of admin 
+path "auth/token/lookup-accessor" {
+  capabilities = ["update"]
+}
+
+path "auth/token/revoke-accessor" {
+  capabilities = ["update"]
+}
+
 # Create, update, and delete auth methods
 path "sys/auth/*"
 {

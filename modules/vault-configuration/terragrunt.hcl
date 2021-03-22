@@ -17,8 +17,8 @@ dependencies {
 
 skip=local.skip
 
+# To initialise vault values (after logging in with root token):
+# TF_VAR_configure_vault=true TF_VAR_init=true terragrunt plan -out="tfplan" && terragrunt apply "tfplan"
+
 # To configure vault
 # TF_VAR_configure_vault=true terragrunt plan -out="tfplan" && terragrunt apply "tfplan"
-
-# To initialise vault values:
-# TF_VAR_init=true terragrunt plan -out="tfplan" && terragrunt apply "tfplan"

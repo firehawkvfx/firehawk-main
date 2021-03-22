@@ -30,11 +30,11 @@ function print_usage {
   echo
   echo "  sign_ssh_key.sh"
   echo
-  echo "Example: Sign a non-default public key with Vault."
+  echo "Example: Sign a non-default public key with Vault.  If the key does not exist at this location, user will be prompted to paste the key in."
   echo
   echo "  sign_ssh_key.sh --public-key ~/.ssh/remote_host/id_rsa.pub"
   echo
-  echo "Example: Configure a provided cert file and trusted CA file where vault access is not available."
+  echo "Example: On a Remote host configure a provided cert file and trusted CA file where vault access is unavailable."
   echo
   echo "  sign_ssh_key.sh --trusted-ca ~/Downloads/trusted-user-ca-keys.pem --cert ~/Downloads/id_rsa-cert.pub"
 }
@@ -188,7 +188,8 @@ function install {
   if [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
     # if public key doesn't exist, allow user to paste it in
     if test ! -f "$public_key"; then
-      log_info "Public key not present at location.  You can paste the contents of the new file here:"
+      log_info "Public key not present at location."
+      log_info "You can paste the contents of the new file here (read the public key on the remote host eg: cat ~/.ssh/id_rsa.pub):"
       mkdir -p $(dirname "$public_key")
       read public_key_content
       echo "$public_key_content" | tee "$public_key"
