@@ -43,7 +43,11 @@ retry \
     "consul catalog services | grep -m 1 'vault'" \
     "Waiting for consul vault service..."
 
-until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
+retry \
+    "vault status | grep -m 1 'Initialized.*'" \
+    "Ensuring vault is initialized..."
+
+# until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
 
 initialised=true
 vault status | grep -m 1 "Initialized.*true" || initialised=false
