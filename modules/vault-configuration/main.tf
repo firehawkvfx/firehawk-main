@@ -139,14 +139,14 @@ resource "vault_auth_backend" "example" {
 }
 
 resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
-  role_name        = "vpn-server-vault-token-creds-role"
-  allowed_policies = ["vpn_server", "ssh_host"]
-  # disallowed_policies = ["default"]
-  # token_bound_cidrs = ["10.0.0.0/16"]
-  # token_num_uses   = 1
+  role_name              = "vpn-server-vault-token-creds-role"
+  allowed_policies       = ["vpn_server", "ssh_host"]
   token_period           = 1200
   renewable              = true
   token_explicit_max_ttl = 86400
+  # disallowed_policies = ["default"]
+  # token_bound_cidrs = ["10.0.0.0/16"]
+  # token_num_uses   = 1
   # orphan           = true
   # path_suffix         = "path-suffix"
 }
@@ -214,20 +214,20 @@ data "terraform_remote_state" "provisioner_profile" { # read the arn with data.t
   }
 }
 resource "vault_aws_auth_backend_role" "provisioner" {
-  backend        = vault_auth_backend.aws.path
-  token_ttl      = 60
-  token_max_ttl  = 120
-  token_policies = ["provisioner"]
-  role           = "provisioner-vault-role"
-  auth_type      = "iam"
-  # bound_ami_ids                   = ["ami-8c1be5f6"]
-  bound_account_ids = [data.aws_caller_identity.current.account_id]
-  # bound_vpc_ids                   = ["vpc-b61106d4"]
-  # bound_subnet_ids                = ["vpc-133128f1"]
-  bound_iam_role_arns = concat([data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 60
+  token_max_ttl        = 120
+  token_policies       = ["provisioner"]
+  role                 = "provisioner-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
+  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  # bound_ami_ids                   = ["ami-8c1be5f6"]
+  # bound_vpc_ids                   = ["vpc-b61106d4"]
+  # bound_subnet_ids                = ["vpc-133128f1"]
   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
 }
 data "terraform_remote_state" "deadline_db_profile" {
@@ -239,20 +239,20 @@ data "terraform_remote_state" "deadline_db_profile" {
   }
 }
 resource "vault_aws_auth_backend_role" "deadline_db" {
-  backend        = vault_auth_backend.aws.path
-  token_ttl      = 60
-  token_max_ttl  = 120
-  token_policies = ["deadline_db", "ssh_host", "pki_int"]
-  role           = "deadline-db-vault-role"
-  auth_type      = "iam"
-  # bound_ami_ids                   = ["ami-8c1be5f6"]
-  bound_account_ids = [data.aws_caller_identity.current.account_id]
-  # bound_vpc_ids                   = ["vpc-b61106d4"]
-  # bound_subnet_ids                = ["vpc-133128f1"]
-  bound_iam_role_arns = concat([data.terraform_remote_state.deadline_db_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 60
+  token_max_ttl        = 120
+  token_policies       = ["deadline_db", "ssh_host", "pki_int"]
+  role                 = "deadline-db-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.deadline_db_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
+  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  # bound_ami_ids                   = ["ami-8c1be5f6"]
+  # bound_vpc_ids                   = ["vpc-b61106d4"]
+  # bound_subnet_ids                = ["vpc-133128f1"]
   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
 }
 
@@ -276,20 +276,20 @@ data "terraform_remote_state" "openvpn_profile" { # read the arn with data.terra
 #   common_tags  = var.common_tags
 # }
 
-# resource "vault_aws_auth_backend_role" "vpn_server" {
-#   backend                         = vault_auth_backend.aws.path
-#   token_ttl                       = 60
-#   token_max_ttl                   = 120
-#   token_policies                  = ["vpn_server"]
-#   role                            = "vpn-server-vault-role"
-#   auth_type                       = "iam"
-#   bound_account_ids               = [ data.aws_caller_identity.current.account_id ]
-#   bound_iam_role_arns             = [ module.vault_client_vpn_server_iam.vault_client_role_arn ] # Only instances with this Role ARN May read vault data.
-#   # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-#   inferred_entity_type            = "ec2_instance"
-#   inferred_aws_region             = data.aws_region.current.name
-#   # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
-# }
+resource "vault_aws_auth_backend_role" "vpn_server" {
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 3600
+  token_max_ttl        = 3600
+  token_policies       = ["vpn_server", "ssh_host"]
+  role                 = "vpn-server-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.openvpn_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
+  inferred_entity_type = "ec2_instance"
+  inferred_aws_region  = data.aws_region.current.name
+  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
+  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+}
 
 # output "vault_client_role_arn" {
 #   value = module.vault_client_provisioner_iam.vault_client_role_arn
