@@ -40,7 +40,7 @@ echo "Waiting for consul vault service (Ignore the following connection errors f
 # until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
 
 retry \
-    "consul catalog services | grep -m 1 'vault' || sleep 1"
+    "consul catalog services | grep -m 1 'vault'" \
     "Waiting for consul vault service..."
 
 until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
