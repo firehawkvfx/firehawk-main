@@ -48,12 +48,6 @@ resource "aws_security_group" "vault_client" {
     description = "all outgoing traffic"
   }
 }
-resource "vault_token" "ssh_host" { # dynamically generate a token with constrained permisions for the host role.
-  role_name        = "host-vault-token-creds-role"
-  policies         = ["ssh_host"]
-  renewable        = false
-  explicit_max_ttl = "120s"
-}
 data "template_file" "user_data_auth_client" {
   template = file("${path.module}/user-data-auth-ssh-host-iam.sh")
   vars = {

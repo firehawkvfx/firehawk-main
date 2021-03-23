@@ -1,6 +1,6 @@
 ### This role and profile allows instances access to S3 buckets to aquire and push back downloaded softwre to provision with.  It also has prerequisites for consul and Cault IAM access.
 resource "aws_iam_role" "instance_role" {
-  name_prefix        = "bastion_instance_role_${var.conflictkey}"
+  name        = "bastion_instance_role_${var.conflictkey}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
   tags = merge( var.common_tags, map( "role", "bastion") )
 }
