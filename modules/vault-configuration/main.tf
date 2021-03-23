@@ -266,8 +266,8 @@ data "terraform_remote_state" "openvpn_profile" { # read the arn with data.terra
 }
 resource "vault_aws_auth_backend_role" "vpn_server" {
   backend              = vault_auth_backend.aws.path
-  token_ttl            = 3600
-  token_max_ttl        = 3600
+  token_ttl            = 300
+  token_max_ttl        = 300
   token_policies       = ["vpn_server", "ssh_host"]
   role                 = "vpn-server-vault-role"
   auth_type            = "iam"
@@ -289,8 +289,8 @@ data "terraform_remote_state" "rendernode_profile" {
 }
 resource "vault_aws_auth_backend_role" "rendernode" {
   backend              = vault_auth_backend.aws.path
-  token_ttl            = 60
-  token_max_ttl        = 120
+  token_ttl            = 300
+  token_max_ttl        = 300
   token_policies       = ["ssh_host"]
   role                 = "rendernode-vault-role"
   auth_type            = "iam"
@@ -298,11 +298,47 @@ resource "vault_aws_auth_backend_role" "rendernode" {
   bound_iam_role_arns  = concat([data.terraform_remote_state.rendernode_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-  # bound_ami_ids                   = ["ami-8c1be5f6"]
-  # bound_vpc_ids                   = ["vpc-b61106d4"]
-  # bound_subnet_ids                = ["vpc-133128f1"]
-  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
+}
+
+data "terraform_remote_state" "bastion_profile" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-bastion/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+resource "vault_aws_auth_backend_role" "bastion" {
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 300
+  token_max_ttl        = 300
+  token_policies       = ["ssh_host"]
+  role                 = "bastion-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.bastion_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
+  inferred_entity_type = "ec2_instance"
+  inferred_aws_region  = data.aws_region.current.name
+}
+data "terraform_remote_state" "vault_client_profile" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-vault-client/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+resource "vault_aws_auth_backend_role" "vault_client" {
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 300
+  token_max_ttl        = 300
+  token_policies       = ["ssh_host"]
+  role                 = "vault-client-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.vault_client_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
+  inferred_entity_type = "ec2_instance"
+  inferred_aws_region  = data.aws_region.current.name
 }
 
 

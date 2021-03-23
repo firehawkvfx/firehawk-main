@@ -27,6 +27,5 @@ module "iam_policies_get_caller_identity" {
 # Adds policies necessary for running Consul
 module "consul_iam_policies_for_client" {
   source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
-
   iam_role_id = aws_iam_role.instance_role.id
 }

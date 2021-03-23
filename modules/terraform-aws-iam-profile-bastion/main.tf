@@ -12,12 +12,17 @@ data "aws_iam_policy_document" "assume_role" { # Determines the services able to
   statement {
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
-
     principals {
       type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
     }
   }
+}
+# Policy to query the identity of the current role.  Required for Vault.
+module "iam_policies_get_caller_identity" {
+  source = "../../modules/aws-iam-policies-get-caller-identity"
+  name = "STSGetCallerIdentity_${var.conflictkey}"
+  iam_role_id = aws_iam_role.instance_role.id
 }
 # Adds policies necessary for running Consul
 module "consul_iam_policies_for_client" {

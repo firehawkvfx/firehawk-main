@@ -61,15 +61,12 @@ function retry {
 
 # If vault cli is installed we can also perform these operations with vault cli
 # The necessary environment variables have to be set
-export VAULT_TOKEN=${vault_token}
+
 export VAULT_ADDR=https://vault.service.consul:8200
 
-# Retry and wait for the Vault Agent to write the token out to a file.  This could be
-# because the Vault server is still booting and unsealing, or because run-consul
-# running on the background didn't finish yet
-
+### Vault Auth IAM Method CLI
 retry \
-  "vault login --no-print $VAULT_TOKEN" \
+  "vault login --no-print -method=aws header_value=vault.service.consul role=${example_role_name}" \
   "Waiting for Vault login"
 
 log "Aquiring vault data..."
@@ -104,9 +101,6 @@ if test ! -f "/etc/ssh/ssh_host_rsa_key-cert.pub"; then
 fi
 chmod 0640 /etc/ssh/ssh_host_rsa_key-cert.pub
 
-# systemctl stop sshd 
-# log "LogLevel VERBOSE" | tee --append /etc/ssh/sshd_config # for debug
-
 # Private key and cert are both required for ssh to another host.  Multiple entries for host key may exist.
 grep -q "^HostKey /etc/ssh/ssh_host_rsa_key" /etc/ssh/sshd_config || echo 'HostKey /etc/ssh/ssh_host_rsa_key' | tee --append /etc/ssh/sshd_config
 
@@ -120,7 +114,6 @@ key="$(vault read -field=public_key ssh-host-signer/config/ca)"
 function ensure_known_hosts {
   local -r ssh_known_hosts_path="$1"
   local -r aws_external_domain=${aws_external_domain}
-
   if test ! -f $ssh_known_hosts_path; then
       log "Creating $ssh_known_hosts_path"
       touch $ssh_known_hosts_path # ensure known hosts file exists
@@ -148,19 +141,22 @@ function ensure_known_hosts {
   log "Added CA to $ssh_known_hosts_path."
 }
 ensure_known_hosts /etc/ssh/ssh_known_hosts
-# ensure_known_hosts /home/centos/.ssh/known_hosts
 
-systemctl stop sshd
-systemctl stop network # This can be used to avoid unknown host warnings caused by a race condition, at the expense of speed.
 ### Finally allow users with signed client certs to login.
 # If TrustedUserCAKeys not defined, then add it to sshd_config
 grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | tee --append /etc/ssh/sshd_config
 # Ensure the value for TrustedUserCAKeys is configured correctly
 sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
 systemctl daemon-reload
-systemctl start sshd
+
+# restart network
+systemctl restart sshd
 sleep 5 # Wait 5 seconds for the ssh settings to update, preventing unknown host warnings.
-systemctl start network # Allow users to connect!
+if $(has_yum); then
+  systemctl restart network # Allow users to connect!
+else # assume ubuntu
+  systemctl restart systemd-networkd
+fi
 
 log "Signing SSH host key done. Revoking vault token..."
 vault token revoke -self

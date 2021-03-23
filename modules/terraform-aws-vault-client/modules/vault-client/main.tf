@@ -55,13 +55,14 @@ resource "vault_token" "ssh_host" { # dynamically generate a token with constrai
   explicit_max_ttl = "120s"
 }
 data "template_file" "user_data_auth_client" {
-  template = file("${path.module}/user-data-auth-ssh-host-vault-token.sh")
+  template = file("${path.module}/user-data-auth-ssh-host-iam.sh")
   vars = {
     consul_cluster_tag_key   = var.consul_cluster_tag_key
     consul_cluster_tag_value = var.consul_cluster_name
-    vault_token              = vault_token.ssh_host.client_token
     aws_internal_domain      = var.aws_internal_domain
-    aws_external_domain      = "" # The external domain is not used for internal hosts.
+    aws_external_domain      = ""
+    example_role_name        = "vault-client-vault-role"
+    vault_token              = "" # The external domain is not used for internal hosts.
   }
 }
 
