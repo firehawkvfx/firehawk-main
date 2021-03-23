@@ -16,9 +16,9 @@ dependencies {
     ]
 }
 
-terraform {
-  after_hook "after_hook_1" {
-    commands = ["apply"]
-    execute  = ["bash", "instructions"]
-  }
-}
+# terraform {
+#   after_hook "after_hook_1" {
+#     commands = ["apply"]
+#     execute  = ["bash", "instructions"]
+#   }
+# }
