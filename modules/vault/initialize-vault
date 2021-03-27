@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [[ -z "$1 ]]; then
+    echo "1st arg must be a private ip of a vault server instance.
+fi
+
+readonly host2=$1
+
+echo "Warning: This step is a temporary measure until vault instances can init themselves.  A better workflow is required here for production use since we are not protected against MITM."
+echo "we are however in a newly created private subnet, and it is a temporary compromise."
+echo "Removing any previous host keys for: $host2"
+ssh-keygen -R $host2
+
+ssh -o ubuntu@$host2 "bash -s" < ./scripts/initialize-vault

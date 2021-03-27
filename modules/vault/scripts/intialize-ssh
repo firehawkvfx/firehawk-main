@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+initialized="$(vault status | awk '/^Initialized/' | awk '{ print $2 }')"
+
+if [[ "$initialized" == "false" ]]; then
+    echo "Initializing vault..."
+fi
