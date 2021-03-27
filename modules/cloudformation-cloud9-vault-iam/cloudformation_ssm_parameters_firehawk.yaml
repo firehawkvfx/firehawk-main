@@ -11,6 +11,7 @@ Metadata:
         Parameters: 
           - resourcetier
           - organizationname
+          - validityperiodhours
           - combinedvpcscidr
           - onsitepublicip
           - onsiteprivatesubnetcidr
@@ -24,6 +25,8 @@ Metadata:
         default: "Deployment Environment (resourcetier)"
       organizationname:
         default: "The name of the organization to associate with certificates (e.g. My Company)"
+      validityperiodhours:
+        default: "The validity period for the Vault/Consul SSL Certificate Authority (CA)"
       combinedvpcscidr: 
         default: "The CIDR Range containing all cloud resource."
       onsitepublicip:
@@ -55,6 +58,11 @@ Parameters:
     Description: 'The organization name will be used to associate with generated certificates'
     Type: String
     AllowedPattern: "[a-zA-Z0-9\ ]"
+  validityperiodhours:
+    Description: 'The Root CA and AMI images will expire after this TTL (Time To Live) period.'
+    Type: String
+    AllowedPattern: "[0-9]"
+    Default: "8760"
   combinedvpcscidr:
     Description: 'The IP range used for the main and rendering VPCs.  Cloud hosts will reside within this range and it must not intersect with your private network range. eg: 10.4.0.0/16 will not interfer with 192.168.1.0/24'
     Type: String
@@ -114,6 +122,18 @@ Resources:
       Type: String
       Value: !Ref organizationname
       Description: 'The organization name to associate with certificates.'
+  SSMValidityPeriodHours:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /validity_period_hours
+      Type: String
+      Value: !Ref validityperiodhours
+      Description: 'The Certificate TTL in hours.'
   SSMOnsitePublicIp:
     Type: AWS::SSM::Parameter
     Properties:
