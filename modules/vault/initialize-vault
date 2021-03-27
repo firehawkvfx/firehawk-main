@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
+
 if [[ -z "$1 ]]; then
     echo "1st arg must be a private ip of a vault server instance.
 fi
@@ -11,4 +13,4 @@ echo "we are however in a newly created private subnet, and it is a temporary co
 echo "Removing any previous host keys for: $host2"
 ssh-keygen -R $host2
 
-ssh -o ubuntu@$host2 "bash -s" < ./scripts/initialize-vault
+ssh -o ubuntu@$host2 "bash -s" < "$SCRIPTDIR/scripts/initialize-vault"
