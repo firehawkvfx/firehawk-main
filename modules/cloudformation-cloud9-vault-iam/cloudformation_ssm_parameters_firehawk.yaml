@@ -57,12 +57,12 @@ Parameters:
   organizationname:
     Description: 'The organization name will be used to associate with generated certificates'
     Type: String
-    AllowedPattern: "[a-zA-Z0-9\ ]"
+    AllowedPattern: "[a-zA-Z0-9 ]*"
   validityperiodhours:
     Description: 'The Root CA and AMI images will expire after this TTL (Time To Live) period.'
     Type: String
-    AllowedPattern: "[0-9]"
-    Default: "8760"
+    AllowedPattern: "[0-9]*"
+    Default: 8760
   combinedvpcscidr:
     Description: 'The IP range used for the main and rendering VPCs.  Cloud hosts will reside within this range and it must not intersect with your private network range. eg: 10.4.0.0/16 will not interfer with 192.168.1.0/24'
     Type: String
