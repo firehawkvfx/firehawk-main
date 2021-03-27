@@ -16,4 +16,4 @@ echo "we are however in a newly created private subnet, and it is a temporary co
 echo "Removing any previous host keys for: $host2"
 ssh-keygen -R $host2
 
-ssh -o ubuntu@$host2 "bash -s" < "$SCRIPTDIR/scripts/initialize-ssh"
+ssh -l ubuntu 10.1.0.23 "bash -s" < "$SCRIPTDIR/scripts/initialize-ssh"                                                                                                                                           
