@@ -18,4 +18,7 @@ wget https://releases.hashicorp.com/packer/1.6.4/packer_1.6.4_linux_amd64.zip -P
 sudo unzip tmp/packer_1.6.4_linux_amd64.zip -d tmp/
 sudo mv tmp/packer /usr/local/bin/.
 
+wget https://github.com/gruntwork-io/terragrunt/releases/download/v0.28.16/terragrunt_linux_386 -P tmp/ # Get Terragrunt
+sudo mv tmp/terragrunt_linux_386 /usr/local/bin/terragrunt
+
 mkdir -p "$HOME/.ssh/tls" # The directory to store TLS certificates in.
