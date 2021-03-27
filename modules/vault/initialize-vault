@@ -2,8 +2,8 @@
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-if [[ -z "$1 ]]; then
-    echo "1st arg must be a private ip of a vault server instance.
+if [[ -z "$1" ]]; then
+    echo "1st arg must be a private ip of a vault server instance."
 fi
 
 readonly host2=$1
