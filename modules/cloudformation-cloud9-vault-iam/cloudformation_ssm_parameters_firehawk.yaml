@@ -10,6 +10,7 @@ Metadata:
           default: "Network Configuration"
         Parameters: 
           - resourcetier
+          - organizationname
           - combinedvpcscidr
           - onsitepublicip
           - onsiteprivatesubnetcidr
@@ -21,6 +22,8 @@ Metadata:
     ParameterLabels: 
       resourcetier: 
         default: "Deployment Environment (resourcetier)"
+      organizationname:
+        default: "The name of the organization to associate with certificates (e.g. My Company)"
       combinedvpcscidr: 
         default: "The CIDR Range containing all cloud resource."
       onsitepublicip:
@@ -48,6 +51,10 @@ Parameters:
     - blue
     - main
     Default: main
+  organizationname:
+    Description: 'The organization name will be used to associate with generated certificates'
+    Type: String
+    AllowedPattern: "[a-zA-Z0-9\ ]"
   combinedvpcscidr:
     Description: 'The IP range used for the main and rendering VPCs.  Cloud hosts will reside within this range and it must not intersect with your private network range. eg: 10.4.0.0/16 will not interfer with 192.168.1.0/24'
     Type: String
@@ -95,6 +102,18 @@ Resources:
       Type: String
       Value: !Ref combinedvpcscidr
       Description: 'The IP range used for the main VPC.'
+  SSMOrganizationName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /organization_name
+      Type: String
+      Value: !Ref organizationname
+      Description: 'The organization name to associate with certificates.'
   SSMOnsitePublicIp:
     Type: AWS::SSM::Parameter
     Properties:
