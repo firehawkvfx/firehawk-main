@@ -10,7 +10,8 @@ locals {
   common_tags = var.common_tags
 }
 module "vault" {
-  source             = "../../modules/terraform-aws-vault"
+  # source             = "../../modules/terraform-aws-vault"
+  source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=v0.0.5"
   use_default_vpc    = false
   vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
   subnet_tags        = map("area", "private")
