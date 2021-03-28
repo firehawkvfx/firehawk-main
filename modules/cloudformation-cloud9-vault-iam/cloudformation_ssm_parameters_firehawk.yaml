@@ -26,7 +26,7 @@ Metadata:
       organizationname:
         default: "The name of the organization to associate with certificates (e.g. My Company)"
       validityperiodhours:
-        default: "The validity period for the Vault/Consul SSL Certificate Authority (CA)"
+        default: "The validity period for the Vault/Consul SSL Certificate Authority (CA) in hours"
       combinedvpcscidr: 
         default: "The CIDR Range containing all cloud resource."
       onsitepublicip:
