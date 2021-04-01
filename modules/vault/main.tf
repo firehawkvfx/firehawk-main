@@ -12,7 +12,9 @@ locals {
 module "vault" {
   # source             = "../../modules/terraform-aws-vault"
   # source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=v0.0.7"
-  source             = "github.com/queglay/terraform-aws-vault.git//?ref=dev"
+  source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=test-pull-request-236"
+  # source             = "github.com/queglay/terraform-aws-vault.git//?ref=dev"
+  
   use_default_vpc    = false
   vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
   subnet_tags        = map("area", "private")
