@@ -11,7 +11,8 @@ locals {
 }
 module "vault" {
   # source             = "../../modules/terraform-aws-vault"
-  source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=v0.0.7"
+  # source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=v0.0.7"
+  source             = "github.com/queglay/terraform-aws-vault.git//modules/terraform-aws-vault?ref=dev"
   use_default_vpc    = false
   vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
   subnet_tags        = map("area", "private")
@@ -19,6 +20,7 @@ module "vault" {
   ssh_key_name       = var.aws_key_name
   # Persist vault data in an S3 bucket when all nodes are shut down.
   enable_s3_backend      = true
+  use_existing_s3_bucket = true
   s3_bucket_name         = "vault.${var.bucket_extension}"
   ami_id                 = var.vault_consul_ami_id
   consul_cluster_name    = var.consul_cluster_name
