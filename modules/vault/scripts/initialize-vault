@@ -164,7 +164,7 @@ else
 
   if [[ $exit_status -eq 0 && -z "$errors" ]]; then
       echo "...Already logged in"
-      policies=$(echo "$output" | awk '/^policies/ { print $2 ; exit }')
+      policies="$(echo \"$output\" | awk '/^policies/ { print $2 ; exit }')"
       echo "policies: $policies"
   else
       echo "...Logging in. Or exit and use: vault login --no-print"
