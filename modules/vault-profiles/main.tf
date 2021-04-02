@@ -126,6 +126,9 @@ resource "vault_aws_auth_backend_role" "bastion" {
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
 }
+output "bastion_arn" {
+  value = data.terraform_remote_state.bastion_profile.outputs.instance_role_arn
+}
 data "terraform_remote_state" "vault_client_profile" {
   backend = "s3"
   config = {

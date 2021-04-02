@@ -79,4 +79,4 @@ else
     echo "...logging in. Or exit and use: vault login --no-print"
     vault login --no-print $VAULT_TOKEN
 fi
-vault token lookup
+# vault token lookup
