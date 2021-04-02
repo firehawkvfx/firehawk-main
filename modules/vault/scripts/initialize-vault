@@ -149,16 +149,21 @@ retryifnooutput \
 
 printf "\n\nAuthenticating to Vault.\n\n"
 
-# If a token is already valid, don't login.
-output=$(vault token lookup) && exit_status=0 || exit_status=$?
-errors=$(echo "$output") | grep '^{' | jq -r .errors
-
-echo ""
-
-if [[ $exit_status -eq 0 && -z "$errors" ]]; then
-    echo "...Already logged in"
+if [[ ! -z "$initial_root_token" ]]; then
+  echo "...Logging in. Or exit and use: vault login --no-print"
+  vault login --no-print $initial_root_token
 else
-    echo "...Logging in. Or exit and use: vault login --no-print"
-    vault login --no-print $initial_root_token
+  # If a token is already valid, no need to login.
+  output=$(vault token lookup) && exit_status=0 || exit_status=$?
+  errors=$(echo "$output") | grep '^{' | jq -r .errors
+
+  echo ""
+
+  if [[ $exit_status -eq 0 && -z "$errors" ]]; then
+      echo "...Already logged in"
+  else
+      echo "...Logging in. Or exit and use: vault login --no-print"
+      vault login --no-print
+  fi
+  echo ""
 fi
-echo ""
