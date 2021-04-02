@@ -17,9 +17,13 @@ exit_if_error() {
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-readonly instanceid="$(aws ec2 describe-instances --filters "Name=tag:Name,Values=vault-example" --filters "Name=instance-state-name,Values=running" | jq '.[][0]["Instances"][0]["InstanceId"]' --raw-output)"
+readonly query=$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0]")
+readonly instanceid="$(echo $query | jq '.[0]["InstanceId"]' --raw-output)"
+readonly privateip="$(echo $query | jq '.[0]["PrivateIpAddress"]' --raw-output)"
+# readonly instanceid="$(aws ec2 describe-instances --filters "Name=tag:Name,Values=vault-example" --filters "Name=instance-state-name,Values=running" | jq '.[][0]["Instances"][0]["InstanceId"]' --raw-output)"
+# readonly instanceid="$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0].InstanceId[]" | jq '.[0]' --raw-output)"
 readonly hostname=$instanceid.node.consul
-readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
+# readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
 
 echo "Removing any previous host keys for: $hostname,$privateip"
 ssh-keygen -R $hostname
