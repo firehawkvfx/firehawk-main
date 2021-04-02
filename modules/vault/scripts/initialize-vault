@@ -35,6 +35,30 @@ function retry {
   log "$error_message"
   exit $exit_status
 }
+function retryifnooutput {
+  local -r cmd="$1"
+  local -r description="$2"
+  local -r error_message="$3"
+
+  for i in $(seq 1 30); do
+    log "$description"
+
+    # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
+    # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
+    output=$(eval "$cmd") && exit_status=0 && [[ -z "$output" ]] || exit_status=$?
+    log "$output"
+    if [[ $exit_status -eq 0 ]]; then
+      echo "$output"
+      return
+    fi
+    log "$description failed. Will sleep for 10 seconds and try again."
+    sleep 10
+  done;
+
+  log "$description failed after 30 attempts."
+  log "$error_message"
+  exit $exit_status
+}
 
 exit_if_error() {
   local exit_code=$1
@@ -63,10 +87,10 @@ ssh-keygen -R $privateip
 echo "Adding hostkeys using AWS CLI query for $hostname,$privateip" # A seperate channel should always be used to add hsot keys, so we use the cli.
 # known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')
 
-retry \
-    "known_hosts_fragment=\"$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')\" && [[ -z \"$known_hosts_fragment\" ]] && echo $known_hosts_fragment || exit 1 " \
+known_hosts_fragment=$(retry \
+    "aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')" \
     "Querying host key for $instanceid..." \
-    "Failed to aquire host key."
+    "Failed to aquire host key.")
 
 if [[ -z "$known_hosts_fragment" ]]; then
     exit_if_error 1 "Couldn't get-console-output."
