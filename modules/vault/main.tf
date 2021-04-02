@@ -14,7 +14,7 @@ module "vault" {
   # source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=v0.0.7"
   source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=test-pull-request-236"
   # source             = "github.com/queglay/terraform-aws-vault.git//?ref=dev"
-  
+
   use_default_vpc    = false
   vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
   subnet_tags        = map("area", "private")
@@ -28,6 +28,7 @@ module "vault" {
   consul_cluster_name    = var.consul_cluster_name
   consul_cluster_tag_key = var.consul_cluster_tag_key
   resourcetier           = var.resourcetier
+  common_tags            = var.common_tags
 }
 
 
