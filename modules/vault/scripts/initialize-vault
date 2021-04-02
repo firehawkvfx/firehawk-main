@@ -119,3 +119,4 @@ initial_root_token=$(echo "$result" | awk '/^Initial Root Token:$/ { getline ; p
 
 echo "recovery_key: $recovery_key"
 echo "initial_root_token: $initial_root_token"
+echo "result: $result"
