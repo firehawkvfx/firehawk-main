@@ -119,4 +119,8 @@ initial_root_token=$(echo "$result" | awk '/^Initial Root Token:$/ { getline ; p
 
 echo "recovery_key: $recovery_key"
 echo "initial_root_token: $initial_root_token"
-echo "result: $result"
+if [[ -z "$initial_root_token" ]] || [[ -z "$recovery_key" ]]; then
+  echo ""
+  echo "Warning: Did not initialize vault:"
+  echo "$result"
+fi
