@@ -1,17 +1,36 @@
 #!/bin/bash
 
+# This script will intialise vault by sshing into the first vault server listed by tag
+
 set -e
+
+exit_if_error() {
+  local exit_code=$1
+  shift
+  [[ $exit_code ]] &&               # do nothing if no error code passed
+    ((exit_code != 0)) && {         # do nothing if error code is 0
+      printf 'ERROR: %s\n' "$@" >&2 # we can use better logging here
+      exit "$exit_code"             # we could also check to make sure
+                                    # error code is numeric when passed
+    }
+}
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-readonly instanceid="$(aws ec2 describe-tags --filters Name=key,Values=Name Name=value,Values=vault-example Name=resource-type,Values=instance | jq '.Tags[0].ResourceId' --raw-output)"
-readonly hostname=$instanceid.node.consul
-readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
+instanceid="$(aws ec2 describe-tags --filters Name=key,Values=Name Name=value,Values=vault-example Name=resource-type,Values=instance | jq '.Tags[0].ResourceId' --raw-output)"
+hostname=$instanceid.node.consul
+privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
 
 echo "Removing any previous host keys for: $hostname,$privateip"
 ssh-keygen -R $hostname
 ssh-keygen -R $privateip
 echo "Adding hostkeys using AWS CLI query for $hostname,$privateip"
-aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$hostname,$privateip '{ print host " " $1 " " $2 }' | tee --append ~/.ssh/known_hosts
+known_hosts_fragment=$(aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$hostname,$privateip '{ print host " " $1 " " $2 }')
+if [[ -z "$known_hosts_fragment" ]]; then
+    exit_if_error 1 "Couldn't get console output."
+else
+    echo "$known_hosts_fragment" | tee --append ~/.ssh/known_hosts
+    echo "Added to known hosts: $known_hosts_fragment"
+fi
 
 ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh"
