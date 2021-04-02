@@ -4,6 +4,38 @@
 
 set -e
 
+# Log the given message. All logs are written to stderr with a timestamp.
+function log {
+ local -r message="$1"
+ local readonly timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+ >&2 echo -e "$timestamp $message"
+}
+# A retry function that attempts to run a command a number of times and returns the output
+function retry {
+  local -r cmd="$1"
+  local -r description="$2"
+  local -r error_message="$3"
+
+  for i in $(seq 1 30); do
+    log "$description"
+
+    # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
+    # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
+    output=$(eval "$cmd") && exit_status=0 || exit_status=$?
+    log "$output"
+    if [[ $exit_status -eq 0 ]]; then
+      echo "$output"
+      return
+    fi
+    log "$description failed. Will sleep for 10 seconds and try again."
+    sleep 10
+  done;
+
+  log "$description failed after 30 attempts."
+  log "$error_message"
+  exit $exit_status
+}
+
 exit_if_error() {
   local exit_code=$1
   shift
@@ -29,9 +61,15 @@ echo "Removing any previous host keys for: $hostname,$privateip"
 ssh-keygen -R $hostname
 ssh-keygen -R $privateip
 echo "Adding hostkeys using AWS CLI query for $hostname,$privateip" # A seperate channel should always be used to add hsot keys, so we use the cli.
-known_hosts_fragment=$(aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$hostname,$privateip '{ print host " " $1 " " $2 }')
+# known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')
+
+retry \
+    "known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }'); test -n $known_hosts_fragment" \
+    "Querying host key for $instanceid..." \
+    "Failed to aquire host key."
+
 if [[ -z "$known_hosts_fragment" ]]; then
-    exit_if_error 1 "Couldn't get console output."
+    exit_if_error 1 "Couldn't get-console-output."
 else
     echo "$known_hosts_fragment" | tee --append ~/.ssh/known_hosts
     echo "Added to known hosts: $known_hosts_fragment"
