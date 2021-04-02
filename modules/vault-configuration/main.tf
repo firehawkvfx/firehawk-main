@@ -79,37 +79,29 @@ module "update-values-main" { # Init defaults
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }
 
-resource "vault_auth_backend" "aws" {
-  type = "aws"
-}
-
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 data "aws_canonical_user_id" "current" {}
 
-resource "vault_aws_auth_backend_client" "provisioner" {
-  # Sets the access key and secret key that Vault will use when making API requests on behalf of an AWS Auth Backend
-  backend                    = vault_auth_backend.aws.path
-  iam_server_id_header_value = "vault.service.consul"
-}
+
 
 ### Auth methods ###
 resource "vault_auth_backend" "example" {
   type = "userpass"
 }
 
-resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
-  role_name              = "vpn-server-vault-token-creds-role"
-  allowed_policies       = ["vpn_server", "ssh_host"]
-  token_period           = 1200
-  renewable              = true
-  token_explicit_max_ttl = 86400
-  # disallowed_policies = ["default"]
-  # token_bound_cidrs = ["10.0.0.0/16"]
-  # token_num_uses   = 1
-  # orphan           = true
-  # path_suffix         = "path-suffix"
-}
+# resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
+#   role_name              = "vpn-server-vault-token-creds-role"
+#   allowed_policies       = ["vpn_server", "ssh_host"]
+#   token_period           = 1200
+#   renewable              = true
+#   token_explicit_max_ttl = 86400
+#   # disallowed_policies = ["default"]
+#   # token_bound_cidrs = ["10.0.0.0/16"]
+#   # token_num_uses   = 1
+#   # orphan           = true
+#   # path_suffix         = "path-suffix"
+# }
 
 # resource "vault_aws_secret_backend" "aws" {
 #   # Enable dynamic generation of aws IAM user id's and secret keys
@@ -164,146 +156,6 @@ resource "vault_token_auth_backend_role" "vpn_vault_token_role" {
 # Once vault is configured below with the provisioner-vault-role, it is possible for any instance with the correct IAM profile to authenticate.
 # export VAULT_ADDR=https://vault.service.consul:8200
 # vault login -method=aws header_value=vault.service.consul role=provisioner-vault-role
-
-data "terraform_remote_state" "provisioner_profile" { # read the arn with data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.provisioner_profile.outputs.instance_profile_name
-  backend = "s3"
-  config = {
-    bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-provisioner/terraform.tfstate"
-    region = data.aws_region.current.name
-  }
-}
-resource "vault_aws_auth_backend_role" "provisioner" {
-  backend              = vault_auth_backend.aws.path
-  token_ttl            = 60
-  token_max_ttl        = 120
-  token_policies       = ["provisioner"]
-  role                 = "provisioner-vault-role"
-  auth_type            = "iam"
-  bound_account_ids    = [data.aws_caller_identity.current.account_id]
-  bound_iam_role_arns  = concat([data.terraform_remote_state.provisioner_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  inferred_entity_type = "ec2_instance"
-  inferred_aws_region  = data.aws_region.current.name
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-  # bound_ami_ids                   = ["ami-8c1be5f6"]
-  # bound_vpc_ids                   = ["vpc-b61106d4"]
-  # bound_subnet_ids                = ["vpc-133128f1"]
-  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
-}
-data "terraform_remote_state" "deadline_db_profile" {
-  backend = "s3"
-  config = {
-    bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-deadline-db/terraform.tfstate"
-    region = data.aws_region.current.name
-  }
-}
-resource "vault_aws_auth_backend_role" "deadline_db" {
-  backend              = vault_auth_backend.aws.path
-  token_ttl            = 60
-  token_max_ttl        = 120
-  token_policies       = ["deadline_db", "ssh_host", "pki_int"]
-  role                 = "deadline-db-vault-role"
-  auth_type            = "iam"
-  bound_account_ids    = [data.aws_caller_identity.current.account_id]
-  bound_iam_role_arns  = concat([data.terraform_remote_state.deadline_db_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  inferred_entity_type = "ec2_instance"
-  inferred_aws_region  = data.aws_region.current.name
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-  # bound_ami_ids                   = ["ami-8c1be5f6"]
-  # bound_vpc_ids                   = ["vpc-b61106d4"]
-  # bound_subnet_ids                = ["vpc-133128f1"]
-  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
-}
-
-data "terraform_remote_state" "openvpn_profile" { # read the arn with data.terraform_remote_state.openvpn_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.openvpn_profile.outputs.instance_profile_name
-  backend = "s3"
-  config = {
-    bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-openvpn/terraform.tfstate"
-    region = data.aws_region.current.name
-  }
-}
-resource "vault_aws_auth_backend_role" "vpn_server" {
-  backend              = vault_auth_backend.aws.path
-  token_ttl            = 300
-  token_max_ttl        = 300
-  token_policies       = ["vpn_server", "ssh_host"]
-  role                 = "vpn-server-vault-role"
-  auth_type            = "iam"
-  bound_account_ids    = [data.aws_caller_identity.current.account_id]
-  bound_iam_role_arns  = concat([data.terraform_remote_state.openvpn_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  inferred_entity_type = "ec2_instance"
-  inferred_aws_region  = data.aws_region.current.name
-  # bound_iam_instance_profile_arns = ["arn:aws:iam::123456789012:instance-profile/MyProfile"]
-  # iam_server_id_header_value      = "vault.service.consul" # required to mitigate against replay attacks.
-}
-
-data "terraform_remote_state" "rendernode_profile" {
-  backend = "s3"
-  config = {
-    bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-rendernode/terraform.tfstate"
-    region = data.aws_region.current.name
-  }
-}
-resource "vault_aws_auth_backend_role" "rendernode" {
-  backend              = vault_auth_backend.aws.path
-  token_ttl            = 300
-  token_max_ttl        = 300
-  token_policies       = ["ssh_host"]
-  role                 = "rendernode-vault-role"
-  auth_type            = "iam"
-  bound_account_ids    = [data.aws_caller_identity.current.account_id]
-  bound_iam_role_arns  = concat([data.terraform_remote_state.rendernode_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  inferred_entity_type = "ec2_instance"
-  inferred_aws_region  = data.aws_region.current.name
-}
-
-data "terraform_remote_state" "bastion_profile" {
-  backend = "s3"
-  config = {
-    bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-bastion/terraform.tfstate"
-    region = data.aws_region.current.name
-  }
-}
-resource "vault_aws_auth_backend_role" "bastion" {
-  backend              = vault_auth_backend.aws.path
-  token_ttl            = 300
-  token_max_ttl        = 300
-  token_policies       = ["ssh_host"]
-  role                 = "bastion-vault-role"
-  auth_type            = "iam"
-  bound_account_ids    = [data.aws_caller_identity.current.account_id]
-  bound_iam_role_arns  = concat([data.terraform_remote_state.bastion_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  inferred_entity_type = "ec2_instance"
-  inferred_aws_region  = data.aws_region.current.name
-}
-data "terraform_remote_state" "vault_client_profile" {
-  backend = "s3"
-  config = {
-    bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-vault-client/terraform.tfstate"
-    region = data.aws_region.current.name
-  }
-}
-resource "vault_aws_auth_backend_role" "vault_client" {
-  backend              = vault_auth_backend.aws.path
-  token_ttl            = 300
-  token_max_ttl        = 300
-  token_policies       = ["ssh_host"]
-  role                 = "vault-client-vault-role"
-  auth_type            = "iam"
-  bound_account_ids    = [data.aws_caller_identity.current.account_id]
-  bound_iam_role_arns  = concat([data.terraform_remote_state.vault_client_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
-  inferred_entity_type = "ec2_instance"
-  inferred_aws_region  = data.aws_region.current.name
-}
-
-
-
-
 
 # Produce certificates for mongo
 
@@ -466,15 +318,15 @@ resource "vault_ssh_secret_backend_role" "host_role" {
   allow_subdomains        = true
 }
 
-resource "vault_token_auth_backend_role" "host_vault_token_role" {
-  role_name        = "host-vault-token-creds-role"
-  allowed_policies = ["ssh_host"]
-  # disallowed_policies = ["default"]
-  # token_bound_cidrs = ["10.0.0.0/16"]
-  # token_num_uses   = 1
-  token_period           = 6000 # 100 mins TODO reduce this after testing
-  renewable              = true
-  token_explicit_max_ttl = 86400
-  # orphan           = true
-  # path_suffix         = "path-suffix"
-}
+# resource "vault_token_auth_backend_role" "host_vault_token_role" {
+#   role_name        = "host-vault-token-creds-role"
+#   allowed_policies = ["ssh_host"]
+#   # disallowed_policies = ["default"]
+#   # token_bound_cidrs = ["10.0.0.0/16"]
+#   # token_num_uses   = 1
+#   token_period           = 6000 # 100 mins TODO reduce this after testing
+#   renewable              = true
+#   token_explicit_max_ttl = 86400
+#   # orphan           = true
+#   # path_suffix         = "path-suffix"
+# }
