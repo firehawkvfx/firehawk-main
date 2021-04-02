@@ -150,6 +150,8 @@ retryifnooutput \
 # If a token is already valid, don't login.
 output=$(vault token lookup) && exit_status=0 || exit_status=$?
 errors=$(echo "$output") | grep '^{' | jq -r .errors
+
+echo ""
 echo "$output"
 if [[ $exit_status -eq 0 && -z "$errors" ]]; then
     echo "...Already logged in"
@@ -157,3 +159,4 @@ else
     echo "...Logging in. Or exit and use: vault login --no-print"
     vault login --no-print $initial_root_token
 fi
+echo ""
