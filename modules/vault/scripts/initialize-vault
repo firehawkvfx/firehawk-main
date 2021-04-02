@@ -114,8 +114,10 @@ fi
 
 result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
 
-recovery_key=$(echo "$result" | awk '/^Recovery Key 1:$/ { getline ; print $4 ; exit }')
-initial_root_token=$(echo "$result" | awk '/^Initial Root Token:$/ { getline ; print $4 ; exit }')
+recovery_key=$(echo "$result" | awk '/^Recovery Key 1:/ { print $4 ; exit }')
+initial_root_token=$(echo "$result" | awk '/^Initial Root Token:/ { print $4 ; exit }')
+
+| awk '/^Initial Root Token:/ { print $4 ; exit }'
 
 echo "recovery_key: $recovery_key"
 echo "initial_root_token: $initial_root_token"
@@ -123,4 +125,6 @@ if [[ -z "$initial_root_token" ]] || [[ -z "$recovery_key" ]]; then
   echo ""
   echo "Warning: Did not initialize vault:"
   echo "$result"
+else
+  vault login --no-print $initial_root_token
 fi
