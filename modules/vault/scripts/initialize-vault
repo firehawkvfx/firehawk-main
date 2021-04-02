@@ -113,7 +113,7 @@ else
     echo "Added to known hosts: $known_hosts_fragment"
 fi
 
-# if vault is already initialised, then login.
+# if vault is already initialised, skip init process.
 initialised=true
 vault status | grep -m 1 "Initialized.*true" || initialised=false
 if [[ "$initialised" == "true" ]]; then
@@ -138,15 +138,16 @@ else
   fi
 fi
 
+# Ensure a vault host exits before any further queries/login
 get_vault_ip() {
   dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'
 }
-
 retryifnooutput \
     "get_vault_ip" \
     "Querying vault IP's exist for service..." \
     "Failed to hosts for vault.service.consul."
 
+# If a token is already valid, don't login.
 output=$(vault token lookup) && exit_status=0 || exit_status=$?
 errors=$(echo "$output") | grep '^{' | jq -r .errors
 echo "$output"
