@@ -158,6 +158,14 @@ path "pki_int/intermediate/generate/internal" { # this permission requirement wa
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
+path "pki/root/generate/internal" { # this permission requirement wasn't documented anywhere, it should be refined to a smaller set.
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "pki/root/sign-intermediate" { # this permission requirement wasn't documented anywhere, it should be refined to a smaller set.
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 path "pki/config/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
