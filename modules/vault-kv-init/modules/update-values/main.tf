@@ -15,7 +15,7 @@ resource "null_resource" "init_secret" { # init a secret if empty
     command = <<EOT
       echo "Init secret after 1 second"
       sleep 1
-      vault kv put -cas=0 "${local.path}" value=""
+      result="$(vault kv put -cas=0 "${local.path}" value="")"
       exit_code=$?
       if [[ $exit_code -eq 0 ]]; then
         echo "Initialised new value"
@@ -23,6 +23,7 @@ resource "null_resource" "init_secret" { # init a secret if empty
         echo "Value is already initialised. exit code: $exit_code"
       else
         echo "Error: non-zero exit code: $exit_code"
+        echo "$result"
         exit 1
       fi
 EOT
