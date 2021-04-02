@@ -64,7 +64,7 @@ echo "Adding hostkeys using AWS CLI query for $hostname,$privateip" # A seperate
 # known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')
 
 retry \
-    "known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }'); test -n $known_hosts_fragment" \
+    "known_hosts_fragment=\"$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')\" && [[ -z \"$known_hosts_fragment\"]]" \
     "Querying host key for $instanceid..." \
     "Failed to aquire host key."
 
