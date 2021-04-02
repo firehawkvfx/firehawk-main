@@ -38,13 +38,13 @@ if [[ -z "$VAULT_TOKEN" ]]; then
     echo "Instances from this point require you to login to vault.  To avoid this message you can define the var VAULT_TOKEN"
 fi
 
-echo "Waiting for consul vault service (Ignore the following connection errors for a reasonable period until connection is established)..."
-# until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
+# echo "Waiting for consul vault service (Ignore the following connection errors for a reasonable period until connection is established)..."
+# # until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
 
-retry \
-    "consul catalog services | grep -m 1 'vault'" \
-    "Waiting for consul vault service..." \
-    "Couldn't obeerve the vault service.  You should try reinstalling consul on this instance and establishing a connection."
+# retry \
+#     "consul catalog services | grep -m 1 'vault'" \
+#     "Waiting for consul vault service..." \
+#     "Couldn't obeerve the vault service.  You should try reinstalling consul on this instance and establishing a connection."
 
 retry \
     "vault status | grep -m 1 'Initialized.*'" \
