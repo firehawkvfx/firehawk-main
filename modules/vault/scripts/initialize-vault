@@ -151,7 +151,7 @@ output=$(vault token lookup) && exit_status=0 || exit_status=$?
 errors=$(echo "$output") | grep '^{' | jq -r .errors
 
 echo ""
-echo "$output"
+
 if [[ $exit_status -eq 0 && -z "$errors" ]]; then
     echo "...Already logged in"
 else
