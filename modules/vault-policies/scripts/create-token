@@ -2,9 +2,15 @@
 
 set -e
 
-echo ""
-echo "Warning: creating an admin token and using it to login.  You should only ever run this script once."
-echo ""
+policies="$(vault token lookup | awk '/^policies/ { print $2 ; exit }')"
 
-admin_token=$(vault token create -policy=admins -policy=vpn_read_config -explicit-max-ttl=720h -field=token)
-vault login --no-print $admin_token
+if [[ "$policies" == "[root]" ]]; then
+    echo ""
+    echo "Warning: creating an admin token and using it to login.  You should only ever run this script once."
+    echo ""
+
+    admin_token=$(vault token create -policy=admins -policy=vpn_read_config -explicit-max-ttl=720h -field=token)
+    vault login --no-print $admin_token
+else
+    echo "A new admin token wasn't required since you are not logged in as root.  Use 'vault token lookup' for more information."
+fi

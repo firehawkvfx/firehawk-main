@@ -150,8 +150,11 @@ retryifnooutput \
 printf "\n\nAuthenticating to Vault.\n\n"
 
 if [[ ! -z "$initial_root_token" ]]; then
-  echo "...Logging in. Or exit and use: vault login --no-print"
-  vault login --no-print $initial_root_token
+  echo "...Logging in with initial token. Or exit and use: vault login --no-print"
+  retry \
+    "vault login --no-print $initial_root_token" \
+    "Attempting to login with initial token" \
+    "Failed to login with initial token."
 else
   # If a token is already valid, no need to login.
   output=$(vault token lookup) && exit_status=0 || exit_status=$?
