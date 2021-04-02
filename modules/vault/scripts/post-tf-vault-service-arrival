@@ -38,7 +38,7 @@ if [[ -z "$VAULT_TOKEN" ]]; then
     echo "Instances from this point require you to login to vault.  To avoid this message you can define the var VAULT_TOKEN"
 fi
 
-printf "\nWaiting for consul vault service\n(Ignore the following connection errors for a reasonable period until connection is established)...\n"
+printf "\nWaiting for consul vault service\n(Ignore the following connection errors for a reasonable period until connection is established)...\n\n"
 # until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
 
 retry \
