@@ -47,7 +47,7 @@ function retryifnooutput {
     # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
     output=$(eval "$cmd") && exit_status=0 || exit_status=$?
     log "$output"
-    if [[ $exit_status -eq 0 ]] && [[ -z "$output" ]]; then
+    if [[ $exit_status -eq 0 ]] && [[ ! -z "$output" ]]; then
       echo "$output"
       return
     fi
