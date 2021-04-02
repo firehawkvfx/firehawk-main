@@ -12,7 +12,7 @@ locals {
 module "vault" {
   # source             = "../../modules/terraform-aws-vault"
   # source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=v0.0.7"
-  source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=test-pull-request-236"
+  source = "github.com/firehawkvfx/firehawk-main.git//modules/terraform-aws-vault?ref=restore-missing-iam"
   # source             = "github.com/queglay/terraform-aws-vault.git//?ref=dev"
 
   use_default_vpc    = false
