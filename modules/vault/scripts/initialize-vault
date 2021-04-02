@@ -17,14 +17,14 @@ exit_if_error() {
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-instanceid="$(aws ec2 describe-tags --filters Name=key,Values=Name Name=value,Values=vault-example Name=resource-type,Values=instance | jq '.Tags[0].ResourceId' --raw-output)"
-hostname=$instanceid.node.consul
-privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
+readonly instanceid="$(aws ec2 describe-instances --filters "Name=tag:Name,Values=vault-example" --filters "Name=instance-state-name,Values=running" | jq '.[][0]["Instances"][0]["InstanceId"]' --raw-output)"
+readonly hostname=$instanceid.node.consul
+readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
 
 echo "Removing any previous host keys for: $hostname,$privateip"
 ssh-keygen -R $hostname
 ssh-keygen -R $privateip
-echo "Adding hostkeys using AWS CLI query for $hostname,$privateip"
+echo "Adding hostkeys using AWS CLI query for $hostname,$privateip" # A seperate channel should always be used to add hsot keys, so we use the cli.
 known_hosts_fragment=$(aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$hostname,$privateip '{ print host " " $1 " " $2 }')
 if [[ -z "$known_hosts_fragment" ]]; then
     exit_if_error 1 "Couldn't get console output."
