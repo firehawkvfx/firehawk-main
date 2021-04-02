@@ -46,12 +46,12 @@ function retryifnooutput {
     # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
     # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
     output=$(eval "$cmd") && exit_status=0 || exit_status=$?
-    log "$output"
+    # log "$output"
     if [[ $exit_status -eq 0 ]] && [[ ! -z "$output" ]]; then
       echo "$output"
       return
     fi
-    log "$description failed. Will sleep for 10 seconds and try again."
+    log "...failed. Will sleep for 10 seconds and try again."
     sleep 10
   done;
 
