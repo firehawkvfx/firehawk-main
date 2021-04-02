@@ -124,6 +124,16 @@ if [[ -z "$initial_root_token" ]] || [[ -z "$recovery_key" ]]; then
   echo ""
   echo "Warning: Did not initialize vault:"
   echo "$result"
-else
-  vault login --no-print $initial_root_token
+  exit 1
 fi
+
+get_vault_ip() {
+  dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'
+}
+
+retryifnooutput \
+    "get_vault_ip" \
+    "Querying vault IP's exist for service..." \
+    "Failed to hosts for vault.service.consul."
+
+vault login --no-print $initial_root_token
