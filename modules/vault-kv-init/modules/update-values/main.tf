@@ -13,8 +13,17 @@ resource "null_resource" "init_secret" { # init a secret if empty
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command = <<EOT
-      echo "Init secret"
-      vault kv put -cas=0 "${local.path}" value="" || echo "Value is already initialised / non-zero exit code"
+      echo "Init secret after 1 second"
+      sleep 1
+      vault kv put -cas=0 "${local.path}" value="" && exit_code=0 || exit_code=$?
+      if [[ $exit_code -eq 0 ]]; then
+        echo "Initialised new value"
+      elif [[ $exit_code -eq 400 ]]; then
+        echo "Value is already initialised. exit code: $exit_code"
+      else
+        echo "Error: non-zero exit code: $exit_code"
+        exit 1
+      fi
 EOT
   }
 }
