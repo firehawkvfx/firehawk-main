@@ -45,9 +45,9 @@ function retryifnooutput {
 
     # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
     # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
-    output=$(eval "$cmd") && exit_status=0 && [[ -z "$output" ]] || exit_status=$?
+    output=$(eval "$cmd") && exit_status=0 || exit_status=$?
     log "$output"
-    if [[ $exit_status -eq 0 ]]; then
+    if [[ $exit_status -eq 0 ]] && [[ -z "$output" ]]; then
       echo "$output"
       return
     fi
@@ -73,12 +73,12 @@ exit_if_error() {
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-readonly query=$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0]")
-readonly instanceid="$(echo $query | jq '.[0]["InstanceId"]' --raw-output)"
-readonly privateip="$(echo $query | jq '.[0]["PrivateIpAddress"]' --raw-output)"
+query=$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0]")
+instanceid="$(echo $query | jq '.[0]["InstanceId"]' --raw-output)"
+privateip="$(echo $query | jq '.[0]["PrivateIpAddress"]' --raw-output)"
 # readonly instanceid="$(aws ec2 describe-instances --filters "Name=tag:Name,Values=vault-example" --filters "Name=instance-state-name,Values=running" | jq '.[][0]["Instances"][0]["InstanceId"]' --raw-output)"
 # readonly instanceid="$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0].InstanceId[]" | jq '.[0]' --raw-output)"
-readonly hostname=$instanceid.node.consul
+hostname=$instanceid.node.consul
 # readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
 
 echo "Removing any previous host keys for: $hostname,$privateip"
@@ -87,8 +87,21 @@ ssh-keygen -R $privateip
 echo "Adding hostkeys using AWS CLI query for $hostname,$privateip" # A seperate channel should always be used to add hsot keys, so we use the cli.
 # known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')
 
+get_host_key() {
+  instanceid=$1
+  privateip=$2
+  aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$instanceid.node.consul,$privateip -v space=' ' '{ print host space $1 space $2 }'
+}
+
+# known_hosts_fragment=$(retryifnooutput \
+#     "aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$instanceid.node.consul,$privateip -v space=' ' '{ print host space $1 space $2 }'" \
+#     "Querying host key for $instanceid..." \
+#     "Failed to aquire host key.")
+
+get_host_key $instanceid $privateip
+
 known_hosts_fragment=$(retryifnooutput \
-    "aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$instanceid.node.consul,$privateip -v space=' ' '{ print host space $1 space $2 }'" \
+    "get_host_key $instanceid $privateip" \
     "Querying host key for $instanceid..." \
     "Failed to aquire host key.")
 
