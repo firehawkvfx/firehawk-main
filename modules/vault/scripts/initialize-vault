@@ -4,11 +4,14 @@ set -e
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 
-readonly host1="$(aws ec2 describe-tags --filters Name=key,Values=Name Name=value,Values=vault-example Name=resource-type,Values=instance | jq '.Tags[0].ResourceId' --raw-output).node.consul"
+readonly instanceid="$(aws ec2 describe-tags --filters Name=key,Values=Name Name=value,Values=vault-example Name=resource-type,Values=instance | jq '.Tags[0].ResourceId' --raw-output)"
+readonly hostname=$instanceid.node.consul
+readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
 
-echo "Warning: This step is a temporary measure until vault instances can init themselves.  A better workflow is required here for production use since we are not protected against MITM."
-echo "we are however in a newly created private subnet, and it is a temporary compromise."
-echo "Removing any previous host keys for: $host1"
-ssh-keygen -R $host1
+echo "Removing any previous host keys for: $hostname,$privateip"
+ssh-keygen -R $hostname
+ssh-keygen -R $privateip
+echo "Adding hostkeys using AWS CLI query for $hostname,$privateip"
+aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$hostname,$privateip '{ print host " " $1 " " $2 }' | tee --append ~/.ssh/known_hosts
 
-ssh -l ubuntu $host1 "bash -s" < "$SCRIPTDIR/initialize-ssh"
+ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh"
