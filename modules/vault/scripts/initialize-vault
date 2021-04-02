@@ -118,6 +118,7 @@ initialised=true
 vault status | grep -m 1 "Initialized.*true" || initialised=false
 if [[ "$initialised" == "true" ]]; then
   echo "Vault is already Initialized."
+  echo ""
 else
   result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
 
@@ -145,6 +146,8 @@ retryifnooutput \
     "get_vault_ip" \
     "Querying vault IP's exist for service..." \
     "Failed to hosts for vault.service.consul."
+
+printf "\n\nAuthenticating to Vault.\n\n"
 
 # If a token is already valid, don't login.
 output=$(vault token lookup) && exit_status=0 || exit_status=$?

@@ -154,6 +154,10 @@ path "pki_int/tidy" {
   capabilities = ["create", "update"]
 }
 
+path "pki_int/intermediate/generate/internal" { # this permission requirement wasn't documented anywhere, it should be refined to a smaller set.
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
 path "pki/config/*" {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
