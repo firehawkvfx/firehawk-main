@@ -1,11 +1,11 @@
-# resource "vault_mount" "resourcetier" {
-#   path        = var.resourcetier
-#   type        = "kv-v2"
-#   description = "KV2 Secrets Engine for dev."
-# }
+resource "vault_mount" "resourcetier" {
+  path        = var.resourcetier
+  type        = "kv-v2"
+  description = "KV2 Secrets Engine for dev."
+}
 module "update-values-resourcetier" { # Init defaults
   source           = "./modules/update-values"
-  # init             = false
+  # init             = true
   resourcetier     = var.resourcetier # dev, green, blue, or main
   mount_path       = var.resourcetier
   for_each         = local.dev
