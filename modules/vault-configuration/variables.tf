@@ -17,18 +17,6 @@ variable "onsite_private_subnet_cidr" {
   description = "The private subnet range that host IP's reside in onsite.  Usually provided by your router's DHCP range 192.168.x.0/24, where x is unique to your location."
   type = string
 }
-variable "restore_defaults" {
-  description = "If true, will reset all values to system defaults"
-  type        = bool
-  default     = false
-}
-
-variable "init" {
-  description = "If true, will only ensure paths exist."
-  type        = bool
-  default     = false
-}
-
 variable "aws_external_domain" {
   description = "The AWS external domain can be used for ssh certtificates, provided we always ensure to provide the CA cert to any host that wishes to connect. eg: ap-southeast-2.compute.amazonaws.com.  It is also possible to use your own domain, and recommended for produciton, provided you have enabled AWS access to control its name records."
   type        = string
