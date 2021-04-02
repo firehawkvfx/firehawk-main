@@ -31,11 +31,6 @@ module "vault" {
   common_tags            = var.common_tags
 }
 
-output "cluster_extra_tags" {
-  value = module.vault.cluster_extra_tags
-}
-
-
 ### Configure the current cloud9 instance to connect to vault ###
 data "aws_vpc" "primary" { # The primary is the Main VPC containing vault
   default = false

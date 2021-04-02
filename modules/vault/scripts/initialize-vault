@@ -118,7 +118,6 @@ initialised=true
 vault status | grep -m 1 "Initialized.*true" || initialised=false
 if [[ "$initialised" == "true" ]]; then
   echo "Vault is already Initialized."
-  exit
 else
   result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
 
@@ -134,7 +133,7 @@ else
     echo ""
     echo "Warning: Did not initialize vault:"
     echo "$result"
-    exit
+    exit 1
   fi
 fi
 
