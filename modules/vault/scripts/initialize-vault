@@ -112,4 +112,10 @@ else
     echo "Added to known hosts: $known_hosts_fragment"
 fi
 
-ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh"
+result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
+
+recovery_key=$(echo "$result" | awk '/^Recovery Key 1:$/ { getline ; print $4 ; exit }')
+initial_root_token=$(echo "$result" | awk '/^Initial Root Token:$/ { getline ; print $4 ; exit }')
+
+echo "recovery_key: $recovery_key"
+echo "initial_root_token: $initial_root_token"
