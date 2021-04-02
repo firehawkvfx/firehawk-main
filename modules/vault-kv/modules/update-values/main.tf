@@ -5,24 +5,7 @@ locals {
   path = "${var.mount_path}/${var.secret_name}"
 }
 
-# resource "null_resource" "init_secret" { # init a secret if empty
-#   triggers = {
-#     always_run = timestamp() # Always run this.
-#   }
-
-#   provisioner "local-exec" {
-#     interpreter = ["/bin/bash", "-c"]
-#     command = <<EOT
-#       echo "Init secret"
-#       vault kv put -cas=0 "${local.path}" value="" || echo "Value is already initialised / non-zero exit code"
-# EOT
-#   }
-# }
-
 data "vault_generic_secret" "vault_map" { # Get the map of data at the path
-  # depends_on = [null_resource.init_secret]
-  
-  # count = var.restore_defaults || var.init ? 0 : 1 # unfortunately, this wont work during generation if the secret doesn't already exist.
   count = 1
   path = local.path
 }
@@ -38,7 +21,6 @@ locals {
 }
 
 resource "vault_generic_secret" "vault_map_output" {
-  # count = var.init ? 0 : 1
   count = 1
   path = local.path
   data_json = jsonencode( local.result_map )

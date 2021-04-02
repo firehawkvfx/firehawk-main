@@ -7,7 +7,7 @@ locals {
 
 resource "null_resource" "init_secret" { # init a secret if empty
   triggers = {
-    always_run = timestamp() # Always run this.
+    always_run = timestamp() # Always run this since we dont know if this is a new vault and an old state file.  This could be better.  perhaps track an init var in the vault?
   }
 
   provisioner "local-exec" {
@@ -18,26 +18,3 @@ resource "null_resource" "init_secret" { # init a secret if empty
 EOT
   }
 }
-
-# data "vault_generic_secret" "vault_map" { # Get the map of data at the path
-#   depends_on = [null_resource.init_secret]
-  
-#   count = var.restore_defaults || var.init ? 0 : 1 # unfortunately, this wont work during generation if the secret doesn't already exist.
-#   path = local.path
-# }
-
-# locals {
-#   system_default = var.system_default # The system default map will define the value if value is not present, or value matches a preexisting default.
-#    # If a present value is different to a present default, retain the vault value.  Else use the system default.
-#    # We could use the kv put -patch option with a write, but this could increment versions unnecersarily.
-#   vault_map = element( concat( data.vault_generic_secret.vault_map.*.data, list({}) ), 0 )
-#   secret_value = contains( keys(local.vault_map), "value" ) && contains( keys(local.vault_map), "default" ) && lookup( local.vault_map, "value", "" ) != lookup( local.vault_map, "default", "") ? lookup( local.vault_map, "value", "") : local.system_default["default"] 
-#   secret_map = var.restore_defaults ? tomap( {"value" = local.system_default["default"] } ) : tomap( {"value" = local.secret_value } )
-#   result_map = merge( local.system_default, local.secret_map )
-# }
-
-# resource "vault_generic_secret" "vault_map_output" {
-#   count = var.init ? 0 : 1
-#   path = local.path
-#   data_json = jsonencode( local.result_map )
-# }
