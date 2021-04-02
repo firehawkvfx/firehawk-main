@@ -21,6 +21,9 @@ locals {
 }
 
 resource "vault_generic_secret" "vault_map_output" {
+  depends_on = [
+    data.vault_generic_secret.vault_map
+  ]
   count = 1
   path = local.path
   data_json = jsonencode( local.result_map )
