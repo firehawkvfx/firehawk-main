@@ -47,8 +47,8 @@ data "terraform_remote_state" "deadline_db_profile" {
 }
 resource "vault_aws_auth_backend_role" "deadline_db" {
   backend              = vault_auth_backend.aws.path
-  token_ttl            = 60
-  token_max_ttl        = 120
+  token_ttl            = 1200
+  token_max_ttl        = 1200
   token_policies       = ["deadline_db", "ssh_host", "pki_int"]
   role                 = "deadline-db-vault-role"
   auth_type            = "iam"
