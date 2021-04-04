@@ -20,7 +20,7 @@ data "terraform_remote_state" "provisioner_profile" { # read the arn with data.t
 }
 resource "vault_aws_auth_backend_role" "provisioner" {
   backend              = vault_auth_backend.aws.path
-  token_ttl            = 60
+  token_ttl            = 70
   token_max_ttl        = 120
   token_policies       = ["provisioner"]
   role                 = "provisioner-vault-role"
