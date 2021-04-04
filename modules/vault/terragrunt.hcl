@@ -24,7 +24,7 @@ terraform {
     commands = ["apply"]
     execute  = ["bash", "scripts/post-tf-vault-service-arrival"]
   }
-  after_hook "after_hook_2" {
+  after_hook "after_hook_3" {
     commands = ["apply"]
     execute  = ["bash", "scripts/post-tf-vault-login"]
   }
