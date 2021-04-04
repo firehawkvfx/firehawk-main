@@ -18,22 +18,42 @@ path "auth/token/renew-self" {
 
 # The provisioner policy is for packer instances and other automation that requires read access to vault
 
-path "dev/data/files/deadlinedb/*"
+path "dev/data/files/deadlinedb/*" # to be deprecated
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "green/data/files/deadlinedb/*"
+path "dev/data/deadlinedb/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "blue/data/files/deadlinedb/*"
+path "green/data/files/deadlinedb/*" # to be deprecated
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "main/data/files/deadlinedb/*"
+path "green/data/deadlinedb/client_cert_files/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/data/files/deadlinedb/*" # to be deprecated
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "blue/data/deadlinedb/client_cert_files/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/data/files/deadlinedb/*" # to be deprecated
+{
+  capabilities = ["create", "read", "update", "delete", "list"]
+}
+
+path "main/data/deadlinedb/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
