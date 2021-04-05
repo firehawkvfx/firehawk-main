@@ -12,6 +12,10 @@ path "dev/data/deadline/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
+# path "dev/data/deadline/client_cert_files/opt/Thinkbox/certs/*"
+# {
+#   capabilities = ["create", "read", "update", "delete", "list"]
+# }
 
 path "green/data/deadline/client_cert_files/*"
 {

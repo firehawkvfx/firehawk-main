@@ -97,7 +97,7 @@ resource "vault_aws_auth_backend_role" "rendernode" {
   backend              = vault_auth_backend.aws.path
   token_ttl            = 300
   token_max_ttl        = 300
-  token_policies       = ["deadline_client_policy", "ssh_host"]
+  token_policies       = ["deadline_client", "ssh_host"]
   role                 = "rendernode-vault-role"
   auth_type            = "iam"
   bound_account_ids    = [data.aws_caller_identity.current.account_id]
