@@ -24,6 +24,10 @@ resource "vault_policy" "deadline_db_policy" {
   name   = "deadline_db"
   policy = file("policies/deadline_db_policy.hcl")
 }
+resource "vault_policy" "deadline_client_policy" {
+  name   = "deadline_db"
+  policy = file("policies/deadline_client_policy.hcl")
+}
 resource "vault_policy" "provisioner_policy" {
   name   = "provisioner"
   policy = file("policies/provisioner_policy.hcl")
