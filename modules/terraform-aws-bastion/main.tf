@@ -46,9 +46,9 @@ data "aws_route_tables" "private" {
   tags   = map("area", "private")
 }
 
-data "vault_generic_secret" "private_domain" { # Get the map of data at the path
-  path = "${local.mount_path}/network/private_domain"
-}
+# data "vault_generic_secret" "private_domain" { # Get the map of data at the path
+#   path = "${local.mount_path}/network/private_domain"
+# }
 
 # data "vault_generic_secret" "onsite_public_ip" { # The remote onsite IP address
 #   path = "${local.mount_path}/network/onsite_public_ip"
@@ -68,7 +68,7 @@ locals {
   public_subnet_cidr_blocks  = [for s in data.aws_subnet.public : s.cidr_block]
   private_subnets            = tolist(data.aws_subnet_ids.private.ids)
   private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
-  private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
+  # private_domain             = lookup(data.vault_generic_secret.private_domain.data, "value")
   onsite_public_ip           = var.onsite_public_ip
   private_route_table_ids    = data.aws_route_tables.private.ids
   public_route_table_ids     = data.aws_route_tables.public.ids
