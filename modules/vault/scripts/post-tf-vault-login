@@ -72,11 +72,12 @@ echo "vault token lookup"
 
 output=$(vault token lookup) && exit_status=0 || exit_status=$?
 errors=$(echo "$output") | grep '^{' | jq -r .errors
-echo "$output"
+
 if [[ $exit_status -eq 0 && -z "$errors" ]]; then
-    echo "$output"
+    # echo "$output"
+    echo "...Logged in."
 else
-    echo "...logging in. Or exit and use: vault login --no-print"
+    echo "...Logging in. Or exit and use: vault login --no-print"
     vault login --no-print $VAULT_TOKEN
 fi
 # vault token lookup
