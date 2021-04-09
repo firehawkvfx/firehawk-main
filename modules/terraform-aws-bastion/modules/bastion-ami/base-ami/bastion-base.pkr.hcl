@@ -28,9 +28,9 @@ locals {
   template_dir = path.root
 }
 
-source "amazon-ebs" "amazon-linux-2-ami" {
+source "amazon-ebs" "amazolinux2-ami" {
   ami_description = "An Amazon Linux 2 AMI that will accept connections from hosts with TLS Certs."
-  ami_name        = "firehawk-bastionbase-amazon-linux-2-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-bastionbase-amazolinux2-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami_filter {
@@ -131,7 +131,7 @@ build {
   sources = [
     "source.amazon-ebs.ubuntu18-ami",
     "source.amazon-ebs.ubuntu16-ami",
-    "source.amazon-ebs.amazon-linux-2-ami",
+    "source.amazon-ebs.amazolinux2-ami",
     "source.amazon-ebs.centos7-ami"
     ]
 
@@ -174,7 +174,7 @@ build {
     inline         = [
       "sudo yum update -y"
     ]
-    only = ["amazon-ebs.centos7-ami", "amazon-linux-2-ami"]
+    only = ["amazon-ebs.centos7-ami", "amazolinux2-ami"]
   }
 
   post-processor "manifest" {

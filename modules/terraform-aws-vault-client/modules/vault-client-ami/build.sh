@@ -18,7 +18,7 @@ if [[ -f "$manifest" ]]; then
     export PKR_VAR_ubuntu16_ami="$(jq -r '.builds[] | select(.name == "ubuntu16-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
     echo "Found ubuntu16_ami in manifest: PKR_VAR_ubuntu16_ami=$PKR_VAR_ubuntu16_ami"
 
-    export PKR_VAR_amazon_linux_2_ami="$(jq -r '.builds[] | select(.name == "amazon-linux-2-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
+    export PKR_VAR_amazon_linux_2_ami="$(jq -r '.builds[] | select(.name == "amazolinux2-ami") | .artifact_id' "$manifest" | tail -1 | cut -d ":" -f2)"
     echo "Found amazon_linux_2_ami in manifest: PKR_VAR_amazon_linux_2_ami=$PKR_VAR_amazon_linux_2_ami"
 else
     echo "Manifest for base ami does not exist.  Build the base ami and try again."

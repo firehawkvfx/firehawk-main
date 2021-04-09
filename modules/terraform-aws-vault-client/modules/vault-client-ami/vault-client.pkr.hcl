@@ -111,9 +111,9 @@ locals {
 # https://www.packer.io/docs/from-1.5/blocks/source
 #could not parse template for following block: "template: generated:4: function \"clean_resource_name\" not defined"
 
-source "amazon-ebs" "amazon-linux-2-ami" {
+source "amazon-ebs" "amazolinux2-ami" {
   ami_description = "An Amazon Linux 2 AMI that will accept connections from hosts with TLS Certs."
-  ami_name        = "firehawk-vault-client-amazon-linux-2-${local.timestamp}-{{uuid}}"
+  ami_name        = "firehawk-vault-client-amazolinux2-${local.timestamp}-{{uuid}}"
   instance_type   = "t2.micro"
   region          = "${var.aws_region}"
   source_ami      = "${var.amazon_linux_2_ami}"
@@ -220,7 +220,7 @@ source "amazon-ebs" "ubuntu18-ami" {
 # documentation for build blocks can be found here:
 # https://www.packer.io/docs/from-1.5/blocks/build
 build {
-  sources = ["source.amazon-ebs.amazon-linux-2-ami", "source.amazon-ebs.centos7-ami", "source.amazon-ebs.ubuntu18-ami"]
+  sources = ["source.amazon-ebs.amazolinux2-ami", "source.amazon-ebs.centos7-ami", "source.amazon-ebs.ubuntu18-ami"]
 
   provisioner "shell" {
     inline = ["mkdir -p /tmp/terraform-aws-vault/modules"]
@@ -304,7 +304,7 @@ build {
       "sudo yum install -y git",
       "git --version"
     ]
-    only = ["amazon-ebs.amazon-linux-2-ami"]
+    only = ["amazon-ebs.amazolinux2-ami"]
   }
   provisioner "shell" {
     inline = [
@@ -312,7 +312,7 @@ build {
       "python3 -m pip install --user --upgrade pip",
       "python3 -m pip install --user boto3"
     ]
-    only = ["amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
+    only = ["amazon-ebs.amazolinux2-ami", "amazon-ebs.centos7-ami"]
   }
   ### This block will install Vault and Consul Agent
   provisioner "shell" { # Vault client probably wont be installed on vault clients in future, but most hosts that will authenticate will require it.
@@ -356,7 +356,7 @@ build {
       "/tmp/terraform-aws-consul/modules/install-dnsmasq/install-dnsmasq",
       "sudo systemctl restart dnsmasq",
       ]
-    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazon-linux-2-ami", "amazon-ebs.centos7-ami"]
+    only   = ["amazon-ebs.ubuntu16-ami", "amazon-ebs.amazolinux2-ami", "amazon-ebs.centos7-ami"]
   }
   provisioner "shell" {
     inline = [
