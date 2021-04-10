@@ -119,7 +119,7 @@ function request_sign_public_key {
     log "Configuring known hosts. To ensure $ssh_known_hosts is current before copying to homedir for download."
     $SCRIPTDIR/../known-hosts/known_hosts.sh
     log "Copying $DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT to $(dirname $public_key).  Ensure you download this file if you intend to connect from a remote client to ensure ssh hosts have valid host certs."
-    sudo cp "$DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT" "$(dirname $public_key)"
+    sudo cp -f "$DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT" "$(dirname $public_key)"
   fi
 
   log_info "Signing public key"
