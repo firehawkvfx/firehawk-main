@@ -28,6 +28,10 @@ resource "vault_policy" "deadline_client_policy" {
   name   = "deadline_client"
   policy = file("policies/deadline_client_policy.hcl")
 }
+resource "vault_policy" "workstation_pw_policy" {
+  name   = "workstation_pw"
+  policy = file("policies/workstation_pw_policy.hcl")
+}
 resource "vault_policy" "provisioner_policy" {
   name   = "provisioner"
   policy = file("policies/provisioner_policy.hcl")

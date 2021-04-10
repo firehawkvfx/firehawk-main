@@ -105,6 +105,26 @@ resource "vault_aws_auth_backend_role" "rendernode" {
   inferred_entity_type = "ec2_instance"
   inferred_aws_region  = data.aws_region.current.name
 }
+data "terraform_remote_state" "workstation_profile" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "firehawk-main/modules/terraform-aws-iam-profile-workstation/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+resource "vault_aws_auth_backend_role" "workstation" {
+  backend              = vault_auth_backend.aws.path
+  token_ttl            = 300
+  token_max_ttl        = 300
+  token_policies       = ["deadline_client", "ssh_host", "workstation_pw"]
+  role                 = "workstation-vault-role"
+  auth_type            = "iam"
+  bound_account_ids    = [data.aws_caller_identity.current.account_id]
+  bound_iam_role_arns  = concat([data.terraform_remote_state.workstation_profile.outputs.instance_role_arn]) # Only instances with this Role ARN May read vault data.
+  inferred_entity_type = "ec2_instance"
+  inferred_aws_region  = data.aws_region.current.name
+}
 
 data "terraform_remote_state" "bastion_profile" {
   backend = "s3"
