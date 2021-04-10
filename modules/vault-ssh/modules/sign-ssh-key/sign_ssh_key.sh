@@ -119,8 +119,14 @@ function request_sign_public_key {
     log "Configuring known hosts. To ensure $ssh_known_hosts is current before copying to homedir for download."
     $SCRIPTDIR/../known-hosts/known_hosts.sh
     log "Copying $DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT to $(dirname $public_key).  Ensure you download this file to a remote client if you intend to connect from that client, ensuring ssh hosts have valid certs."
-    sudo rm -fv "$(dirname $public_key)/ssh_known_hosts_fragment" # if the file is the same, cp will raise a non 0 exit code, so we remove it.
-    sudo cp -f "$DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT" "$(dirname $public_key)"
+    # sudo rm -fv "$(dirname $public_key)/ssh_known_hosts_fragment" # if the file is the same, cp will raise a non 0 exit code, so we remove it.
+    FILE1=$DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT
+    FILE2="$(dirname $public_key)/$(basename $DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT)"
+    if [ "$(stat -L -c %d:%i FILE1)" = "$(stat -L -c %d:%i FILE2)" ]; then
+      echo "FILE1 and FILE2 refer to a single file, with one inode, on one device."
+    else
+      sudo cp -f "$FILE1" "$FILE2"
+    fi
   fi
 
   log_info "Signing public key"
