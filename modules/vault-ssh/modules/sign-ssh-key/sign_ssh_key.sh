@@ -123,7 +123,7 @@ function request_sign_public_key {
     FILE1=$DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT
     FILE2="$(dirname $public_key)/$(basename $DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT)"
     if [ "$(stat -L -c %d:%i FILE1)" = "$(stat -L -c %d:%i FILE2)" ]; then
-      echo "FILE1 and FILE2 refer to a single file, with one inode, on one device."
+      echo "FILE1 and FILE2 refer to a single file, with one inode, on one device. Skip copy."
     else
       sudo cp -f "$FILE1" "$FILE2"
     fi
