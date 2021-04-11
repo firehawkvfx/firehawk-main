@@ -12,5 +12,6 @@ dependencies {
   paths = [
     "../vault",
     # "../vault-configuration"
+    "../terraform-aws-sg-bastion"
     ]
 }
