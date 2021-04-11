@@ -32,12 +32,7 @@ path "dev/data/network/*"
   capabilities = ["list", "read"]
 }
 
-path "dev/data/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "dev/data/network/vpn_files/*"
+path "dev/data/vpn/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
@@ -57,12 +52,7 @@ path "green/data/network/*"
   capabilities = ["list", "read"]
 }
 
-path "green/data/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "green/data/network/vpn_files/*"
+path "green/data/vpn/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
@@ -82,12 +72,7 @@ path "blue/data/network/*"
   capabilities = ["list", "read"]
 }
 
-path "blue/data/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "blue/data/network/vpn_files/*"
+path "blue/data/vpn/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
@@ -107,12 +92,7 @@ path "main/data/network/*"
   capabilities = ["list", "read"]
 }
 
-path "main/data/files/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "main/data/network/vpn_files/*"
+path "main/data/vpn/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
