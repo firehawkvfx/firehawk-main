@@ -95,3 +95,7 @@ variable "vpcname_vaultvpc" {
     description = "A namespace component defining the location of the terraform remote state"
     type = string
 }
+variable "combined_vpcs_cidr" {
+  description = "All AWS CIDR ranges exist within this CIDR Range."
+  type        = string
+}
