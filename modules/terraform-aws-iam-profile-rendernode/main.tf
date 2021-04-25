@@ -11,6 +11,7 @@ resource "aws_iam_instance_profile" "instance_profile" {
 data "aws_iam_policy_document" "assume_role" { # Determines the services able to assume the role.  Any entity assuming this role will be able to authenticate to vault.
   statement {
     effect  = "Allow"
+    sid = ""
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
