@@ -17,6 +17,8 @@ Metadata:
           - onsiteprivatesubnetcidr
           - vpncidr
           - globalbucketextension
+          - ublurl
+          - ublactivationcode
           - houdinilicenseserveraddress
           - sesiclientid
           - sesiclientsecretkey
@@ -36,11 +38,15 @@ Metadata:
       vpncidr:
         default: "The CIDR range Open VPN will use internally for routing"
       globalbucketextension:
-        default: "Your Global Bucket Extension"
+        default: "Your Global Bucket Extension."
+      ublurl:
+        default: "Your Deadline Usage Based Licensing URL."
+      ublactivationcode:
+        default: "Your Deadline Usage Based Licensing activation code."
       houdinilicenseserveraddress:
-        default: "Your Houdini License Server IP Address"
+        default: "Your Houdini License Server IP Address."
       sesiclientid:
-        default: "You Side FX Account API Client ID"
+        default: "You Side FX Account API Client ID."
       sesiclientsecretkey:
         default: "You Side FX Account API Secret Key"
 
@@ -97,6 +103,17 @@ Parameters:
     Type: String
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
     ConstraintDescription: bucket name can include numbers, lowercase letters, uppercase letters, dots (.) and hyphens (-). It cannot start or end with a dot (.) or hyphen (-).
+  ublurl:
+    Description: 'The URL provided by Thinkbox for your Usage Based Licencing credits.  Rendernodes on AWS get deadline free, but if you require UBL software licences for other packages or for your onsite workstations you will need to purchase credits.'
+    Type: String
+    AllowedPattern: "^https.*"
+    ConstraintDescription: URL should start with https://thinkbox.compliance.flexnetoperations.com
+  ublactivationcode:
+    NoEcho: true
+    Description: 'The 16 digit activation code provided by Thinkbox for your usage based licencing. eg: 3JNF-V8B7-3JDN-48GN'
+    Type: String
+    AllowedPattern: "^.{19}$"
+    ConstraintDescription: The provided string must be 16 digits.
 Resources:
   SSMCombinedVPCCIDR:
     Type: AWS::SSM::Parameter
@@ -185,6 +202,31 @@ Resources:
       Value: !Ref globalbucketextension
       Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com eg2: myemailatgmaildotcom'
       AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
+# Deadline UBL Licensing
+  UsageBasedLicenseURL:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /ubl_url
+      Type: String
+      Value: !Ref ublurl
+      Description: 'The URL provided by Thinkbox for your Usage Based Licencing credits.  Rendernodes on AWS get deadline free, but if you require UBL software licences for other packages or for your onsite workstations you will need to purchase credits.'
+      AllowedPattern: "^https.*"
+  UsageBasedLicenseActivationCode:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /ubl_activation_code
+      SecretString: !Ref ublactivationcode
+      Description: 'The 16 digit activation code provided by Thinkbox for your usage based licencing.'
 # For Houdini
   SSMHoudiniLicenseServerAddress:
     Type: AWS::SSM::Parameter
