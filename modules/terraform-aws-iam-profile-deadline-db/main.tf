@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "assume_role" { # Determines the services able to
 #   share_with_arns = [ aws_iam_role.instance_role.arn ]
 # }
 
-module "iam_policies_s3_read_write" {
+module "iam_policies_deadline_spot_fleet" {
   source = "github.com/firehawkvfx/firehawk-main.git//modules/aws-iam-policies-deadline-spot-fleet?ref=config-deadline-spot"
   name = "DeadlineSpotFleetLauncher_${var.conflictkey}"
   iam_role_id = aws_iam_role.instance_role.id
