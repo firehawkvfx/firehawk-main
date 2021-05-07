@@ -12,6 +12,7 @@ locals {
 module "vpc" {
   source                       = "./modules/terraform-aws-vpc"
   vpc_name                     = local.common_tags["vpcname"]
+  enable_nat_gateway           = var.enable_nat_gateway
   vpc_cidr                     = module.vaultvpc_all_subnet_cidrs.base_cidr_block
   public_subnets               = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
   private_subnets              = module.vaultvpc_all_private_subnet_cidrs.networks[*].cidr_block

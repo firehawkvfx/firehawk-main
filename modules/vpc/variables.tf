@@ -116,3 +116,9 @@ variable "common_tags" {
   description = "Common tags for all resources in a deployment run."
   type        = map(string)
 }
+
+variable "enable_nat_gateway" {
+  description = "NAT gateway allows outbound internet access for instances in the private subnets."
+  type        = bool
+  default     = true
+}
