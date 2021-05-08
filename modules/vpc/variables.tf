@@ -120,5 +120,5 @@ variable "common_tags" {
 variable "enable_nat_gateway" {
   description = "NAT gateway allows outbound internet access for instances in the private subnets."
   type        = bool
-  default     = true
+  # default     = true
 }
