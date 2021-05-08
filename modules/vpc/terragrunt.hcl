@@ -9,6 +9,6 @@ locals {
 inputs = merge(
   local.common_vars.inputs,
   {
-    "enable_nat_gateway" : false 
+    "enable_nat_gateway" : true 
   }
 )
