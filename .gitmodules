@@ -1,5 +1,5 @@
 [submodule "modules/terraform-aws-vault"]
-	path = modules/terraform-aws-vault
+	path = modules/vault/modules/terraform-aws-vault
 	url = ../terraform-aws-vault.git
 [submodule "modules/terraform-aws-vpn"]
 	path = modules/terraform-aws-vpn
