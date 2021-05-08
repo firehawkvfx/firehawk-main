@@ -5,17 +5,5 @@ tmp/log/*
 **/.DS_Store
 **/tfplan
 # These will be simplified when all modules have migrated to terragrunt
-modules/terraform-aws-bastion/s3-backend.tf
-modules/terraform-aws-iam-profile-bastion/s3-backend.tf
-modules/terraform-aws-iam-profile-deadline-db/s3-backend.tf
-modules/terraform-aws-iam-profile-openvpn/s3-backend.tf
-modules/terraform-aws-iam-profile-provisioner/s3-backend.tf
-modules/terraform-aws-iam-profile-rendernode/s3-backend.tf
-modules/terraform-aws-iam-profile-vault-client/s3-backend.tf
-modules/terraform-aws-sg-bastion/s3-backend.tf
-modules/terraform-aws-vault-client/s3-backend.tf
-modules/terraform-aws-vpc-main-cloud9-peering/s3-backend.tf
-modules/terraform-aws-vpn-post/s3-backend.tf
-modules/vault-configuration/s3-backend.tf
-modules/vault/s3-backend.tf
-modules/vpc/s3-backend.tf
+**/s3-backend.tf
+**/.terragrunt-cache/*
