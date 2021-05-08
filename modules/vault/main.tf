@@ -10,7 +10,7 @@ locals {
   common_tags = var.common_tags
 }
 module "vault" {
-  source = "github.com/firehawkvfx/terraform-aws-vault.git//?ref=firehawk_v0.0.3"
+  source = "./modules/terraform-aws-vault"
 
   use_default_vpc    = false
   vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
