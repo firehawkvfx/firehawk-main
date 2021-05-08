@@ -42,7 +42,7 @@ variable "consul_module_version" {
 
 variable "consul_version" {
   type    = string
-  default = "1.9.2"
+  default = "1.8.4"
 }
 
 variable "vault_download_url" {
@@ -52,7 +52,7 @@ variable "vault_download_url" {
 
 variable "vault_version" {
   type    = string
-  default = "1.6.1"
+  default = "1.5.5"
 }
 
 variable "consul_cluster_tag_key" {
