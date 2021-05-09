@@ -22,6 +22,10 @@ Metadata:
           - houdinilicenseserveraddress
           - sesiclientid
           - sesiclientsecretkey
+          - onsitestorage
+          - onsitenfsexport
+          - onsitenfsmounttarget
+          - prodmounttarget
     ParameterLabels: 
       resourcetier: 
         default: "Deployment Environment (resourcetier)"
@@ -46,10 +50,17 @@ Metadata:
       houdinilicenseserveraddress:
         default: "Your Houdini License Server IP Address."
       sesiclientid:
-        default: "You Side FX Account API Client ID."
+        default: "Your Side FX Account API Client ID."
       sesiclientsecretkey:
-        default: "You Side FX Account API Secret Key"
-
+        default: "Your Side FX Account API Secret Key"
+      onsitestorage:
+        default: "Do you have an onsite volume to mount over the VPN (NFS)?"
+      onsitenfsexport:
+        default: "The mount export path used to mount your NFS share."
+      onsitenfsmounttarget:
+        default: "The target path used to mount your NFS share to."
+      prodmounttarget:
+        default: "The production mount target path (The default path for production resources)."
 Parameters:
   resourcetier:
     Description: 'The resource tier uniquely defining the deployment area.  eg: dev/green/blue/main.'
@@ -114,6 +125,25 @@ Parameters:
     Type: String
     AllowedPattern: "^.{19}$"
     ConstraintDescription: The provided string must be 16 digits.
+  onsitestorage:
+    Description: 'Do you have onsite NFS storage you wish to mount over VPN? (Recommended for PDG)'
+    Type: String
+    AllowedValues:
+    - false
+    - true
+    Default: false
+  onsitenfsexport:
+    Description: 'The onsite NFS export path. (This is the first arg in /etc/fstab used to mount the NFS share).'
+    Type: String
+    Default: 'NAS_IP:/prod'
+  onsitenfsmounttarget:
+    Description: 'The mount target for the NFS share on the remote nodes. This is an absolute path to the storage at your location. (This is the second arg in /etc/fstab used to mount the NFS share).'
+    Type: String
+    Default: '/onsite_prod'
+  prodmounttarget:
+    Description: 'The production mount target for the nearest storage available based on location. (This is a bind mount in /etc/fstab used to mount the nearest/fastest storage available depending on location).'
+    Type: String
+    Default: '/prod'
 Resources:
   SSMCombinedVPCCIDR:
     Type: AWS::SSM::Parameter
@@ -264,3 +294,52 @@ Resources:
           - /sesi_client_secret_key
       SecretString: !Ref sesiclientsecretkey
       Description: 'The client secret key generated from your Side FX Account to automatically download Houdini.'
+
+  SSMOnsiteStorage:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /onsite_storage
+      Type: String
+      Value: !Ref onsitestorage
+      Description: 'Is onsite storage to mount over VPN available?'
+  SSMOnsiteNFSExport:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /onsite_nfs_export
+      Type: String
+      Value: !Ref onsitenfsexport
+      Description: 'The NFS export path or first arg for /etc/fstab for mounts on render nodes.'
+  SSMOnsiteNFSMountTarget:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /onsite_nfs_mount_target
+      Type: String
+      Value: !Ref onsitenfsmounttarget
+      Description: 'The NFS target path to mount two or second arg for /etc/fstab mounts on render nodes.'
+  SSMProdMountTarget:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /prod_mount_target
+      Type: String
+      Value: !Ref prodmounttarget
+      Description: 'The prod mount target may mount a different source depending on the location of the node.'
