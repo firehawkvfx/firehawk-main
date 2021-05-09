@@ -10,7 +10,7 @@ if [[ "$1" == "aggressive" ]]; then
 fi
 
 function destroy {
-    if [[ "$1"==true ]]; then
+    if [[ "$1" == "true" ]]; then
         terraform destroy --auto-approve
     else
         terraform plan -out=tfplan -input=false -destroy
