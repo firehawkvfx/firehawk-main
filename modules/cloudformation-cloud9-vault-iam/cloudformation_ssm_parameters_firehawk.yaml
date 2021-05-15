@@ -21,6 +21,7 @@ Metadata:
           - onsiteprivatesubnetcidr
           - onsiteprivatevpnip
           - vpncidr
+          - onsiteuserpublickey
       - 
         Label: 
           default: "Deadline Automation"
@@ -64,6 +65,8 @@ Metadata:
         default: "Your intended static IP for the Open VPN virtual machine."
       vpncidr:
         default: "The CIDR range Open VPN will use internally for routing"
+      onsiteuserpublickey:
+        default: "The public key for your remote user that will SSH to retrieve VPN credentials and other vault data."
       globalbucketextension:
         default: "Your Global Bucket Extension."
       ublurl:
@@ -125,6 +128,9 @@ Parameters:
     Type: String
     Default: "172.17.232.0/24"
     AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([1-2][0-9]|3[0-2]))?$"
+  onsiteuserpublickey:
+    Description: 'Your SSH public key located at ~/.ssh/id_rsa.pub (CAUTION: Do not use your private key).  The public key will be used by vault to generate an SSH certificate, enabling SSH authentication to other hosts. It can be retrieved by the commmand: "cat ~/.ssh/id_rsa.pub"'
+    Type: String
   sesiclientid:
     Description: 'The client secret key generated from your Side FX Account to automatically download Houdini.'
     Type: String
@@ -259,6 +265,18 @@ Resources:
       Type: String
       Value: !Ref vpncidr
       Description: 'The IP range open VPN will use internally for routing.  The default should be fine for most purposes. eg: dev=172.17.232.0/24, blue=172.18.232.0/24, green=172.19.232.0/24, main=172.20.232.0/24'
+  SSMOnsiteUserPublicKey:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /onsite_user_public_key
+      Type: String
+      Value: !Ref onsiteuserpublickey
+      Description: 'The public key will be used to provide a certificate for SSH.'
   GlobalBucketExtension:
     Type: AWS::SSM::Parameter
     Properties:

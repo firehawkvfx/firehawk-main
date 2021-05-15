@@ -61,10 +61,28 @@ function assert_not_empty {
   fi
 }
 
+function set_ssm_parm_value {
+  local -r parm_name="$1"
+  local -r value="$2"
+  aws ssm put-parameter \
+    --name "${parm_name}" \
+    --type "String" \
+    --value "${value}" \
+    --overwrite
+}
+
 function request_trusted_ca {
   local -r trusted_ca="$1"
   # Aquire the public CA cert to approve an authority for known hosts.
-  vault read -field=public_key ssh-client-signer/config/ca | sudo tee $trusted_ca
+  trusted_ca_value=$(vault read -field=public_key ssh-client-signer/config/ca)
+  echo "$trusted_ca_value" | sudo tee $trusted_ca
+
+  if [[ -z "$TF_VAR_resourcetier" ]]; then
+    log_error "TF_VAR_resourcetier is not defined.  Ensure you have run source ./update_vars.sh"
+  fi
+  # store the ca as a parameter
+  parm_name="/firehawk/resourcetier/${TF_VAR_resourcetier}/trusted_ca"
+  set_ssm_parm_value "$parm_name" "$trusted_ca_value"
 }
 
 function configure_trusted_ca {
