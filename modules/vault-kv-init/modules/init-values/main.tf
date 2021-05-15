@@ -17,6 +17,8 @@ resource "null_resource" "init_secret" { # init a secret if empty
       sleep 1
       result="$(vault kv put -cas=0 "${local.path}" value="" 2>&1)" # capture stderr in output as well
       exit_code=$?
+
+      echo "exit_code: $exit_code"
       if [[ $exit_code -eq 0 ]]; then
         echo "Initialised new value"
       elif [[ $exit_code -eq 2 ]]; then
