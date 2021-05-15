@@ -1,12 +1,6 @@
-# variable "envtier" {
-#   description = "The environment tier eg: dev, prod"
-#   type = string
-#   default = "dev"
-# }
-
 variable "resourcetier" {
   description = "The resource tier eg: green, blue, grey"
-  type = string
+  type        = string
 }
 
 variable "secret_name" {
@@ -29,9 +23,3 @@ variable "restore_defaults" {
   type        = bool
   default     = false
 }
-
-# variable "init" {
-#   description = "If true, will only ensure paths exist."
-#   type        = bool
-#   default     = false
-# }

@@ -3,13 +3,25 @@ resource "vault_mount" "resourcetier" {
   type        = "kv-v2"
   description = "KV2 Secrets Engine for dev."
 }
-module "update-values-resourcetier" { # Init defaults
-  source           = "./modules/update-values"
-  # init             = true
+
+locals {
+  var_map = {
+    "dev" : local.dev,
+    "blue" : local.blue,
+    "green" : local.green,
+    "main" : local.main
+  }
+  active_values = var_map[var.resourcetier]
+}
+
+module "init-values" { # Init defaults
+  source = "./modules/init-values"
+
+  for_each       = local.active_values
+  secret_name    = each.key
+  system_default = each.value
+
   resourcetier     = var.resourcetier # dev, green, blue, or main
   mount_path       = var.resourcetier
-  for_each         = local.dev
-  secret_name      = each.key
-  system_default   = each.value
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
 }

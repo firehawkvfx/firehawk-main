@@ -1,15 +1,57 @@
-# resource "vault_mount" "resourcetier" {
-#   path        = var.resourcetier
-#   type        = "kv-v2"
-#   description = "KV2 Secrets Engine for dev."
-# }
-module "update-values-resourcetier" { # Init defaults
-  source           = "./modules/update-values"
-  # init             = false
+locals {
+  var_map = {
+    "dev" : local.dev,
+    "blue" : local.blue,
+    "green" : local.green,
+    "main" : local.main
+  }
+  active_values = var_map[var.resourcetier]
+}
+
+module "update-values-from-defaults" { # Init defaults
+  source           = "./modules/update-values-from-defaults"
+
   resourcetier     = var.resourcetier # dev, green, blue, or main
   mount_path       = var.resourcetier
-  for_each         = local.dev
+  for_each         = local.active_values
   secret_name      = each.key
   system_default   = each.value
   restore_defaults = var.restore_defaults # defaults will always be updated if the present value matches a present default, but if this var is true, any present user values will be reset always.
+}
+
+# Some values are pulled directly from parameters
+data "aws_ssm_parameter" "onsite_private_vpn_mac" {
+  name = "/firehawk/resourcetier/${local.resourcetier}/onsite_private_vpn_mac"
+}
+data "aws_ssm_parameter" "onsite_private_vpn_ip" {
+  name = "/firehawk/resourcetier/${local.resourcetier}/onsite_private_vpn_ip"
+}
+
+locals {
+  onsite_private_vpn_ip = data.aws_ssm_parameter.onsite_private_vpn_ip.value
+  onsite_private_vpn_mac = data.aws_ssm_parameter.onsite_private_vpn_mac.value
+  set_values = tomap( "vpn/onsite_private_vpn_ip": {
+    "name": "onsite_private_vpn_ip",
+    "description": "The onsite VPN Static IP",
+    "value": local.onsite_private_vpn_ip,
+    "default": local.onsite_private_vpn_ip,
+    "example_1": "192.168.29.10",
+  },
+  "vpn/onsite_private_vpn_mac": {
+    "name": "onsite_private_vpn_mac",
+    "description": "The onsite VPN MAC address",
+    "value": local.onsite_private_vpn_mac,
+    "default": local.onsite_private_vpn_mac,
+    "example_1": "6601AB2A94E5",
+  }
+  )
+}
+
+module "set-values-from-parameters" { # Init defaults
+  source           = "./modules/set-values"
+
+  mount_path       = var.resourcetier # dev, green, blue, or main
+  for_each         = local.set_values
+  secret_name      = each.key
+  system_default   = each.value
 }

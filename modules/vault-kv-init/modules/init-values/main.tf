@@ -12,7 +12,7 @@ resource "null_resource" "init_secret" { # init a secret if empty
 
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
-    command = <<EOT
+    command     = <<EOT
       echo "Init secret after 1 second"
       sleep 1
       result="$(vault kv put -cas=0 "${local.path}" value="")"
