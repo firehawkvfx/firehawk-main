@@ -13,20 +13,20 @@ resource "null_resource" "init_secret" { # init a secret if empty
   provisioner "local-exec" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<EOT
-      echo "Init secret after 1 second"
-      sleep 1
-      result="$(vault kv put -cas=0 "${local.path}" value="" 2>&1)" # capture stderr in output as well
-      exit_code=$?
+echo "Init secret after 1 second"
+sleep 1
+result="$(vault kv put -cas=0 "${local.path}" value="" 2>&1)" # capture stderr in output as well
+exit_code=$?
 
-      if [[ $exit_code -eq 0 ]]; then
-        echo "Initialised new value"
-      elif [[ $exit_code -eq 2 ]]; then
-        echo "Value is already initialised. exit code: $exit_code"
-      else
-        echo "Error: non-zero exit code: $exit_code"
-        echo "$result"
-        exit 1
-      fi
+if [[ $exit_code -eq 0 ]]; then
+  echo "Initialised new value"
+elif [[ $exit_code -eq 2 ]]; then
+  echo "Value is already initialised. exit code: $exit_code"
+else
+  echo "Error: non-zero exit code: $exit_code"
+  echo "$result"
+  exit 1
+fi
 EOT
   }
 }
