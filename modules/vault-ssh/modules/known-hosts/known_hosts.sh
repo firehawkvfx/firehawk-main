@@ -108,7 +108,6 @@ function request_ssh_known_hosts {
     log_error "TF_VAR_resourcetier is not defined.  Ensure you have run source ./update_vars.sh"
   fi
   parm_name="/firehawk/resourcetier/${TF_VAR_resourcetier}/ssh_known_hosts_fragment"
-  value=$(cat $cert_path)
   aws ssm put-parameter \
       --name "${parm_name}" \
       --type "String" \
