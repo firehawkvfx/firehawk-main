@@ -195,7 +195,7 @@ function install {
   if [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
     # if public key doesn't exist, allow user to paste it in
     if test ! -f "$public_key"; then
-      log_info "Public key not present at location."
+      log_info "Public key not present at location: $public_key"
       log_info "You can paste the contents of the new file here (read the public key on the remote host eg: cat ~/.ssh/id_rsa.pub):"
       mkdir -p $(dirname "$public_key")
       read public_key_content
