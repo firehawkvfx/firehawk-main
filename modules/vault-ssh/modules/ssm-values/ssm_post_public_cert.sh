@@ -2,6 +2,8 @@
 
 set -e
 
+echo "...Post cert to SSM parameter store."
+
 parm_name="/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_user_public_cert"
 
 cert_path="~/.ssh/remote_host/id_rsa-cert.pub"

@@ -2,6 +2,8 @@
 
 set -e
 
+echo "...Retrieve public key from SSM parameter store"
+
 parm_name="/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_user_public_key"
 
 get_parms=$(aws ssm get-parameters --names ${parm_name})
@@ -14,6 +16,5 @@ else
     echo "Result: ${get_parms}"
     value=$(echo ${get_parms} | jq -r '.Parameters[0].Value')
 
-    rm ~/.ssh/remote_host/id_rsa.pub
     echo "$value" | tee ~/.ssh/remote_host/id_rsa.pub
 fi
