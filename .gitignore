@@ -7,3 +7,5 @@ tmp/log/*
 # These will be simplified when all modules have migrated to terragrunt
 **/s3-backend.tf
 **/.terragrunt-cache/*
+modules/vault-kv-init/.terraform.lock.hcl
+modules/vault-kv/.terraform.lock.hcl

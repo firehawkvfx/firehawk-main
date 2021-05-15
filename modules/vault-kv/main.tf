@@ -5,7 +5,7 @@ locals {
     "green" : local.green,
     "main" : local.main
   }
-  active_values = var_map[var.resourcetier]
+  active_values = local.var_map[var.resourcetier]
 }
 
 module "update-values-from-defaults" { # Init defaults
@@ -21,28 +21,31 @@ module "update-values-from-defaults" { # Init defaults
 
 # Some values are pulled directly from parameters
 data "aws_ssm_parameter" "onsite_private_vpn_mac" {
-  name = "/firehawk/resourcetier/${local.resourcetier}/onsite_private_vpn_mac"
+  name = "/firehawk/resourcetier/${var.resourcetier}/onsite_private_vpn_mac"
 }
 data "aws_ssm_parameter" "onsite_private_vpn_ip" {
-  name = "/firehawk/resourcetier/${local.resourcetier}/onsite_private_vpn_ip"
+  name = "/firehawk/resourcetier/${var.resourcetier}/onsite_private_vpn_ip"
 }
 
 locals {
   onsite_private_vpn_ip = data.aws_ssm_parameter.onsite_private_vpn_ip.value
   onsite_private_vpn_mac = data.aws_ssm_parameter.onsite_private_vpn_mac.value
-  set_values = tomap( "vpn/onsite_private_vpn_ip": {
-    "name": "onsite_private_vpn_ip",
-    "description": "The onsite VPN Static IP",
-    "value": local.onsite_private_vpn_ip,
-    "default": local.onsite_private_vpn_ip,
-    "example_1": "192.168.29.10",
-  },
-  "vpn/onsite_private_vpn_mac": {
-    "name": "onsite_private_vpn_mac",
-    "description": "The onsite VPN MAC address",
-    "value": local.onsite_private_vpn_mac,
-    "default": local.onsite_private_vpn_mac,
-    "example_1": "6601AB2A94E5",
+  set_values = tomap( 
+  { 
+    "vpn/onsite_private_vpn_ip": {
+      "name": "onsite_private_vpn_ip",
+      "description": "The onsite VPN Static IP",
+      "value": local.onsite_private_vpn_ip,
+      "default": local.onsite_private_vpn_ip,
+      "example_1": "192.168.29.10"
+    },
+    "vpn/onsite_private_vpn_mac": {
+      "name": "onsite_private_vpn_mac",
+      "description": "The onsite VPN MAC address",
+      "value": local.onsite_private_vpn_mac,
+      "default": local.onsite_private_vpn_mac,
+      "example_1": "6601AB2A94E5"
+    }
   }
   )
 }

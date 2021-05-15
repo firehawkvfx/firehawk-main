@@ -14,7 +14,8 @@ locals {
   system_default = var.system_default # The system default map will define the value if value is not present, or value matches a preexisting default.
   # If a present value is different to a present default, retain the vault value.  Else use the system default.
   # We could use the kv put -patch option with a write, but this could increment versions unnecersarily.
-  vault_map    = element(concat(data.vault_generic_secret.vault_map.*.data, list({})), 0)
+  vault_map    = length(data.vault_generic_secret.vault_map) > 0 ? data.vault_generic_secret.vault_map[0].data : null
+
   secret_value = contains(keys(local.vault_map), "value") && contains(keys(local.vault_map), "default") && lookup(local.vault_map, "value", "") != lookup(local.vault_map, "default", "") ? lookup(local.vault_map, "value", "") : local.system_default["default"]
   secret_map   = var.restore_defaults ? tomap({ "value" = local.system_default["default"] }) : tomap({ "value" = local.secret_value })
   result_map   = merge(local.system_default, local.secret_map)

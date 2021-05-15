@@ -11,7 +11,7 @@ locals {
     "green" : local.green,
     "main" : local.main
   }
-  active_values = var_map[var.resourcetier]
+  active_values = local.var_map[var.resourcetier]
 }
 
 module "init-values" { # Init defaults
