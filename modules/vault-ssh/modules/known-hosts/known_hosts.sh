@@ -100,8 +100,20 @@ function request_ssh_known_hosts {
   # local -r ssh_known_hosts_path="$1"
   # Add the CA cert to use it for known host verification
   # curl http://vault.service.consul:8200/v1/ssh-host-signer/public_key
-  local -r key=$(vault read -field=public_key ssh-host-signer/config/ca)
-  echo "$key" | tee "$HOME/.ssh/ssh_known_hosts_fragment" # we store the fragment for use on other hosts that need configuration.
+  local -r value=$(vault read -field=public_key ssh-host-signer/config/ca)
+  echo "$value" | tee "$HOME/.ssh/ssh_known_hosts_fragment" # we store the fragment for use on other hosts that need configuration.
+
+  echo "Store the ssh_known_hosts_fragment as SSM parameter."
+  if [[ -z "$TF_VAR_resourcetier" ]]; then
+    log_error "TF_VAR_resourcetier is not defined.  Ensure you have run source ./update_vars.sh"
+  fi
+  parm_name="/firehawk/resourcetier/${TF_VAR_resourcetier}/ssh_known_hosts_fragment"
+  value=$(cat $cert_path)
+  aws ssm put-parameter \
+      --name "${parm_name}" \
+      --type "String" \
+      --value "${value}" \
+      --overwrite
 }
 
 function configure_ssh_known_hosts {
