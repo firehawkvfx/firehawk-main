@@ -15,66 +15,66 @@ path "auth/token/revoke-accessor" {
 
 # provide ability to read stored vpn file paths
 
-path "dev/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" # to be deprecated
+path "dev/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "green/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" # to be deprecated
+path "green/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "blue/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" # to be deprecated
+path "blue/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "main/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" # to be deprecated
+path "main/data/vpn/client_cert_files/usr/local/openvpn_as/scripts/seperate/*" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 # provide ability to retrieve private ip address
 
-path "dev/data/vpn/onsite_private_vpn_ip" # to be deprecated
+path "dev/data/vpn/onsite_private_vpn_ip" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "blue/data/vpn/onsite_private_vpn_ip" # to be deprecated
+path "blue/data/vpn/onsite_private_vpn_ip" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "green/data/vpn/onsite_private_vpn_ip" # to be deprecated
+path "green/data/vpn/onsite_private_vpn_ip" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "main/data/vpn/onsite_private_vpn_ip" # to be deprecated
+path "main/data/vpn/onsite_private_vpn_ip" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
 # provide ability to retrieve mac address
 
-path "dev/data/vpn/onsite_private_vpn_mac" # to be deprecated
+path "dev/data/vpn/onsite_private_vpn_mac" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "blue/data/vpn/onsite_private_vpn_mac" # to be deprecated
+path "blue/data/vpn/onsite_private_vpn_mac" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "green/data/vpn/onsite_private_vpn_mac" # to be deprecated
+path "green/data/vpn/onsite_private_vpn_mac" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-path "main/data/vpn/onsite_private_vpn_mac" # to be deprecated
+path "main/data/vpn/onsite_private_vpn_mac" 
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
