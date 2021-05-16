@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Region is required for AWS CLI
+export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
+
 # Specify the desired volume size in GiB as a command-line argument. If not specified, default to 25 GiB.
 SIZE=${1:-25}
 
