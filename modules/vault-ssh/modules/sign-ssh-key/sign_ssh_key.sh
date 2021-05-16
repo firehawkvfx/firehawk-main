@@ -139,6 +139,20 @@ function request_sign_public_key {
       public_key=@$public_key > $cert
 }
 
+function get_trusted_ca_ssm {
+  local -r trusted_ca="$1"
+  log_info "Validating that credentials are configured..."
+  aws sts get-caller-identity
+  log_info "Updating: $trusted_ca"
+  aws ssm get-parameters --names /firehawk/resourcetier/dev/trusted_ca | jq -r '.Parameters[0].Value' | sudo tee "$trusted_ca"
+}
+
+function get_cert_ssm {
+  local -r cert="$1"
+  log_info "Updating: $cert"
+  aws ssm get-parameters --names /firehawk/resourcetier/dev/onsite_user_public_cert | jq -r '.Parameters[0].Value' | tee "$cert"
+}
+
 # You should be able to ssh into a target host:
 # ssh -i signed-cert.pub -i ~/.ssh/id_rsa username@10.0.23.5
 
@@ -146,6 +160,7 @@ function install {
   local public_key="$DEFAULT_PUBLIC_KEY"
   local trusted_ca=""
   local cert=""
+  local aquire_certs_via_ssm="false"
   
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -166,6 +181,9 @@ function install {
         cert="$2"
         shift
         ;;
+      --ssm)
+        aquire_certs_via_ssm="true"
+        ;;
       --help)
         print_usage
         exit
@@ -179,8 +197,13 @@ function install {
 
     shift
   done
-  
-  if [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
+
+
+  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+    log_info "Requesting trusted CA via SSM Parameter..."
+    trusted_ca="$DEFAULT_TRUSTED_CA"
+    get_trusted_ca_ssm $trusted_ca
+  elif [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
     trusted_ca="$DEFAULT_TRUSTED_CA"
     log_info "Requesting Vault provide the trusted CA..."
     request_trusted_ca "$trusted_ca"
@@ -189,10 +212,15 @@ function install {
     cp -frv "$trusted_ca" "$DEFAULT_TRUSTED_CA"
     trusted_ca="$DEFAULT_TRUSTED_CA"
   fi
+
   log_info "Configure this host to use trusted CA"
   configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
-  if [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
+  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+    log_info "Requesting SSH Cert via SSM Parameter..."
+    cert=${public_key/.pub/-cert.pub}
+    get_cert_ssm $cert
+  elif [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
     # if public key doesn't exist, allow user to paste it in
     if test ! -f "$public_key"; then
       log_info "Public key not present at location: $public_key"
@@ -210,6 +238,7 @@ function install {
     cert="$(sudo basename $cert)"
     cert="$HOME/.ssh/$cert"
   fi
+
   log_info "Configure cert for use: $cert"
   configure_cert "$cert"
   log_info "Complete!"

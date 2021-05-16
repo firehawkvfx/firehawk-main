@@ -19,13 +19,17 @@ function print_usage {
   echo
   echo "If authenticated to Vault, signs a public key with Vault for use as an SSH client, generating a public certificate in the same directory as the public key with the suffix '-cert.pub'."
   echo
-  echo "Example: Sign this hosts key with Vault."
+  echo "Example: Configure the CA for this host to recognize known hosts with Vault."
   echo
-  echo "  known_hosts.sh"
+  echo "  ./known_hosts.sh"
+  echo
+  echo "Example: Using AWS SSM parameters, Configure a provided CA file and trusted known hosts CA where vault access is not available, specifying a valid external dns name"
+  echo
+  echo "  ./known_hosts.sh --ssm --external-domain ap-southeast-2.compute.amazonaws.com"
   echo
   echo "Example: Configure a provided CA file and trusted known hosts CA where vault access is not available, specifying a valid external dns name"
   echo
-  echo "  known_hosts.sh --external-domain ap-southeast-2.compute.amazonaws.com --trusted-ca ~/Downloads/trusted-user-ca-keys.pem --ssh-known-hosts ~/Downloads/ssh_known_hosts_fragment"
+  echo "  ./known_hosts.sh --external-domain ap-southeast-2.compute.amazonaws.com --trusted-ca ~/Downloads/trusted-user-ca-keys.pem --ssh-known-hosts ~/Downloads/ssh_known_hosts_fragment"
 }
 
 function log {
@@ -161,10 +165,25 @@ function configure_ssh_known_hosts {
   echo "Configure signed known hosts done."
 }
 
+function get_trusted_ca_ssm {
+  local -r trusted_ca="$1"
+  log_info "Validating that credentials are configured..."
+  aws sts get-caller-identity
+  log_info "Updating: $trusted_ca"
+  aws ssm get-parameters --names /firehawk/resourcetier/dev/trusted_ca | jq -r '.Parameters[0].Value' | sudo tee "$trusted_ca"
+}
+
+function get_known_hosts_fragment_ssm {
+  local -r ssh_known_hosts_fragment="$1"
+  log_info "Updating: $cert"
+  aws ssm get-parameters --names /firehawk/resourcetier/dev/ssh_known_hosts_fragment | jq -r '.Parameters[0].Value' | tee "$ssh_known_hosts_fragment"
+}
+
 function install {
   local ssh_known_hosts=""
   local trusted_ca=""
   local external_domain="$DEFAULT_EXTERNAL_DOMAIN"
+  local aquire_certs_via_ssm="false"
 
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -184,6 +203,9 @@ function install {
         external_domain="$2"
         shift
         ;;
+      --ssm)
+        aquire_certs_via_ssm="true"
+        ;;
       --help)
         print_usage
         exit
@@ -197,7 +219,11 @@ function install {
     shift
   done
 
-  if [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
+  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+    log_info "Requesting trusted CA via SSM Parameter..."
+    trusted_ca="$DEFAULT_TRUSTED_CA"
+    get_trusted_ca_ssm $trusted_ca
+  elif [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
     trusted_ca="$DEFAULT_TRUSTED_CA"
     log_info "Requesting Vault provide the trusted CA..."
     request_trusted_ca "$trusted_ca"
@@ -206,10 +232,15 @@ function install {
     cp -frv "$trusted_ca" "$DEFAULT_TRUSTED_CA"
     trusted_ca="$DEFAULT_TRUSTED_CA"
   fi
+
   log_info "Configure this host to use trusted CA"
   configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
-  if [[ -z "$ssh_known_hosts" ]]; then # if no trusted ca provided, request it from vault and store in default location.
+  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+    log_info "Requesting known hosts fragment via SSM Parameter..."
+    ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
+    get_known_hosts_fragment_ssm $ssh_known_hosts
+  elif [[ -z "$ssh_known_hosts" ]]; then # if no trusted ca provided, request it from vault and store in default location.
     ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
     log_info "Requesting Vault provide the SSH known hosts CA as a fragment..."
     request_ssh_known_hosts
