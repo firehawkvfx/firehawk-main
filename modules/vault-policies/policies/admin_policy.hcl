@@ -211,3 +211,7 @@ path "ssh-client-signer/sign/*" {
 path "aws/creds/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+path "aws/config/root" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
