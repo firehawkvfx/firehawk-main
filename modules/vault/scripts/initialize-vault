@@ -113,13 +113,24 @@ else
     echo "Added to known hosts: $known_hosts_fragment"
 fi
 
+echo
+echo "Check Vault status"
 # if vault is already initialised, skip init process.
-initialised=true
-vault status | grep -m 1 "Initialized.*true" || initialised=false
+initialised="true"
+# vault status | grep -m 1 "Initialized.*true" || initialised=false
+
+output=$(vault status) && exit_status=0 || exit_status=$?
+
+if [[ ! $exit_status -eq 0 ]]; then initialised="false"; fi
+echo "$output" | grep -m 1 "Initialized.*true" || initialised="false"
+
+echo "initialised: $initialised"
+
 if [[ "$initialised" == "true" ]]; then
   echo "Vault is already Initialized."
   echo ""
 else
+  echo "...Proceeding to initialize vault"
   result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
 
   recovery_key=$(echo "$result" | awk '/^Recovery Key 1:/ { print $4 ; exit }')
