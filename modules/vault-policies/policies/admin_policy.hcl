@@ -205,3 +205,9 @@ path "ssh-client-signer/config/*" {
 path "ssh-client-signer/sign/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+# Ability to generate AWS crednetials
+
+path "aws/creds/*" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
