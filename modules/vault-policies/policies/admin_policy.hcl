@@ -215,3 +215,7 @@ path "aws/creds/*" {
 path "aws/config/root" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+path "aws/roles/*" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
