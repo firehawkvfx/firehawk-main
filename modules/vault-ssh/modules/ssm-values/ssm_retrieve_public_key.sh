@@ -23,8 +23,5 @@ else
     target="$HOME/.ssh/remote_host/id_rsa.pub"
     mkdir -p "$(dirname target)"
     echo "$value" | tee "$target"
-    if test ! -f "$target";
-      echo "Failed to write: $target"
-      exit 1
-    fi
+
 fi
