@@ -84,10 +84,8 @@ function configure_trusted_ca {
   # If TrustedUserCAKeys not defined, then add it to sshd_config
   sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee -a /etc/ssh/sshd_config
   # Ensure the value for TrustedUserCAKeys is configured correctly
-  # sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
-  # sudo python3 $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config "TrustedUserCAKeys " "$trusted_ca"
   sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.tmp
-  sudo python3 $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config.tmp "TrustedUserCAKeys " "$trusted_ca"
+  sudo python3 $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config.tmp "TrustedUserCAKeys" " $trusted_ca"
   sudo mv /etc/ssh/sshd_config.tmp /etc/ssh/sshd_config # if the python script doesn't error, then we update the original.  If this file were to be misconfigured it will break SSH and your instance.
 }
 

@@ -91,7 +91,7 @@ function request_trusted_ca {
 
 function configure_trusted_ca {
   local -r trusted_ca="$1"
-  
+
   if [[ -z "$trusted_ca" ]]; then
     log_error "No path to trusted CA provided.  Exiting..."
     exit 1
@@ -103,7 +103,7 @@ function configure_trusted_ca {
   # Ensure the value for TrustedUserCAKeys is configured correctly
   # sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
   sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.tmp
-  sudo python3 $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config.tmp "TrustedUserCAKeys " "$trusted_ca"
+  sudo python3 $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config.tmp "TrustedUserCAKeys" " $trusted_ca"
   sudo mv /etc/ssh/sshd_config.tmp /etc/ssh/sshd_config # if the python script doesn't error, then we update the original.  If this file were to be misconfigured it will break SSH and your instance.
 }
 

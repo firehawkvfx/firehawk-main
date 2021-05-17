@@ -30,17 +30,6 @@ with fileinput.input(files=(filename), inplace=1) as f:
         updated=True
     sys.stdout.write(line)
 
-# for line in fileinput.input([filename], inplace=True):
-#     if line.strip().startswith(starts_with):
-#         line = '{}{}\n'.format( starts_with, append )
-#         print( "\nUpdated line:" )
-#         print( line )
-#         print()
-#         updated=True
-#     else:
-#         print( "Original line: {}".format( line ) )
-#     sys.stdout.write(line)
-
 if updated:
     print( "Updated key/value: {}{} in {}".format( starts_with, append, filename ) )
 else:
