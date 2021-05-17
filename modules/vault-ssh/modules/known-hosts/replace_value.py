@@ -23,13 +23,19 @@ print( "Change to: {}{}".format( starts_with, append ) )
 
 updated=False
 count = 0
+test_list = []
 with fileinput.input(files=(filename), inplace=1) as f:
   for line in f:
     count += 1
-    if line.strip().startswith(starts_with):
+    test_list.append(line)
+    if line.startswith(starts_with):
         line = '{}{}\n'.format( starts_with, append )
         updated=True
     sys.stdout.write(line)
+
+print('test')
+for i in test_list:
+    print(i)
 
 # for line in fileinput.input([filename], inplace=True):
 #     if line.strip().startswith(starts_with):
