@@ -30,8 +30,9 @@ with fileinput.input(files=(filename), inplace=1) as f:
     resultline=str(line)
     resultline=resultline.strip("'")
     resultline=resultline.rstrip('\r\n')
+    resultline=resultline[:len(starts_with)]
     test_list.append(resultline)
-    if resultline[:len(starts_with)]==starts_with:
+    if resultline==starts_with:
         # if resultline.startswith(starts_with):
         resultline = '{}{}\n'.format( starts_with, append )
         updated=True
@@ -39,7 +40,7 @@ with fileinput.input(files=(filename), inplace=1) as f:
 
 print('test')
 for i in test_list:
-    string = repr(i)
+    string = i
     print('"{}" startswith {}: {}'.format(string, starts_with, i.startswith(starts_with) ) )
 
 # for line in fileinput.input([filename], inplace=True):
