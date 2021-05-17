@@ -41,7 +41,7 @@ with fileinput.input(files=(filename), inplace=1) as f:
 print('test')
 for i in test_list:
     string = i
-    print('"{}" startswith {}: {}'.format(string, starts_with, i.startswith(starts_with) ) )
+    print('{} startswith {}: {}'.format(string, starts_with, i.startswith(starts_with) ) )
 
 # for line in fileinput.input([filename], inplace=True):
 #     if line.strip().startswith(starts_with):
