@@ -254,7 +254,8 @@ function install {
     cp -frv "$ssh_known_hosts" "$DEFAULT_SSH_KNOWN_HOSTS"
     ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
   fi
-  log_info "Configure this host to use trusted CA"
+  log_info "Configure this known hosts: $ssh_known_hosts external domain: $external_domain"
+
   if [[ -z "$external_domain" ]]; then
     log_error "You must provide a value for --external-domain"
     exit 1
