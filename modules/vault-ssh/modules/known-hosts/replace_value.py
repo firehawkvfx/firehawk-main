@@ -31,7 +31,8 @@ with fileinput.input(files=(filename), inplace=1) as f:
     resultline=resultline.strip()
     resultline=resultline.rstrip('\r\n')
     test_list.append(resultline)
-    if resultline.startswith(starts_with):
+    if resultline[:len(starts_with)]==starts_with:
+        # if resultline.startswith(starts_with):
         resultline = '{}{}\n'.format( starts_with, append )
         updated=True
     sys.stdout.write(resultline)
