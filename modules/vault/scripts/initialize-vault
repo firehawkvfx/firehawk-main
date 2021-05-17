@@ -114,15 +114,13 @@ else
 fi
 
 echo
-echo "Check Vault status"
-# if vault is already initialised, skip init process.
-initialised="true"
-# vault status | grep -m 1 "Initialized.*true" || initialised=false
-
+echo "...Checking Vault status"
+# If vault is already initialised, skip init process.
+initialised="false"
 output=$(vault status) && exit_status=0 || exit_status=$?
-
-if [[ ! $exit_status -eq 0 ]]; then initialised="false"; fi
-echo "$output" | grep -m 1 "Initialized.*true" || initialised="false"
+if [[ $exit_status -eq 0 ]]; then
+  echo "$output" | grep -m 1 "Initialized.*true" && initialised="true"
+fi
 
 echo "initialised: $initialised"
 
