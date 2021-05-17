@@ -21,7 +21,10 @@ else
     value=$(echo ${get_parms} | jq -r '.Parameters[0].Value')
 
     target="$HOME/.ssh/remote_host/id_rsa.pub"
-    mkdir -p "$(dirname \"$target\")"
+    create_dir="$(dirname \"$target\")"
+    
+    echo "...Create dir: $create_dir"
+    mkdir -p "${create_dir}"
     echo "$value" | tee "$target"
 
     if test ! -f "$target"; then
