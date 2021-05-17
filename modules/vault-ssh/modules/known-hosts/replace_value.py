@@ -23,5 +23,4 @@ for line in fileinput.input([filename], inplace=True):
 if updated:
     print( "Updated key/value: {}{} in {}".format( args.strings[0], args.strings[1], filename ) )
 else:
-    raise "ERROR: did not update key/value: {}{} in {}".format( args.strings[0], args.strings[1], filename )
-
+    raise Exception( "ERROR: did not update key/value: {}{} in {}".format( args.strings[0], args.strings[1], filename ) )
