@@ -91,6 +91,11 @@ function request_trusted_ca {
 
 function configure_trusted_ca {
   local -r trusted_ca="$1"
+  if [[ -z "$trusted_ca" ]]; then;
+    log_error "No path to trusted CA provided.  Exiting..."
+    exit 1
+  fi
+
   sudo chmod 0644 "$trusted_ca"
   # If TrustedUserCAKeys not defined, then add it to sshd_config
   sudo grep -q "^TrustedUserCAKeys" /etc/ssh/sshd_config || echo 'TrustedUserCAKeys' | sudo tee -a /etc/ssh/sshd_config
@@ -233,7 +238,7 @@ function install {
     trusted_ca="$DEFAULT_TRUSTED_CA"
   fi
 
-  log_info "Configure this host to use trusted CA"
+  log_info "Configure this host to use trusted CA: $trusted_ca"
   configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
   if [[ "$aquire_certs_via_ssm" == "true" ]]; then
