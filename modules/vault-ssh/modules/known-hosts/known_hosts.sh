@@ -102,7 +102,7 @@ function configure_trusted_ca {
   # Ensure the value for TrustedUserCAKeys is configured correctly
   # sudo sed -i "s@TrustedUserCAKeys.*@TrustedUserCAKeys $trusted_ca@g" /etc/ssh/sshd_config 
   sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.tmp
-  sudo python $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config.tmp "TrustedUserCAKeys " "$trusted_ca"
+  sudo python3 $SCRIPTDIR/replace_value.py -f /etc/ssh/sshd_config.tmp "TrustedUserCAKeys " "$trusted_ca"
   sudo mv /etc/ssh/sshd_config.tmp /etc/ssh/sshd_config # if the python script doesn't error, then we update the original.  If this file were to be misconfigured it will break SSH and your instance.
 }
 
@@ -157,7 +157,7 @@ function configure_ssh_known_hosts {
   # init the cert auth line
   sudo grep -q "^@cert-authority \*\.consul" $ssh_known_hosts_path || echo "@cert-authority *.consul,*.$external_domain" | sudo tee -a $ssh_known_hosts_path
   # sudo sed -i "s#@cert-authority \*\.consul.*#@cert-authority *.consul,*.$external_domain $key#g" $ssh_known_hosts_path
-  sudo python $SCRIPTDIR/replace_value.py -f $ssh_known_hosts_path "@cert-authority *.consul" ",*.$external_domain $key"
+  sudo python3 $SCRIPTDIR/replace_value.py -f $ssh_known_hosts_path "@cert-authority *.consul" ",*.$external_domain $key"
 
   echo "Added CA to $ssh_known_hosts_path."
 
