@@ -14,7 +14,7 @@ filename=args.file
 starts_with = args.strings[0]
 append = args.strings[1]
 
-print( "Find line that starts with: {}")
+print( "\nFind line that starts with: {}")
 print( "Change to: {}{}".format( starts_with, append ) )
 
 updated=False
