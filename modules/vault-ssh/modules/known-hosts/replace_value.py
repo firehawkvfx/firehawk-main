@@ -15,7 +15,7 @@ parser.add_argument("-f", "--file", type=str,
 args = parser.parse_args()
 filename=args.file
 
-starts_with = args.strings[0]
+starts_with = str(args.strings[0])
 append = args.strings[1]
 
 print( "\nFind line that starts with: {}".format( starts_with ) )
