@@ -28,7 +28,7 @@ with fileinput.input(files=(filename), inplace=1) as f:
   for line in f:
     count += 1
     resultline=str(line)
-    resultline=resultline.strip()
+    resultline=resultline.strip("'")
     resultline=resultline.rstrip('\r\n')
     test_list.append(resultline)
     if resultline[:len(starts_with)]==starts_with:
