@@ -11,9 +11,17 @@ parser.add_argument("-f", "--file", type=str,
 args = parser.parse_args()
 filename=args.file
 
+updated=False
 for line in fileinput.input([filename], inplace=True):
     if line.strip().startswith(args.strings[0]):
         line = '{}{}\n'.format( args.strings[0], args.strings[1] )
+        print( "Updated line:" )
+        print( line )
+        updated=True
     sys.stdout.write(line)
 
-print( "Updated key/value: {}{} in {}".format( args.strings[0], args.strings[1], filename ) )
+if updated:
+    print( "Updated key/value: {}{} in {}".format( args.strings[0], args.strings[1], filename ) )
+else:
+    raise "ERROR: did not update key/value: {}{} in {}".format( args.strings[0], args.strings[1], filename )
+
