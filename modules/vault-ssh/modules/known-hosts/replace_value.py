@@ -28,7 +28,7 @@ with fileinput.input(files=(filename), inplace=1) as f:
   for line in f:
     count += 1
     test_list.append(line)
-    if line.startswith(starts_with):
+    if line.rstrip('\r\n').startswith(starts_with):
         line = '{}{}\n'.format( starts_with, append )
         updated=True
     sys.stdout.write(line)
