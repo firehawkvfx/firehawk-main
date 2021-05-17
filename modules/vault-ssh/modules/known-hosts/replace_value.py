@@ -27,11 +27,12 @@ test_list = []
 with fileinput.input(files=(filename), inplace=1) as f:
   for line in f:
     count += 1
-    test_list.append(line)
-    if line.rstrip('\r\n').startswith(starts_with):
-        line = '{}{}\n'.format( starts_with, append )
+    resultline=line
+    test_list.append(resultline)
+    if resultline.rstrip('\r\n').startswith(starts_with):
+        resultline = '{}{}\n'.format( starts_with, append )
         updated=True
-    sys.stdout.write(line)
+    sys.stdout.write(resultline)
 
 print('test')
 for i in test_list:
