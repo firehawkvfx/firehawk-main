@@ -91,6 +91,7 @@ function request_trusted_ca {
 
 function configure_trusted_ca {
   local -r trusted_ca="$1"
+  
   if [[ -z "$trusted_ca" ]]; then
     log_error "No path to trusted CA provided.  Exiting..."
     exit 1

@@ -22,9 +22,10 @@ print( "\nFind line that starts with: {}".format( starts_with ) )
 print( "Change to: {}{}".format( starts_with, append ) )
 
 updated=False
-
+count = 0
 with fileinput.input(files=(filename), inplace=1) as f:
   for line in f:
+    count += 1
     if line.strip().startswith(starts_with):
         line = '{}{}\n'.format( starts_with, append )
         updated=True
@@ -44,4 +45,4 @@ with fileinput.input(files=(filename), inplace=1) as f:
 if updated:
     print( "Updated key/value: {}{} in {}".format( starts_with, append, filename ) )
 else:
-    raise Exception( "ERROR: did not update key/value: {}{} in {}".format( starts_with, append, filename ) )
+    raise Exception( "ERROR: lines passed: {} did not update key/value: {}{} in {}".format( count, starts_with, append, filename ) )
