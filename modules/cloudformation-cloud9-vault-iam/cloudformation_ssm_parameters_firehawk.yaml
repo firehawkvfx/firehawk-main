@@ -79,6 +79,10 @@ Metadata:
         default: "Your Side FX Account API Client ID."
       sesiclientsecretkey:
         default: "Your Side FX Account API Secret Key"
+      maxspotcapacityengine:
+        default: "The maximum number of spot instances to launch for each Houdini Engine Deadline group."
+      maxspotcapacitymantra:
+        default: "The maximum number of spot instances to launch for each Houdini Mantra Deadline group."
       onsitestorage:
         default: "Do you have an onsite volume to mount over the VPN (NFS)?"
       onsitenfsexport:
@@ -138,6 +142,10 @@ Parameters:
     NoEcho: true
     Description: 'The client ID generated from your Side FX Account to automatically download Houdini.'
     Type: String
+  maxspotcapacityengine:
+    Description: 'Each Deadline group for Houdini Engine can be limited to a total number of spot instances.  This is not the total, it is only a maximum per group.'
+  maxspotcapacitymantra:
+    Description: 'Each Deadline group for Houdini Mantra can be limited to a total number of spot instances.  This is not the total, it is only a maximum per group.'
   houdinilicenseserveraddress:
     Description: 'The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS).'
     Type: String
@@ -352,7 +360,30 @@ Resources:
           - /sesi_client_secret_key
       SecretString: !Ref sesiclientsecretkey
       Description: 'The client secret key generated from your Side FX Account to automatically download Houdini.'
-
+  SSMMaxSpotCapacityEngine:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /max_spot_capacity_engine
+      Type: String
+      Value: !Ref maxspotcapacityengine
+      Description: 'The max number of spot instances per deadline group for Houdini Engine.'
+  SSMMaxSpotCapacityMantra:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /max_spot_capacity_mantra
+      Type: String
+      Value: !Ref maxspotcapacitymantra
+      Description: 'The max number of spot instances per deadline group for Houdini Mantra.'
   SSMOnsiteStorage:
     Type: AWS::SSM::Parameter
     Properties:
