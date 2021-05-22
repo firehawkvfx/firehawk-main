@@ -34,6 +34,8 @@ Metadata:
         Parameters: 
           - sesiclientid
           - sesiclientsecretkey
+          - maxspotcapacityengine
+          - maxspotcapacitymantra
           - houdinilicenseserveraddress
       - 
         Label: 
@@ -144,8 +146,12 @@ Parameters:
     Type: String
   maxspotcapacityengine:
     Description: 'Each Deadline group for Houdini Engine can be limited to a total number of spot instances.  This is not the total, it is only a maximum per group.'
+    Default: "25"
+    Type: String
   maxspotcapacitymantra:
     Description: 'Each Deadline group for Houdini Mantra can be limited to a total number of spot instances.  This is not the total, it is only a maximum per group.'
+    Default: "30"
+    Type: String
   houdinilicenseserveraddress:
     Description: 'The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS).'
     Type: String
