@@ -36,6 +36,11 @@ Metadata:
           - sesiclientsecretkey
           - maxspotcapacityengine
           - maxspotcapacitymantra
+      - 
+        Label: 
+          default: "Houdini License Server from Onsite"
+        Parameters:
+          - houdinilicenseserverenabled
           - houdinilicenseserveraddress
       - 
         Label: 
@@ -75,6 +80,8 @@ Metadata:
         default: "Your Deadline Usage Based Licensing URL."
       ublactivationcode:
         default: "Your Deadline Usage Based Licensing activation code."
+      houdinilicenseserverenabled:
+        default: "Do you have an onsite license server to use over the VPN?"
       houdinilicenseserveraddress:
         default: "Your Houdini License Server IP Address."
       sesiclientid:
@@ -152,9 +159,17 @@ Parameters:
     Description: 'Each Deadline group for Houdini Mantra can be limited to a total number of spot instances.  This is not the total, it is only a maximum per group.'
     Default: "30"
     Type: String
-  houdinilicenseserveraddress:
-    Description: 'The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS).'
+  houdinilicenseserverenabled:
+    Description: 'Do you have onsite Houdini license server you wish to user over VPN?'
     Type: String
+    AllowedValues:
+    - false
+    - true
+    Default: false
+  houdinilicenseserveraddress:
+    Description: "The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS). Specify 0.0.0.0 if you don't have one."
+    Type: String
+    Default: "0.0.0.0"
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
   globalbucketextension:
     Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com  eg2: myemailatgmaildotcom'
@@ -191,6 +206,12 @@ Parameters:
     Description: 'The production mount target for the nearest storage available based on location. (This is a bind mount in /etc/fstab used to mount the nearest/fastest storage available depending on location).'
     Type: String
     Default: '/prod'
+Conditions:
+  HasLicenseServer:
+    Fn::Not:
+    - Fn::Equals:
+        - ""
+        - !Ref houdinilicenseserveraddress
 Resources:
   SSMCombinedVPCCIDR:
     Type: AWS::SSM::Parameter
@@ -330,6 +351,18 @@ Resources:
       SecretString: !Ref ublactivationcode
       Description: 'The 16 digit activation code provided by Thinkbox for your usage based licencing.'
 # For Houdini
+  SSMHoudiniLicenseServerEnabled:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /houdini_license_server_enabled
+      Type: String
+      Value: !Ref houdinilicenseserverenabled
+      Description: 'Is an onsite license server to use over VPN available?'
   SSMHoudiniLicenseServerAddress:
     Type: AWS::SSM::Parameter
     Properties:
@@ -340,9 +373,14 @@ Resources:
           - Ref: resourcetier
           - /houdini_license_server_address
       Type: String
-      Value: !Ref houdinilicenseserveraddress
+      # Value: !Ref houdinilicenseserveraddress
+      Value:
+        Fn::If:
+        - "HasLicenseServer"
+        - !Ref houdinilicenseserveraddress
+        - "0.0.0.0"
       Description: 'The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS).'
-      AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+      # AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
   SSMSESIClientID:
     Type: AWS::SSM::Parameter
     Properties:
