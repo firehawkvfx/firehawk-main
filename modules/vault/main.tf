@@ -41,7 +41,7 @@ data "aws_instance" "main_cloud9" {
   instance_id = var.instance_id_main_cloud9
 }
 resource "aws_security_group" "cloud9_to_vault" {
-  name        = "cloud9_to_vault_${var.resourcetier}${var.pipelineid}"
+  name        = "consul_client_cloud9_vpc_${var.resourcetier}${var.pipelineid}"
   description = "Security group for Cloud 9 access to Consul and Vault"
   vpc_id      = data.aws_vpc.secondary.id
 }
