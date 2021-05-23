@@ -28,8 +28,6 @@ module "consul_client_security_group" {
   common_tags         = local.common_tags
   create_vpc          = true
   vpc_id              = module.vpc.vpc_id
-  vpc_cidr            = module.resourcetier_all_vpc_cidrs.base_cidr_block
-  permitted_cidr_list = [var.deployer_ip_cidr, var.remote_cloud_private_ip_cidr, var.remote_cloud_public_ip_cidr]
 }
 
 module "resourcetier_all_vpc_cidrs" { # all vpcs contained in the combined_vpcs_cidr (current resource tier dev or green or blue or main)
