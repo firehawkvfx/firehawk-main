@@ -49,6 +49,7 @@ Metadata:
           - onsitestorage
           - onsitenfsexport
           - onsitenfsmounttarget
+          - cloudmounttarget
           - prodmounttarget
       - 
         Label: 
@@ -98,6 +99,8 @@ Metadata:
         default: "The mount export path used to mount your NFS share."
       onsitenfsmounttarget:
         default: "The target path used to mount your NFS share to."
+      cloudmounttarget:
+        default: "The target path used to mount the FSX for Lustre storage share to."
       prodmounttarget:
         default: "The production mount target path (The default path for production resources)."
 Parameters:
@@ -202,6 +205,10 @@ Parameters:
     Description: 'The mount target for the NFS share on the remote nodes. This is an absolute path to the storage at your location. (This is the second arg in /etc/fstab used to mount the NFS share).'
     Type: String
     Default: '/onsite_prod'
+  cloudmounttarget:
+    Description: 'The mount target for the FSX share on the remote nodes. This is an absolute path to the storage at the cloud location. (This is the second arg in /etc/fstab used to mount the NFS share).'
+    Type: String
+    Default: '/cloud_prod'
   prodmounttarget:
     Description: 'The production mount target for the nearest storage available based on location. (This is a bind mount in /etc/fstab used to mount the nearest/fastest storage available depending on location).'
     Type: String
@@ -463,7 +470,19 @@ Resources:
           - /onsite_nfs_mount_target
       Type: String
       Value: !Ref onsitenfsmounttarget
-      Description: 'The NFS target path to mount two or second arg for /etc/fstab mounts on render nodes.'
+      Description: 'The NFS target path to mount to or second arg for /etc/fstab mounts on render nodes.'
+  SSMCloudMountTarget:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /cloud_mount_target
+      Type: String
+      Value: !Ref cloudmounttarget
+      Description: 'The FSX target path to mount to or second arg for /etc/fstab mounts on render nodes.'
   SSMProdMountTarget:
     Type: AWS::SSM::Parameter
     Properties:
