@@ -3,11 +3,9 @@ terraform {
   required_version = ">= 0.13.5"
 }
 data "aws_caller_identity" "current" {}
-data "aws_s3_bucket" "shared_bucket" {
-  bucket = var.bucket_name
-}
+
 resource "aws_s3_bucket_policy" "shared_bucket_policy" {
-  bucket = data.aws_s3_bucket.shared_bucket.id
+  bucket = var.bucket_id
   policy = <<POLICY
 {
   "Version": "2012-10-17",
@@ -19,8 +17,8 @@ resource "aws_s3_bucket_policy" "shared_bucket_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${data.aws_s3_bucket.shared_bucket.arn}",
-        "${data.aws_s3_bucket.shared_bucket.arn}/*"
+        "${var.bucket_arn}",
+        "${var.bucket_arn}/*"
       ],
       "Principal": {
         "AWS": [
@@ -35,8 +33,8 @@ resource "aws_s3_bucket_policy" "shared_bucket_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${data.aws_s3_bucket.shared_bucket.arn}",
-        "${data.aws_s3_bucket.shared_bucket.arn}/*"
+        "${var.bucket_arn}",
+        "${var.bucket_arn}/*"
       ],
       "Principal": {
         "AWS": [
@@ -56,7 +54,7 @@ resource "aws_s3_bucket_policy" "shared_bucket_policy" {
         "s3:PutObjectAcl"
       ],
       "Resource": [
-        "${data.aws_s3_bucket.shared_bucket.arn}/*"
+        "${var.bucket_arn}/*"
       ],
       "Condition": {
           "StringEquals": {
