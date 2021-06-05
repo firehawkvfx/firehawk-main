@@ -44,13 +44,22 @@ Metadata:
           - houdinilicenseserveraddress
       - 
         Label: 
+          default: "Production Storage"
+        Parameters: 
+          - prodmounttarget
+      - 
+        Label: 
+          default: "FSx for Lustre Cloud Storage"
+        Parameters:
+          - cloudfsxstorage
+          - cloudfsxmounttarget
+      - 
+        Label: 
           default: "Shared Storage from Onsite"
         Parameters: 
           - onsitestorage
           - onsitenfsexport
           - onsitenfsmounttarget
-          - cloudmounttarget
-          - prodmounttarget
       - 
         Label: 
           default: "Advanced Settings (Default values can be left unchanged) "
@@ -99,7 +108,9 @@ Metadata:
         default: "The mount export path used to mount your NFS share."
       onsitenfsmounttarget:
         default: "The target path used to mount your NFS share to."
-      cloudmounttarget:
+      cloudfsxstorage:
+        default: "Do you want to launch FSx to mount to cloud nodes (Lustre)?"
+      cloudfsxmounttarget:
         default: "The target path used to mount the FSX for Lustre storage share to."
       prodmounttarget:
         default: "The production mount target path (The default path for production resources)."
@@ -205,7 +216,14 @@ Parameters:
     Description: 'The mount target for the NFS share on the remote nodes. This is an absolute path to the storage at your location. (This is the second arg in /etc/fstab used to mount the NFS share).'
     Type: String
     Default: '/onsite_prod'
-  cloudmounttarget:
+  cloudfsxstorage:
+    Description: 'Do you want cloud nodes to have access to a high performance shared network mount using FSx for Lustre? This is also an S3 gateway'
+    Type: String
+    AllowedValues:
+    - false
+    - true
+    Default: false
+  cloudfsxmounttarget:
     Description: 'The mount target for the FSX share on the remote nodes. This is an absolute path to the storage at the cloud location. (This is the second arg in /etc/fstab used to mount the NFS share).'
     Type: String
     Default: '/cloud_prod'
@@ -471,7 +489,7 @@ Resources:
       Type: String
       Value: !Ref onsitenfsmounttarget
       Description: 'The NFS target path to mount to or second arg for /etc/fstab mounts on render nodes.'
-  SSMCloudMountTarget:
+  SSMCloudFSxStorage:
     Type: AWS::SSM::Parameter
     Properties:
       Name: 
@@ -479,9 +497,21 @@ Resources:
         - ''
         - - '/firehawk/resourcetier/'
           - Ref: resourcetier
-          - /cloud_mount_target
+          - /cloud_fsx_storage
       Type: String
-      Value: !Ref cloudmounttarget
+      Value: !Ref onsitestorage
+      Description: 'Use FSx for Lustre as an S3 storage gateway for render nodes?'
+  SSMCloudFSxMountTarget:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /cloud_fsx_mount_target
+      Type: String
+      Value: !Ref cloudfsxmounttarget
       Description: 'The FSX target path to mount to or second arg for /etc/fstab mounts on render nodes.'
   SSMProdMountTarget:
     Type: AWS::SSM::Parameter
