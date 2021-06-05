@@ -499,7 +499,7 @@ Resources:
           - Ref: resourcetier
           - /cloud_fsx_storage
       Type: String
-      Value: !Ref onsitestorage
+      Value: !Ref cloudfsxstorage
       Description: 'Use FSx for Lustre as an S3 storage gateway for render nodes?'
   SSMCloudFSxMountTarget:
     Type: AWS::SSM::Parameter
