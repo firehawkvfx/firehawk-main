@@ -49,6 +49,13 @@ Metadata:
           - prodmounttarget
       - 
         Label: 
+          default: "Storage: S3 File Gateway NFS Share (Cloud)"
+        Parameters:
+          - clouds3gateway
+          - clouds3gatewaymounttarget
+          - clouds3gatewaysize
+      - 
+        Label: 
           default: "Storage: FSx for Lustre (Cloud)"
         Parameters:
           - cloudfsxstorage
@@ -108,6 +115,12 @@ Metadata:
         default: "The mount export path used to mount your NFS share."
       onsitenfsmounttarget:
         default: "The target path used to mount your NFS share to."
+      clouds3gateway:
+        default: "Do you want to launch an File Gateway in EC2 to cache S3 as NFS? This can be mounted to cloud nodes and onsite (Linux, Mac, Windows)"
+      clouds3gatewaymounttarget:
+        default: "The target path used to mount the S3 File Gateway NFS share to on render nodes."
+      clouds3gatewaysize:
+        default: "The size in GB of the File Gateway cache (EBS volume)"
       cloudfsxstorage:
         default: "Do you want to launch FSx to mount to cloud nodes (Lustre)?"
       cloudfsxmounttarget:
@@ -215,22 +228,37 @@ Parameters:
   onsitenfsmounttarget:
     Description: 'The mount target for the NFS share on the remote nodes. This is an absolute path to the storage at your location. (This is the second arg in /etc/fstab used to mount the NFS share).'
     Type: String
-    Default: '/onsite_prod'
+    Default: '/Volumes/onsite_prod'
+  clouds3gateway:
+    Description: 'Do you want cloud nodes to have access to a shared network mount using S3 File Gateway? This allows an S3 bucket to be read and written to via NFS.'
+    Type: String
+    AllowedValues:
+    - false
+    - true
+    Default: true
+  clouds3gatewaymounttarget:
+    Description: 'The unique mount target for the File Gateway NFS share on the remote nodes. This is an absolute path to the storage at the cloud location. (This is the second arg in /etc/fstab used to mount the NFS share).'
+    Type: String
+    Default: '/Volumes/cloud_prod'
+  clouds3gatewaysize:
+    Description: 'The file gateway needs a cache large enough to operate on working data to reduce S3 requests (min 150 GB).'
+    Default: "150"
+    Type: String
   cloudfsxstorage:
-    Description: 'Do you want cloud nodes to have access to a high performance shared network mount using FSx for Lustre? This is also an S3 gateway'
+    Description: 'Do you want cloud nodes to have access to a high performance shared network mount using FSx for Lustre? This is also an S3 gateway.  You should not use this if also using the S3 File Gateway.'
     Type: String
     AllowedValues:
     - false
     - true
     Default: false
   cloudfsxmounttarget:
-    Description: 'The mount target for the FSX share on the remote nodes. This is an absolute path to the storage at the cloud location. (This is the second arg in /etc/fstab used to mount the NFS share).'
+    Description: 'The unique mount target for the FSX share on the remote nodes. This is an absolute path to the storage at the cloud location. (This is the second arg in /etc/fstab used to mount the NFS share).'
     Type: String
-    Default: '/cloud_prod'
+    Default: '/Volumes/cloud_fsx_prod'
   prodmounttarget:
     Description: 'The production mount target for the nearest storage available based on location. (This is a bind mount in /etc/fstab used to mount the nearest/fastest storage available depending on location).'
     Type: String
-    Default: '/prod'
+    Default: '/Volumes/prod'
 Conditions:
   HasLicenseServer:
     Fn::Not:
@@ -489,6 +517,42 @@ Resources:
       Type: String
       Value: !Ref onsitenfsmounttarget
       Description: 'The NFS target path to mount to or second arg for /etc/fstab mounts on render nodes.'
+  SSMCloudS3Gateway:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /cloud_s3_gateway
+      Type: String
+      Value: !Ref clouds3gateway
+      Description: 'Use an S3 File Gateway NFS share for render nodes?'
+  SSMCloudS3GatewayMountTarget:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /cloud_s3_gateway_mount_target
+      Type: String
+      Value: !Ref clouds3gatewaymounttarget
+      Description: 'The FSX target path to mount to or second arg for /etc/fstab mounts on render nodes.'
+  SSMCloudS3GatewaySize:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /cloud_s3_gateway_size
+      Type: String
+      Value: !Ref clouds3gatewaysize
+      Description: 'The size of the File Gateway EBS cache'
   SSMCloudFSxStorage:
     Type: AWS::SSM::Parameter
     Properties:
