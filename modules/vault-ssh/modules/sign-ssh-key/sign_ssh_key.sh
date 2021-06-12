@@ -198,16 +198,17 @@ function poll_public_key {
   local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
   local -r sqs_queue_url="$(ssm_get_parm "$parm_name")"
 
-  echo "...Polling SQS queue for your remote host's public key"
+  log "...Polling SQS queue for your remote host's public key"
   poll="true"
   while [[ "$poll" == "true" ]]; do
     local msg="$(aws sqs receive-message --queue-url $sqs_queue_url)"
     if [[ ! -z "$msg" ]]; then
       poll="false"
-      echo "$msg" | jq -r '.Messages[] | .ReceiptHandle' | (xargs -I {} aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle {}) && echo "$msg" | jq -r '.Messages[] | .Body' 
+      reciept_handle="$(echo "$msg" | jq -r '.Messages[] | .ReceiptHandle')"
+      aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle $reciept_handle && echo "$msg" | jq -r '.Messages[] | .Body' 
     fi
-    echo "No message in queue: $sqs_queue_url"
-    echo "...Waiting 10 seconds before retry."
+    # log "No message in queue: $sqs_queue_url"
+    log "...Waiting 10 seconds before retry."
     sleep 10
   done
 }
@@ -271,14 +272,28 @@ function install {
   error_if_empty "Argument resourcetier or env var TF_VAR_resourcetier not provided" "$resourcetier"
 
   if [[ "$generate_aws_key" == "true" ]]; then
-    echo ""
-    echo "...Generating AWS credentials.  Configure your remote host with these keys to automate SSH and VPN auth."
+    log ""
+    log "...Generating AWS credentials.  Configure your remote host with these keys to automate SSH and VPN auth."
     vault read aws/creds/aws-creds-ssm-parameters-ssh-certs
   fi
-  if [[ "$sqs_get_public_key" == "true" ]]; then
-    poll_public_key "$resourcetier"
-  fi
 
+  if [[ "$sqs_get_public_key" == "true" ]]; then
+    public_key_content="$(poll_public_key $resourcetier)" # poll for a public key and save it to a file
+    log "public_key_content: $public_key_content"
+    public_key="$HOME/.ssh/remote_host/id_rsa.pub"
+
+    target="$public_key"
+    create_dir="$(dirname ${target})"
+    
+    log "...Create dir: $create_dir"
+    mkdir -p "${create_dir}"
+    echo "$public_key_content" | tee "$target"
+
+    if test ! -f "$target"; then
+      log "Failed to write: $target"
+      exit 1
+    fi
+  fi
 
   if [[ "$aquire_certs_via_ssm" == "true" ]]; then
     log_info "Requesting trusted CA via SSM Parameter..."
