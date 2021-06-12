@@ -61,6 +61,13 @@ function log_error {
   log "ERROR" "$message"
 }
 
+function error_if_empty {
+  if [[ -z "$2" ]]; then
+    log_error "$1"
+  fi
+  return
+}
+
 function assert_not_empty {
   local -r arg_name="$1"
   local -r arg_value="$2"
@@ -142,16 +149,69 @@ function request_sign_public_key {
 
 function get_trusted_ca_ssm {
   local -r trusted_ca="$1"
+  local -r resourcetier="$2"
   log_info "Validating that credentials are configured..."
   aws sts get-caller-identity
   log_info "Updating: $trusted_ca"
-  aws ssm get-parameters --names /firehawk/resourcetier/dev/trusted_ca | jq -r '.Parameters[0].Value' | sudo tee "$trusted_ca"
+  aws ssm get-parameters --names /firehawk/resourcetier/$resourcetier/trusted_ca | jq -r '.Parameters[0].Value' | sudo tee "$trusted_ca"
 }
 
 function get_cert_ssm {
   local -r cert="$1"
+  local -r resourcetier="$2"
   log_info "Updating: $cert"
-  aws ssm get-parameters --names /firehawk/resourcetier/dev/onsite_user_public_cert | jq -r '.Parameters[0].Value' | tee "$cert"
+  aws ssm get-parameters --names /firehawk/resourcetier/$resourcetier/onsite_user_public_cert | jq -r '.Parameters[0].Value' | tee "$cert"
+}
+
+function ssm_get_parm {
+  local -r parm_name="$1"
+
+  output=$(aws ssm get-parameters --names ${parm_name}) && exit_status=0 || exit_status=$?
+  errors=$(echo "$output") | grep '^{' | jq -r .errors
+
+  invalid=$(echo ${output} | jq -r .'InvalidParameters | length')
+  if [[ $invalid -eq 0 ]]; then
+      log "Result: ${output}"
+      value=$(echo ${output} | jq -r '.Parameters[0].Value')
+      echo "$value"
+      return
+  fi
+  log "...Failed retrieving: ${parm_name}"
+  log "Result: ${output}"
+
+  # # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
+  # # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
+  # output=$(eval "$cmd") && exit_status=0 || exit_status=$?
+  # errors=$(echo "$output") | grep '^{' | jq -r .errors
+
+  # log "$output"
+
+  # if [[ $exit_status -eq 0 && -z "$errors" ]]; then
+  #   echo "$output"
+  #   return
+  # fi
+  # log "$description failed. Will sleep for 10 seconds and try again."
+
+}
+
+function poll_public_key {
+  local -r resourcetier="$1"
+  local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert"
+  local -r sqs_queue_url="$(ssm_get_parm "$parm_name")"
+
+  echo "...Polling SQS queue for your remote host's public key"
+  poll="true"
+  while [[ "$poll" == "true" ]]; do
+    # aws ssm get-parameters --names /firehawk/resourcetier/dev/sqs_cloud_in_cert | jq -r '.Parameters[0].Value'
+    local -r msg="$(aws sqs receive-message --queue-url $sqs_queue_url)"
+    if [[ ! -z "$msg" ]]; then
+      poll="false"
+      echo "$msg" | jq -r '.Messages[] | .ReceiptHandle' | (xargs -I {} aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle {}) && echo "$msg" | jq -r '.Messages[] | .Body' 
+    fi
+    echo "No message in queue: $sqs_queue_url"
+    echo "...Waiting 10 seconds before retry."
+    sleep 10
+  done
 }
 
 # You should be able to ssh into a target host:
@@ -159,9 +219,12 @@ function get_cert_ssm {
 
 function install {
   local public_key="$DEFAULT_PUBLIC_KEY"
+  local resourcetier="$TF_VAR_resourcetier"
   local trusted_ca=""
   local cert=""
   local aquire_certs_via_ssm="false"
+  local generate_aws_key="false"
+  local sqs_get_public_key="false"
   
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -182,8 +245,14 @@ function install {
         cert="$2"
         shift
         ;;
+      --resourcetier)
+        resourcetier="$2"
       --ssm)
         aquire_certs_via_ssm="true"
+        ;;
+      --generate-aws-key)
+        generate_aws_key="true"
+        sqs_get_public_key="true"
         ;;
       --help)
         print_usage
@@ -199,11 +268,22 @@ function install {
     shift
   done
 
+  error_if_empty "Argument resourcetier or env var TF_VAR_resourcetier not provided" "$resourcetier"
+
+  if [[ "$generate_aws_key" == "true" ]]; then
+    echo ""
+    echo "...Generating AWS credentials.  Configure your remote host with these keys to automate SSH and VPN auth."
+    vault read aws/creds/aws-creds-ssm-parameters-ssh-certs
+  fi
+  if [[ "$sqs_get_public_key" == "true" ]]; then
+    poll_public_key "$resourcetier"
+  fi
+
 
   if [[ "$aquire_certs_via_ssm" == "true" ]]; then
     log_info "Requesting trusted CA via SSM Parameter..."
     trusted_ca="$DEFAULT_TRUSTED_CA"
-    get_trusted_ca_ssm $trusted_ca
+    get_trusted_ca_ssm $trusted_ca "$resourcetier"
   elif [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
     trusted_ca="$DEFAULT_TRUSTED_CA"
     log_info "Requesting Vault provide the trusted CA..."
@@ -220,7 +300,7 @@ function install {
   if [[ "$aquire_certs_via_ssm" == "true" ]]; then
     log_info "Requesting SSH Cert via SSM Parameter..."
     cert=${public_key/.pub/-cert.pub}
-    get_cert_ssm $cert
+    get_cert_ssm $cert "$resourcetier"
   elif [[ -z "$cert" ]]; then # if no cert provided, request it from vault and store in along side the public key.
     # if public key doesn't exist, allow user to paste it in
     if test ! -f "$public_key"; then

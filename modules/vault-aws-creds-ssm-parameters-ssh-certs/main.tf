@@ -29,9 +29,18 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     ]
     resources = ["arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/firehawk/resourcetier/${var.resourcetier}/*"]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage"
+    ]
+    resources = var.sqs_send_arns
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:ReceiveMessage"
+    ]
+    resources = var.sqs_recieve_arns
+  }
 }
-
-# data "vault_aws_access_credentials" "creds" {
-#   backend = vault_aws_secret_backend.aws.path
-#   role    = vault_aws_secret_backend_role.role.name
-# }
