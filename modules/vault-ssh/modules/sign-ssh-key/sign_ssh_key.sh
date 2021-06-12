@@ -95,7 +95,7 @@ function configure_trusted_ca {
   sudo mv /etc/ssh/sshd_config.tmp /etc/ssh/sshd_config # if the python script doesn't error, then we update the original.  If this file were to be misconfigured it will break SSH and your instance.
 }
 
-function configure_cert {
+function configure_cert_restart {
   local -r cert="$1"
   sudo chmod 0644 "$cert"
 
@@ -194,13 +194,14 @@ function ssm_get_parm {
 
 }
 
-function sqs_send_public_key {
+function sqs_send_file {
   local -r resourcetier="$1"
-  local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
+  local -r file_path="$2"
+  local -r parm_name="$3"
   sqs_queue_url="$(ssm_get_parm $parm_name)"
   error_if_empty "Could not resolve $parm_name" "$sqs_queue_url"
-  public_key_content="$(cat $HOME/.ssh/id_rsa.pub)"
-  aws sqs send-message --queue-url $sqs_queue_url --message-body "$public_key_content" --message-group-id "$resourcetier"
+  file_content="$(cat $file_path)"
+  aws sqs send-message --queue-url $sqs_queue_url --message-body "$file_content" --message-group-id "$resourcetier"
 }
 
 function poll_public_key {
@@ -255,11 +256,13 @@ function install {
   local trusted_ca_via_ssm="false"
   local generate_aws_key="false"
   local sqs_get_public_key="false"
+  local sqs_send_signed_cert="false"
   local aws_access_key=""
   local aws_secret_key=""
   local aws_configure="false"
   local public_key_content=""
   local poll_public_cert="false"
+  local configure_cert="true"
   
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -291,7 +294,7 @@ function install {
       --generate-aws-key)
         generate_aws_key="true"
         sqs_get_public_key="true"
-
+        sqs_send_signed_cert="true"
         ;;
       --aws-configure) # Provide an access key on a remote client to send public key and recieve cert via an sqs queue
         aws_configure="true"
@@ -321,6 +324,7 @@ function install {
   fi
 
   if [[ "$sqs_get_public_key" == "true" ]]; then
+    configure_cert="false" # if we are getting a remote pub key to produce a cert, then this host will not need to use the result for ssh.
     public_key_content="$(poll_public_key $resourcetier)" # poll for a public key and save it to a file
     log "public_key_content: $public_key_content"
     public_key="$HOME/.ssh/remote_host/id_rsa.pub"
@@ -340,7 +344,7 @@ function install {
 
   if [[ "$aws_configure" == "true" ]]; then # we can use an aws secret to provide a channel to post the hosts public key and receive a cert via AWS SQS.
     aws configure # this is an interactive input.
-    sqs_send_public_key "$resourcetier"
+    sqs_send_file "$resourcetier" "$HOME/.ssh/id_rsa.pub" "/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
   fi
 
   if [[ "$trusted_ca_via_ssm" == "true" ]]; then
@@ -378,9 +382,13 @@ function install {
       read public_key_content
       echo "$public_key_content" | tee "$public_key"
     fi
-    log_info "Requesting Vault sign public key for this SSH client..."
+    log_info "Requesting Vault sign public key for SSH client..."
     cert=${public_key/.pub/-cert.pub}
     request_sign_public_key "$public_key" "$trusted_ca" "$cert" "$resourcetier"
+
+    if [[ "$sqs_send_signed_cert" == "true" ]]; then
+      sqs_send_file "$resourcetier" "$cert" "/firehawk/resourcetier/$resourcetier/sqs_remote_in_cert_url"
+    fi
   else
     log_info "Cert path provided: public key already signed. copying to default ssh dir ~/.ssh"
     sudo cp -frv "$cert" ~/.ssh
@@ -388,8 +396,10 @@ function install {
     cert="$HOME/.ssh/$cert"
   fi
 
-  log_info "Configure cert for use: $cert"
-  configure_cert "$cert"
+  if [[ "$configure_cert" == "true" ]]; then
+    log_info "Configure cert for use: $cert"
+    configure_cert_restart "$cert"
+  fi
   log_info "Complete!"
 }
 

@@ -32,7 +32,8 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
   statement {
     effect = "Allow"
     actions = [
-      "sqs:SendMessage"
+      "sqs:SendMessage",
+      "sqs:SendMessageBatch"
     ]
     resources = var.sqs_send_arns
   }
