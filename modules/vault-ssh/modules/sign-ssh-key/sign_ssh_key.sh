@@ -166,10 +166,10 @@ function ssm_get_parm {
   local -r parm_name="$1"
 
   output=$(aws ssm get-parameters --names ${parm_name}) && exit_status=0 || exit_status=$?
-  errors=$(echo "$output") | grep '^{' | jq -r .errors
+  # errors=$(echo "$output") | grep '^{' | jq -r .errors
 
   invalid=$(echo ${output} | jq -r .'InvalidParameters | length')
-  if [[ $invalid -eq 0 ]]; then
+  if [[ $exit_status -eq 0 && $invalid -eq 0 ]]; then
       log "Result: ${output}"
       value=$(echo ${output} | jq -r '.Parameters[0].Value')
       echo "$value"
@@ -195,13 +195,12 @@ function ssm_get_parm {
 
 function poll_public_key {
   local -r resourcetier="$1"
-  local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert"
+  local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
   local -r sqs_queue_url="$(ssm_get_parm "$parm_name")"
 
   echo "...Polling SQS queue for your remote host's public key"
   poll="true"
   while [[ "$poll" == "true" ]]; do
-    # aws ssm get-parameters --names /firehawk/resourcetier/dev/sqs_cloud_in_cert | jq -r '.Parameters[0].Value'
     local -r msg="$(aws sqs receive-message --queue-url $sqs_queue_url)"
     if [[ ! -z "$msg" ]]; then
       poll="false"

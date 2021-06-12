@@ -8,6 +8,7 @@ EXECDIR="$(pwd)"
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # The directory of this script
 cd "$SCRIPTDIR"
 
+readonly DEFAULT_resourcetier="$TF_VAR_resourcetier"
 readonly SCRIPT_NAME="$(basename "$0")"
 readonly DEFAULT_TRUSTED_CA="/etc/ssh/trusted-user-ca-keys.pem"
 readonly DEFAULT_SSH_KNOWN_HOSTS="$HOME/.ssh/ssh_known_hosts_fragment"
@@ -52,6 +53,13 @@ function log_warn {
 function log_error {
   local -r message="$1"
   log "ERROR" "$message"
+}
+
+function error_if_empty {
+  if [[ -z "$2" ]]; then
+    log_error "$1"
+  fi
+  return
 }
 
 function assert_not_empty {
@@ -175,16 +183,18 @@ function configure_ssh_known_hosts {
 
 function get_trusted_ca_ssm {
   local -r trusted_ca="$1"
+  local -r resourcetier="$2"
   log_info "Validating that credentials are configured..."
   aws sts get-caller-identity
   log_info "Updating: $trusted_ca"
-  aws ssm get-parameters --names /firehawk/resourcetier/dev/trusted_ca | jq -r '.Parameters[0].Value' | sudo tee "$trusted_ca"
+  aws ssm get-parameters --names /firehawk/resourcetier/$resourcetier/trusted_ca | jq -r '.Parameters[0].Value' | sudo tee "$trusted_ca"
 }
 
 function get_known_hosts_fragment_ssm {
   local -r ssh_known_hosts_fragment="$1"
+  local -r resourcetier="$2"
   log_info "Updating: $cert"
-  aws ssm get-parameters --names /firehawk/resourcetier/dev/ssh_known_hosts_fragment | jq -r '.Parameters[0].Value' | tee "$ssh_known_hosts_fragment"
+  aws ssm get-parameters --names /firehawk/resourcetier/$resourcetier/ssh_known_hosts_fragment | jq -r '.Parameters[0].Value' | tee "$ssh_known_hosts_fragment"
 }
 
 function install {
@@ -192,6 +202,7 @@ function install {
   local trusted_ca=""
   local external_domain="$DEFAULT_EXTERNAL_DOMAIN"
   local aquire_certs_via_ssm="false"
+  local resourcetier="$DEFAULT_resourcetier"
 
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -214,6 +225,10 @@ function install {
       --ssm)
         aquire_certs_via_ssm="true"
         ;;
+      --resourcetier)
+        resourcetier="$2"
+        shift
+        ;;
       --help)
         print_usage
         exit
@@ -227,10 +242,12 @@ function install {
     shift
   done
 
+  error_if_empty "Argument resourcetier or env var TF_VAR_resourcetier not provided" "$resourcetier"
+
   if [[ "$aquire_certs_via_ssm" == "true" ]]; then
     log_info "Requesting trusted CA via SSM Parameter..."
     trusted_ca="$DEFAULT_TRUSTED_CA"
-    get_trusted_ca_ssm $trusted_ca
+    get_trusted_ca_ssm $trusted_ca "$resourcetier"
   elif [[ -z "$trusted_ca" ]]; then # if no trusted ca provided, request it from vault and store in default location.
     trusted_ca="$DEFAULT_TRUSTED_CA"
     log_info "Requesting Vault provide the trusted CA..."
@@ -247,7 +264,7 @@ function install {
   if [[ "$aquire_certs_via_ssm" == "true" ]]; then
     log_info "Requesting known hosts fragment via SSM Parameter..."
     ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
-    get_known_hosts_fragment_ssm $ssh_known_hosts
+    get_known_hosts_fragment_ssm $ssh_known_hosts "$resourcetier"
   elif [[ -z "$ssh_known_hosts" ]]; then # if no trusted ca provided, request it from vault and store in default location.
     ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
     log_info "Requesting Vault provide the SSH known hosts CA as a fragment..."
