@@ -118,13 +118,14 @@ function request_sign_public_key {
   local -r public_key="$1"
   local -r trusted_ca="$2"
   local -r cert="$3"
+  local -r resourcetier="$4"
   local -r ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
 
   if [[ "$public_key"!="$DEFAULT_PUBLIC_KEY" ]]; then
     log "Copying $trusted_ca to $(dirname $public_key). Ensure you download this file to $trusted_ca if you intend to connect from a remote client."
     sudo cp $trusted_ca $(dirname $public_key)
     log "Configuring known hosts. To ensure $ssh_known_hosts is current before copying to homedir for download."
-    $SCRIPTDIR/../known-hosts/known_hosts.sh
+    $SCRIPTDIR/../known-hosts/known_hosts.sh --resourcetier "$resourcetier"
     log "Copying $DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT to $(dirname $public_key).  Ensure you download this file to a remote client if you intend to connect from that client, ensuring ssh hosts have valid certs."
     # sudo rm -fv "$(dirname $public_key)/ssh_known_hosts_fragment" # if the file is the same, cp will raise a non 0 exit code, so we remove it.
     FILE1=$DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT
@@ -196,7 +197,7 @@ function ssm_get_parm {
 function sqs_send_public_key {
   local -r resourcetier="$1"
   local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
-  sqs_queue_url="$(ssm_get_parm \"$parm_name\")"
+  sqs_queue_url="$(ssm_get_parm $parm_name)"
   error_if_empty "Could not resolve $parm_name" "$sqs_queue_url"
   public_key_content="$(cat $HOME/.ssh/id_rsa.pub)"
   aws sqs send-message --queue-url $sqs_queue_url --message-body "$public_key_content" --message-group-id "$resourcetier"
@@ -222,6 +223,26 @@ function poll_public_key {
   done
 }
 
+function poll_public_signed_cert {
+  local -r resourcetier="$1"
+  local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_remote_in_cert_url"
+  local -r sqs_queue_url="$(ssm_get_parm "$parm_name")"
+
+  log "...Polling SQS queue for your remote host's signed cert"
+  poll="true"
+  while [[ "$poll" == "true" ]]; do
+    local msg="$(aws sqs receive-message --queue-url $sqs_queue_url)"
+    if [[ ! -z "$msg" ]]; then
+      poll="false"
+      reciept_handle="$(echo "$msg" | jq -r '.Messages[] | .ReceiptHandle')"
+      aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle $reciept_handle && echo "$msg" | jq -r '.Messages[] | .Body' 
+    fi
+    # log "No message in queue: $sqs_queue_url"
+    log "...Waiting 10 seconds before retry."
+    sleep 10
+  done
+}
+
 # You should be able to ssh into a target host:
 # ssh -i signed-cert.pub -i ~/.ssh/id_rsa username@10.0.23.5
 
@@ -230,7 +251,7 @@ function install {
   local resourcetier="$DEFAULT_resourcetier"
   local trusted_ca=""
   local cert=""
-  local aquire_certs_via_ssm="false"
+  local aquire_pubkey_certs_via_ssm="false"
   local trusted_ca_via_ssm="false"
   local generate_aws_key="false"
   local sqs_get_public_key="false"
@@ -238,6 +259,7 @@ function install {
   local aws_secret_key=""
   local aws_configure="false"
   local public_key_content=""
+  local poll_public_cert="false"
   
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -263,16 +285,18 @@ function install {
         shift
         ;;
       --ssm)
-        aquire_certs_via_ssm="true"
+        aquire_pubkey_certs_via_ssm="true"
         trusted_ca_via_ssm="true"
         ;;
       --generate-aws-key)
         generate_aws_key="true"
         sqs_get_public_key="true"
+
         ;;
       --aws-configure) # Provide an access key on a remote client to send public key and recieve cert via an sqs queue
         aws_configure="true"
         trusted_ca_via_ssm="true"
+        poll_public_cert="true"
         ;;
       --help)
         print_usage
@@ -336,7 +360,12 @@ function install {
   log_info "Configure this host to use trusted CA"
   configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
-  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+  if [[ "$poll_public_cert" == "true" ]]; then
+    log_info "Polling SQS queue for signed cert..."
+    public_signed_cert_content="$(poll_public_signed_cert $resourcetier)"
+    cert=${public_key/.pub/-cert.pub}
+    echo "$public_signed_cert_content" | tee $cert
+  elif [[ "$aquire_pubkey_certs_via_ssm" == "true" ]]; then
     log_info "Requesting SSH Cert via SSM Parameter..."
     cert=${public_key/.pub/-cert.pub}
     get_cert_ssm $cert "$resourcetier"
@@ -351,7 +380,7 @@ function install {
     fi
     log_info "Requesting Vault sign public key for this SSH client..."
     cert=${public_key/.pub/-cert.pub}
-    request_sign_public_key "$public_key" "$trusted_ca" "$cert"
+    request_sign_public_key "$public_key" "$trusted_ca" "$cert" "$resourcetier"
   else
     log_info "Cert path provided: public key already signed. copying to default ssh dir ~/.ssh"
     sudo cp -frv "$cert" ~/.ssh

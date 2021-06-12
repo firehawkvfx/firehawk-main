@@ -201,7 +201,7 @@ function install {
   local ssh_known_hosts=""
   local trusted_ca=""
   local external_domain="$DEFAULT_EXTERNAL_DOMAIN"
-  local aquire_certs_via_ssm="false"
+  local aquire_ca_certs_via_ssm="false"
   local resourcetier="$DEFAULT_resourcetier"
 
   while [[ $# > 0 ]]; do
@@ -223,7 +223,7 @@ function install {
         shift
         ;;
       --ssm)
-        aquire_certs_via_ssm="true"
+        aquire_ca_certs_via_ssm="true"
         ;;
       --resourcetier)
         resourcetier="$2"
@@ -244,7 +244,7 @@ function install {
 
   error_if_empty "Argument resourcetier or env var TF_VAR_resourcetier not provided" "$resourcetier"
 
-  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+  if [[ "$aquire_ca_certs_via_ssm" == "true" ]]; then
     log_info "Requesting trusted CA via SSM Parameter..."
     trusted_ca="$DEFAULT_TRUSTED_CA"
     get_trusted_ca_ssm $trusted_ca "$resourcetier"
@@ -261,7 +261,7 @@ function install {
   log_info "Configure this host to use trusted CA: $trusted_ca"
   configure_trusted_ca "$trusted_ca" # configure trusted ca for our host
 
-  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+  if [[ "$aquire_ca_certs_via_ssm" == "true" ]]; then
     log_info "Requesting known hosts fragment via SSM Parameter..."
     ssh_known_hosts="$DEFAULT_SSH_KNOWN_HOSTS"
     get_known_hosts_fragment_ssm $ssh_known_hosts "$resourcetier"
