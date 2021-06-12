@@ -7,14 +7,13 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 readonly SCRIPT_NAME="$(basename "$0")"
 cd "$SCRIPTDIR"
 
+readonly DEFAULT_resourcetier="$TF_VAR_resourcetier"
 readonly DEFAULT_PUBLIC_KEY="$HOME/.ssh/id_rsa.pub"
 readonly DEFAULT_TRUSTED_CA="/etc/ssh/trusted-user-ca-keys.pem"
 readonly DEFAULT_SSH_KNOWN_HOSTS="/etc/ssh/ssh_known_hosts"
 readonly DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT=$HOME/.ssh/ssh_known_hosts_fragment
 
 # These helper functions are from the sign_ssh_key.sh Hashicorp script
-
-
 
 function print_usage {
   echo
@@ -219,7 +218,7 @@ function poll_public_key {
 
 function install {
   local public_key="$DEFAULT_PUBLIC_KEY"
-  local resourcetier="$TF_VAR_resourcetier"
+  local resourcetier="$DEFAULT_resourcetier"
   local trusted_ca=""
   local cert=""
   local aquire_certs_via_ssm="false"
@@ -247,6 +246,8 @@ function install {
         ;;
       --resourcetier)
         resourcetier="$2"
+        shift
+        ;;
       --ssm)
         aquire_certs_via_ssm="true"
         ;;
