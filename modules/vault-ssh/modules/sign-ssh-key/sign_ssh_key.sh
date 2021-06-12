@@ -165,7 +165,7 @@ function get_cert_ssm {
 function ssm_get_parm {
   local -r parm_name="$1"
 
-  output=$(aws ssm get-parameters --names ${parm_name}) && exit_status=0 || exit_status=$?
+  output=$(aws ssm get-parameters --with-decryption --names ${parm_name}) && exit_status=0 || exit_status=$?
   # errors=$(echo "$output") | grep '^{' | jq -r .errors
 
   invalid=$(echo ${output} | jq -r .'InvalidParameters | length')
