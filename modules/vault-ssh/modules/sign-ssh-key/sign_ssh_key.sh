@@ -201,7 +201,7 @@ function poll_public_key {
   echo "...Polling SQS queue for your remote host's public key"
   poll="true"
   while [[ "$poll" == "true" ]]; do
-    local -r msg="$(aws sqs receive-message --queue-url $sqs_queue_url)"
+    local msg="$(aws sqs receive-message --queue-url $sqs_queue_url)"
     if [[ ! -z "$msg" ]]; then
       poll="false"
       echo "$msg" | jq -r '.Messages[] | .ReceiptHandle' | (xargs -I {} aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle {}) && echo "$msg" | jq -r '.Messages[] | .Body' 
