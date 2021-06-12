@@ -193,6 +193,15 @@ function ssm_get_parm {
 
 }
 
+function sqs_send_public_key {
+  local -r resourcetier="$1"
+  local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
+  sqs_queue_url="$(ssm_get_parm \"$parm_name\")"
+  error_if_empty "Could not resolve $parm_name" "$sqs_queue_url"
+  public_key_content="$(cat $HOME/.ssh/id_rsa.pub)"
+  aws sqs send-message --queue-url $sqs_queue_url --message-body "$public_key_content" --message-group-id "$resourcetier"
+}
+
 function poll_public_key {
   local -r resourcetier="$1"
   local -r parm_name="/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url"
@@ -307,9 +316,7 @@ function install {
 
   if [[ "$aws_configure" == "true" ]]; then # we can use an aws secret to provide a channel to post the hosts public key and receive a cert via AWS SQS.
     aws configure # this is an interactive input.
-    local sqs_queue_url="$(ssm_get_parm "/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url")"
-    public_key_content="$(cat $HOME/.ssh/id_rsa.pub)"
-    aws sqs send-message --queue-url $sqs_queue_url --message-body "$public_key_content" --message-group-id "$resourcetier"
+    sqs_send_public_key "$resourcetier"
   fi
 
   if [[ "$trusted_ca_via_ssm" == "true" ]]; then
