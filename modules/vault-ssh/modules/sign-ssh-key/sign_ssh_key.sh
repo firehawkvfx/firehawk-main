@@ -222,8 +222,13 @@ function install {
   local trusted_ca=""
   local cert=""
   local aquire_certs_via_ssm="false"
+  local trusted_ca_via_ssm="false"
   local generate_aws_key="false"
   local sqs_get_public_key="false"
+  local aws_access_key=""
+  local aws_secret_key=""
+  local aws_configure="false"
+  local public_key_content=""
   
   while [[ $# > 0 ]]; do
     local key="$1"
@@ -250,10 +255,15 @@ function install {
         ;;
       --ssm)
         aquire_certs_via_ssm="true"
+        trusted_ca_via_ssm="true"
         ;;
       --generate-aws-key)
         generate_aws_key="true"
         sqs_get_public_key="true"
+        ;;
+      --aws-configure) # Provide an access key on a remote client to send public key and recieve cert via an sqs queue
+        aws_configure="true"
+        trusted_ca_via_ssm="true"
         ;;
       --help)
         print_usage
@@ -295,7 +305,14 @@ function install {
     fi
   fi
 
-  if [[ "$aquire_certs_via_ssm" == "true" ]]; then
+  if [[ "$aws_configure" == "true" ]]; then # we can use an aws secret to provide a channel to post the hosts public key and receive a cert via AWS SQS.
+    aws configure # this is an interactive input.
+    local sqs_queue_url="$(ssm_get_parm "/firehawk/resourcetier/$resourcetier/sqs_cloud_in_cert_url")"
+    public_key_content="$(cat $HOME/.ssh/id_rsa.pub)"
+    aws sqs send-message --queue-url $sqs_queue_url --message-body "$public_key_content" --message-group-id "$resourcetier"
+  fi
+
+  if [[ "$trusted_ca_via_ssm" == "true" ]]; then
     log_info "Requesting trusted CA via SSM Parameter..."
     trusted_ca="$DEFAULT_TRUSTED_CA"
     get_trusted_ca_ssm $trusted_ca "$resourcetier"
