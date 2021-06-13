@@ -168,7 +168,7 @@ if [[ ! -z "$initial_root_token" ]]; then
     "Failed to login with initial token."
 else
   echo "Checking if a valid token is already available..."
-  # sleep 10 # before attempting a lookup some duration is required.
+  sleep 10 # before attempting a lookup some duration is required.
   # If a token is already valid, no need to login.
   output=$(vault token lookup) && exit_status=0 || exit_status=$?
   errors=$(echo "$output") | grep '^{' | jq -r .errors
