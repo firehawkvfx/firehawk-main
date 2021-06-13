@@ -10,7 +10,7 @@ inputs = local.common_vars.inputs
 
 dependencies {
   paths = [
-    "../terraform-aws-vpn",
+    "../terraform-aws-vpn/module",
     "../terraform-aws-bastion",
     "../terraform-aws-vault-client"
     ]

@@ -12,6 +12,7 @@ readonly DEFAULT_PUBLIC_KEY="$HOME/.ssh/id_rsa.pub"
 readonly DEFAULT_TRUSTED_CA="/etc/ssh/trusted-user-ca-keys.pem"
 readonly DEFAULT_SSH_KNOWN_HOSTS="/etc/ssh/ssh_known_hosts"
 readonly DEFAULT_SSH_KNOWN_HOSTS_FRAGMENT=$HOME/.ssh/ssh_known_hosts_fragment
+readonly DEFAULT_POLL_DURATION=3
 
 # These helper functions are from the sign_ssh_key.sh Hashicorp script
 
@@ -167,7 +168,6 @@ function ssm_get_parm {
   local -r parm_name="$1"
 
   output=$(aws ssm get-parameters --with-decryption --names ${parm_name}) && exit_status=0 || exit_status=$?
-  # errors=$(echo "$output") | grep '^{' | jq -r .errors
 
   invalid=$(echo ${output} | jq -r .'InvalidParameters | length')
   if [[ $exit_status -eq 0 && $invalid -eq 0 ]]; then
@@ -178,20 +178,6 @@ function ssm_get_parm {
   fi
   log "...Failed retrieving: ${parm_name}"
   log "Result: ${output}"
-
-  # # The boolean operations with the exit status are there to temporarily circumvent the "set -e" at the
-  # # beginning of this script which exits the script immediatelly for error status while not losing the exit status code
-  # output=$(eval "$cmd") && exit_status=0 || exit_status=$?
-  # errors=$(echo "$output") | grep '^{' | jq -r .errors
-
-  # log "$output"
-
-  # if [[ $exit_status -eq 0 && -z "$errors" ]]; then
-  #   echo "$output"
-  #   return
-  # fi
-  # log "$description failed. Will sleep for 10 seconds and try again."
-
 }
 
 function sqs_send_file {
@@ -218,9 +204,8 @@ function poll_public_key {
       reciept_handle="$(echo "$msg" | jq -r '.Messages[] | .ReceiptHandle')"
       aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle $reciept_handle && echo "$msg" | jq -r '.Messages[] | .Body' 
     fi
-    # log "No message in queue: $sqs_queue_url"
-    log "...Waiting 10 seconds before retry."
-    sleep 10
+    log "...Waiting $DEFAULT_POLL_DURATION seconds before retry."
+    sleep $DEFAULT_POLL_DURATION
   done
 }
 
@@ -238,9 +223,8 @@ function poll_public_signed_cert {
       reciept_handle="$(echo "$msg" | jq -r '.Messages[] | .ReceiptHandle')"
       aws sqs delete-message --queue-url $sqs_queue_url --receipt-handle $reciept_handle && echo "$msg" | jq -r '.Messages[] | .Body' 
     fi
-    # log "No message in queue: $sqs_queue_url"
-    log "...Waiting 10 seconds before retry."
-    sleep 10
+    log "...Waiting $DEFAULT_POLL_DURATION seconds before retry."
+    sleep $DEFAULT_POLL_DURATION
   done
 }
 
