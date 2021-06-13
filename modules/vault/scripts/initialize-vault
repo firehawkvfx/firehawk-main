@@ -78,13 +78,6 @@ instanceid="$(echo $query | jq '.[0]["InstanceId"]' --raw-output)"
 privateip="$(echo $query | jq '.[0]["PrivateIpAddress"]' --raw-output)"
 hostname=$instanceid.node.consul
 
-echo "Removing any previous host keys for: $hostname,$privateip"
-ssh-keygen -R $hostname || echo "No host key by name required removal"
-ssh-keygen -R $privateip || echo "No host key by ip required removal"
-printf "\nAdding hostkeys using AWS CLI query for $hostname,$privateip\n" # A seperate channel should always be used to add hsot keys, so we use the cli.
-printf "The first time an instance is starting this may take 2-3 minutes.\n\n"
-# known_hosts_fragment=$(aws ec2 get-console-output --instance-id i-0c0f3ff0b0c79c4e2 | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=i-0c0f3ff0b0c79c4e2.node.consul,10.1.0.15 -v space=' ' '{ print host space $1 space $2 }')
-
 get_host_key() {
   local -r instanceid=$1
   local -r privateip=$2
@@ -119,6 +112,12 @@ if [[ "$initialised" == "true" ]]; then
   echo ""
 else
   echo "...Proceeding to initialize vault after host key aquired."
+
+  echo "Removing any previous host keys for: $hostname,$privateip"
+  ssh-keygen -R $hostname || echo "No host key by name required removal"
+  ssh-keygen -R $privateip || echo "No host key by ip required removal"
+  printf "\nAdding hostkeys using AWS CLI query for $hostname,$privateip\n" # A seperate channel should always be used to add hsot keys, so we use the cli.
+  printf "The first time an instance is starting this may take 2-3 minutes.\n\n"
 
   get_host_key $instanceid $privateip # required for ssh to  vault
   known_hosts_fragment=$(retryifnooutput \
