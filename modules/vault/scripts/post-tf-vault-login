@@ -62,12 +62,6 @@ if [[ "$initialised" == false ]]; then
 fi
 sleep 10
 
-# Why?
-# vault token lookup
-# Error looking up token: Error making API request.
-# URL: GET https://vault.service.consul:8200/v1/auth/token/lookup-self
-# Code: 500. Errors:
-
 echo "vault token lookup"
 
 output=$(vault token lookup) && exit_status=0 || exit_status=$?

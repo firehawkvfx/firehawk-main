@@ -76,10 +76,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" # 
 query=$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0]")
 instanceid="$(echo $query | jq '.[0]["InstanceId"]' --raw-output)"
 privateip="$(echo $query | jq '.[0]["PrivateIpAddress"]' --raw-output)"
-# readonly instanceid="$(aws ec2 describe-instances --filters "Name=tag:Name,Values=vault-example" --filters "Name=instance-state-name,Values=running" | jq '.[][0]["Instances"][0]["InstanceId"]' --raw-output)"
-# readonly instanceid="$(aws ec2 describe-instances --filter "Name=instance-state-name,Values=running" "Name=tag:Name,Values=vault-example" --query "Reservations[].Instances[0].InstanceId[]" | jq '.[0]' --raw-output)"
 hostname=$instanceid.node.consul
-# readonly privateip="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" "Name=instance-id,Values=$instanceid" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)"
 
 echo "Removing any previous host keys for: $hostname,$privateip"
 ssh-keygen -R $hostname || echo "No host key by name required removal"
@@ -94,24 +91,17 @@ get_host_key() {
   aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$instanceid.node.consul,$privateip -v space=' ' '{ print host space $1 space $2 }'
 }
 
+# get_host_key $instanceid $privateip # required for ssh to  vault
 # known_hosts_fragment=$(retryifnooutput \
-#     "aws ec2 get-console-output --instance-id $instanceid | jq .Output -r |sed -n -e '1,/-----BEGIN SSH HOST KEY KEYS-----/d; /-----END SSH HOST KEY KEYS-----/q; p' | grep ecdsa-sha2-nistp256 | awk -v host=$instanceid.node.consul,$privateip -v space=' ' '{ print host space $1 space $2 }'" \
+#     "get_host_key $instanceid $privateip" \
 #     "Querying host key for $instanceid..." \
 #     "Failed to aquire host key.")
-
-get_host_key $instanceid $privateip
-
-known_hosts_fragment=$(retryifnooutput \
-    "get_host_key $instanceid $privateip" \
-    "Querying host key for $instanceid..." \
-    "Failed to aquire host key.")
-
-if [[ -z "$known_hosts_fragment" ]]; then
-    exit_if_error 1 "Couldn't get-console-output."
-else
-    echo "$known_hosts_fragment" | tee --append ~/.ssh/known_hosts
-    echo "Added to known hosts: $known_hosts_fragment"
-fi
+# if [[ -z "$known_hosts_fragment" ]]; then
+#     exit_if_error 1 "Couldn't get-console-output."
+# else
+#     echo "$known_hosts_fragment" | tee --append ~/.ssh/known_hosts
+#     echo "Added to known hosts: $known_hosts_fragment"
+# fi
 
 echo
 echo "...Checking Vault status"
@@ -128,7 +118,20 @@ if [[ "$initialised" == "true" ]]; then
   echo "Vault is already Initialized."
   echo ""
 else
-  echo "...Proceeding to initialize vault"
+  echo "...Proceeding to initialize vault after host key aquired."
+
+  get_host_key $instanceid $privateip # required for ssh to  vault
+  known_hosts_fragment=$(retryifnooutput \
+      "get_host_key $instanceid $privateip" \
+      "Querying host key for $instanceid..." \
+      "Failed to aquire host key.")
+  if [[ -z "$known_hosts_fragment" ]]; then
+      exit_if_error 1 "Couldn't get-console-output."
+  else
+      echo "$known_hosts_fragment" | tee --append ~/.ssh/known_hosts
+      echo "Added to known hosts: $known_hosts_fragment"
+  fi
+
   result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
 
   recovery_key=$(echo "$result" | awk '/^Recovery Key 1:/ { print $4 ; exit }')
@@ -147,7 +150,7 @@ else
   fi
 fi
 
-# Ensure a vault host exits before any further queries/login
+# Ensure a vault host exists before any further queries/login
 get_vault_ip() {
   dig vault.service.consul | awk '/^;; ANSWER SECTION:$/ { getline ; print $5 ; exit }'
 }
