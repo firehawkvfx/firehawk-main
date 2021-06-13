@@ -167,6 +167,7 @@ if [[ ! -z "$initial_root_token" ]]; then
     "...Logging in with initial token" \
     "Failed to login with initial token."
 else
+  echo "Checking if a valid token is already available..."
   # If a token is already valid, no need to login.
   output=$(vault token lookup) && exit_status=0 || exit_status=$?
   errors=$(echo "$output") | grep '^{' | jq -r .errors
@@ -179,7 +180,12 @@ else
       policies="$(echo \"$output\" | awk '/^policies/ { print $2 ; exit }')"
       echo "policies: $policies"
   else
-      echo "...Logging in. Or exit and use: vault login --no-print"
+      echo "...No available token for login"
+      echo "output: $output"
+      echo "errors: $errors"
+      echo "exit_status: $exit_status"
+      echo ""
+      echo "...Logging in manually. Or exit and use: vault login --no-print"
       vault login --no-print
   fi
   echo ""
