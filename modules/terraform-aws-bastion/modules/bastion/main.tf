@@ -36,8 +36,8 @@ resource "aws_instance" "bastion" {
   subnet_id              = tolist(var.public_subnet_ids)[0]
   tags                   = merge(map("Name", var.name), local.bastion_tags)
   user_data              = data.template_file.user_data_auth_client.rendered
-  iam_instance_profile   = data.terraform_remote_state.bastion_profile.outputs.instance_profile_name
-  vpc_security_group_ids = [ data.terraform_remote_state.bastion_security_group.outputs.security_group_id ]
+  iam_instance_profile   = try(data.terraform_remote_state.bastion_profile.outputs.instance_profile_name, null)
+  vpc_security_group_ids = [ try(data.terraform_remote_state.bastion_security_group.outputs.security_group_id, null) ]
   root_block_device {
     delete_on_termination = true
   }
