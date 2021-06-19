@@ -304,7 +304,7 @@ function install {
   if [[ "$generate_aws_key" == "true" ]]; then
     log ""
     log "...Generating AWS credentials.  Configure your remote host with these keys to automate SSH and VPN auth."
-    vault read aws/creds/aws-creds-ssm-parameters-ssh-certs
+    vault read aws/creds/aws-creds-vpn-cert
   fi
 
   if [[ "$sqs_get_public_key" == "true" ]]; then

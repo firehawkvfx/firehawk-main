@@ -6,9 +6,14 @@ data "aws_caller_identity" "current" {}
 resource "vault_aws_secret_backend" "aws" {
 }
 
+variable "backend_name" {
+  description = "The name / path where the backend will generate cred from"
+  type = string
+}
+
 resource "vault_aws_secret_backend_role" "role" {
   backend = vault_aws_secret_backend.aws.path
-  name    = "aws-creds-ssm-parameters-ssh-certs"
+  name    = var.backend_name
   credential_type = "iam_user"
 
   policy_document = data.aws_iam_policy_document.read_ssm_paremeters_cert.json
@@ -33,6 +38,7 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     effect = "Allow"
     actions = [
       "sqs:SendMessage",
+      "sqs:DeleteMessage",
       "sqs:SendMessageBatch"
     ]
     resources = var.sqs_send_arns
