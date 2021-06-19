@@ -3,16 +3,8 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
-resource "vault_aws_secret_backend" "aws" {
-}
-
-variable "backend_name" {
-  description = "The name / path where the backend will generate cred from"
-  type = string
-}
-
 resource "vault_aws_secret_backend_role" "role" {
-  backend = vault_aws_secret_backend.aws.path
+  backend = var.vault_aws_secret_backend_path # vault_aws_secret_backend.aws.path
   name    = var.backend_name
   credential_type = "iam_user"
 
