@@ -31,7 +31,8 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     actions = [
       "sqs:SendMessage",
       "sqs:DeleteMessage",
-      "sqs:SendMessageBatch"
+      "sqs:SendMessageBatch",
+      "sqs:GetQueueAttributes"
     ]
     resources = var.sqs_send_arns
   }
@@ -39,7 +40,8 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     effect = "Allow"
     actions = [
       "sqs:ReceiveMessage",
-      "sqs:DeleteMessage" # when recieving a message it should also be deleted from the queue.
+      "sqs:DeleteMessage", # when recieving a message it should also be deleted from the queue.
+      "sqs:GetQueueAttributes"
     ]
     resources = var.sqs_recieve_arns
   }
