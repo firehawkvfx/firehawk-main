@@ -8,4 +8,11 @@ if [[ ! -f "/opt/consul/bin/run-consul" ]]; then
 fi
 
 echo "Running Consul..."
-sudo /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}"
+
+output=$(sudo /opt/consul/bin/run-consul --client --cluster-tag-key "${consul_cluster_tag_key}" --cluster-tag-value "${consul_cluster_tag_value}") && exit_status=0 || exit_status=$?
+
+if [[ ! "$exit_status" -eq 0 ]]; then
+    echo "Error establishing consul connection.  Ensure the SSL certs are correct, and instance profile is configured and enabled in cloud 9 prefs."
+else
+    echo "$output"
+fi
