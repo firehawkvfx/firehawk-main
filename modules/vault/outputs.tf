@@ -35,9 +35,9 @@ output "security_group_id_consul_cluster" {
 #   terraform apply "tfplan"
 
 #   You can now sign the cloud 9 host for SSH in modules by running
-#   ./modules/known-hosts/known_hosts.sh
-#   ./modules/sign-host-key/sign_host_key.sh
-#   ./modules/sign-ssh-key/sign_ssh_key.sh
+#   ./modules/firehawk-auth-scripts/known-hosts
+#   ./modules/firehawk-auth-scripts/sign-host-key
+#   ./modules/firehawk-auth-scripts/sign-ssh-key
 
 #   # after this one time initialisation you can use the "wake" script to continue. 
 # EOF

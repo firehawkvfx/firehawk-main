@@ -31,3 +31,10 @@ path "main/data/deadline/client_cert_files/*"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+path "transit/encrypt/deadline_client" {
+   capabilities = [ "update" ]
+}
+path "transit/decrypt/deadline_client" {
+   capabilities = [ "update" ]
+}

@@ -78,3 +78,11 @@ path "main/data/vpn/onsite_private_vpn_mac"
 {
   capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+path "transit/encrypt/vpn_client" {
+   capabilities = [ "update" ]
+}
+
+path "transit/decrypt/vpn_client" {
+   capabilities = [ "update" ]
+}

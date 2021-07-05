@@ -38,20 +38,10 @@ if [[ -z "$VAULT_TOKEN" ]]; then
     printf "\nInstances from this point require you to login to vault.  To avoid this message you can define the var VAULT_TOKEN\n"
 fi
 
-# echo "Waiting for consul vault service (Ignore the following connection errors for a reasonable period until connection is established)..."
-# # until consul catalog services | grep -m 1 "vault"; do sleep 1 ; done
-
-# retry \
-#     "consul catalog services | grep -m 1 'vault'" \
-#     "Waiting for consul vault service..." \
-#     "Couldn't obeerve the vault service.  You should try reinstalling consul on this instance and establishing a connection."
-
 retry \
     "vault status | grep -m 1 'Initialized.*'" \
     "Ensuring vault is initialized..." \
     "Vault doesn't appear to be initialised.  You should try to SSH to a Vault server instance directly to initialise it."
-
-# until vault status | grep -m 1 "Initialized.*"; do sleep 1 ; done
 
 initialised=true
 vault status | grep -m 1 "Initialized.*true" || initialised=false
@@ -60,13 +50,7 @@ if [[ "$initialised" == false ]]; then
     echo "Vault is not Initialized.  Aborting. You will need to login and initialise the vault"
     exit 1
 fi
-sleep 10
-
-# Why?
-# vault token lookup
-# Error looking up token: Error making API request.
-# URL: GET https://vault.service.consul:8200/v1/auth/token/lookup-self
-# Code: 500. Errors:
+sleep 10 # before attempting a lookup some duration is required.
 
 echo "vault token lookup"
 

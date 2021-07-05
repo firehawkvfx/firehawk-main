@@ -219,3 +219,10 @@ path "aws/config/root" {
 path "aws/roles/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
+
+# Transit secrets engine - https://learn.hashicorp.com/tutorials/vault/eaas-transit
+
+# Manage the transit secrets engine
+path "transit/*" {
+  capabilities = [ "create", "read", "update", "delete", "list" ]
+}
