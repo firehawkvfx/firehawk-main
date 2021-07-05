@@ -589,3 +589,13 @@ Resources:
       Type: String
       Value: !Ref prodmounttarget
       Description: 'The prod mount target may mount a different source depending on the location of the node.'
+  NestedStackAdminPolicies:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Retain
+    Properties:
+      TemplateURL: cloudformation_devadmin_policies.yaml
+      Parameters:
+        adminGroupUsers:
+          Description: 'Comma-delimited list of user names to attach the policy to (optional)'
+          Type: CommaDelimitedList
+          Default: ''
