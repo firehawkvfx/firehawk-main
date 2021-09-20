@@ -10,3 +10,6 @@
 [submodule "modules/vpc/modules/consul-client-security-group"]
 	path = modules/vpc/modules/consul-client-security-group
 	url = ../consul-client-security-group.git
+[submodule "modules/vault-ssh/modules/firehawk-auth-scripts"]
+	path = modules/vault-ssh/modules/firehawk-auth-scripts
+	url = https://github.com/firehawkvfx/firehawk-auth-scripts.git

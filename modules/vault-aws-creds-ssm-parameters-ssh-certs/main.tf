@@ -3,12 +3,9 @@
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
-resource "vault_aws_secret_backend" "aws" {
-}
-
 resource "vault_aws_secret_backend_role" "role" {
-  backend = vault_aws_secret_backend.aws.path
-  name    = "aws-creds-ssm-parameters-ssh-certs"
+  backend = var.vault_aws_secret_backend_path # vault_aws_secret_backend.aws.path
+  name    = var.backend_name
   credential_type = "iam_user"
 
   policy_document = data.aws_iam_policy_document.read_ssm_paremeters_cert.json
@@ -29,9 +26,23 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     ]
     resources = ["arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/firehawk/resourcetier/${var.resourcetier}/*"]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage",
+      "sqs:DeleteMessage",
+      "sqs:SendMessageBatch",
+      "sqs:GetQueueAttributes"
+    ]
+    resources = var.sqs_send_arns
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:ReceiveMessage",
+      "sqs:DeleteMessage", # when recieving a message it should also be deleted from the queue.
+      "sqs:GetQueueAttributes"
+    ]
+    resources = var.sqs_recieve_arns
+  }
 }
-
-# data "vault_aws_access_credentials" "creds" {
-#   backend = vault_aws_secret_backend.aws.path
-#   role    = vault_aws_secret_backend_role.role.name
-# }

@@ -1,5 +1,21 @@
 provider "vault" {
 }
+
+resource "vault_mount" "transit" { # Some policies are provided access to keys to encrypt with transit secrets engine.
+  path                      = "transit"
+  type                      = "transit"
+  description               = "Example description"
+  default_lease_ttl_seconds = 3600
+  max_lease_ttl_seconds     = 86400
+}
+resource "vault_transit_secret_backend_key" "vpn_client" {
+  backend = vault_mount.transit.path
+  name    = "vpn_client"
+}
+resource "vault_transit_secret_backend_key" "deadline_client" {
+  backend = vault_mount.transit.path
+  name    = "deadline_client"
+}
 resource "vault_policy" "admin_policy" {
   name   = "admins"
   policy = file("policies/admin_policy.hcl")
