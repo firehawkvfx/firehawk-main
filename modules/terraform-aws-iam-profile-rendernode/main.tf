@@ -43,3 +43,10 @@ module "consul_iam_policies_for_client" {
   source = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
   iam_role_id = aws_iam_role.instance_role.id
 }
+
+# Policy to query SESI API Key SSM Parameter and Secret from the Account
+module "iam_policies_get_sesi_api_key" {
+  source = "github.com/firehawkvfx/firehawk-iam-polices.git//modules/firehawk-iam-policies?ref=v0.0.1"
+  name = "GetSESIApiKey_${var.conflictkey}"
+  iam_role_id = aws_iam_role.instance_role.id
+}
