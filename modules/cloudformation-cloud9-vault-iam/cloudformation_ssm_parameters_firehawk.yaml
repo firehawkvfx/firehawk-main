@@ -38,7 +38,7 @@ Metadata:
           - maxspotcapacitymantra
       - 
         Label: 
-          default: "Houdini License Server from Onsite"
+          default: "Houdini Floating License Server"
         Parameters:
           - houdinilicenseserverenabled
           - houdinilicenseserveraddress
@@ -98,7 +98,7 @@ Metadata:
       ublactivationcode:
         default: "Your Deadline Usage Based Licensing activation code."
       houdinilicenseserverenabled:
-        default: "Do you have an onsite license server to use over the VPN?"
+        default: "Do you have an floating license server to use?"
       houdinilicenseserveraddress:
         default: "Your Houdini License Server IP Address."
       sesiclientid:
@@ -187,17 +187,17 @@ Parameters:
     Default: "30"
     Type: String
   houdinilicenseserverenabled:
-    Description: 'Do you have onsite Houdini license server you wish to user over VPN?'
+    Description: 'Do you have floating Houdini licenses you wish to use?  This may be from the SESI Cloud hosted license server, or your own over VPN.'
     Type: String
     AllowedValues:
     - false
     - true
     Default: false
   houdinilicenseserveraddress:
-    Description: "The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with DNS). Specify 0.0.0.0 if you don't have one."
+    Description: "The IP or host name of your Houdini license server (IP Address is recommended to simplify usage across sites with private DNS). Specify 0.0.0.0 if you don't have one. Specify https://www.sidefx.com/license/sesinetd if you wish to use the SESI Cloud hosted license server."
     Type: String
     Default: "0.0.0.0"
-    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+    # AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
   globalbucketextension:
     Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com  eg2: myemailatgmaildotcom'
     Type: String
