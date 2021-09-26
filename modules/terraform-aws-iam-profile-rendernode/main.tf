@@ -46,7 +46,7 @@ module "consul_iam_policies_for_client" {
 
 # Policy to query SESI API Key SSM Parameter and Secret from the Account
 module "iam_policies_get_sesi_api_key" {
-  source = "github.com/firehawkvfx/firehawk-iam-polices.git//modules/firehawk-iam-policies?ref=v0.0.1"
+  source = "github.com/firehawkvfx/firehawk-iam-policies.git//modules/aws-iam-policies-get-sesi-api-key?ref=v0.0.1"
   name = "GetSESIApiKey_${var.conflictkey}"
   iam_role_id = aws_iam_role.instance_role.id
 }
