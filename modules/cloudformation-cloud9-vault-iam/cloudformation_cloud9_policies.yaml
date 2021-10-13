@@ -95,6 +95,7 @@ Resources:
             Principal:
               Service:
                 - ec2.amazonaws.com
+                - cloud9.amazonaws.com
             Action:
               - "sts:AssumeRole"
       Path: /
