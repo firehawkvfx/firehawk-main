@@ -15,6 +15,19 @@ Conditions:
     !Not [!Equals [ !Join ['', !Ref adminGroupUsers], '' ] ]
 
 Resources:
+  CreateSTSAssumeRole:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      ManagedPolicyName: STSAssumeRoleAdmin
+      Description: Allow STS Assume Role for Admin access.
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - sts:AssumeRole
+          Resource:
+          - "arn:aws:iam::*:role/admin"
   CreateGetCostAndUsagePolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
@@ -54,6 +67,7 @@ Resources:
     Properties: 
       GroupName: DevAdminGroupFirehawk
       ManagedPolicyArns:
+        - !Ref CreateSTSAssumeRole
         - !Ref CreateGetCostAndUsagePolicy
         - !Ref CreateResourceGroupsAdminPolicy
         - arn:aws:iam::aws:policy/AmazonEC2FullAccess
