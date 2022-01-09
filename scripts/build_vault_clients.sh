@@ -27,4 +27,4 @@ P3=$!
 
 wait $P1 $P2 $P3
 
-echo "...Build complete.  When your Consul TLS certificates expire (/home/ec2-user/.ssh/tls/ca.crt.pem), these images will need to be rebuilt with new certificates."
+echo "...Build complete.  When your Consul TLS certificates expire ($HOME/.ssh/tls/ca.crt.pem), these images will need to be rebuilt with new certificates."

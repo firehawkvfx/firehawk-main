@@ -10,7 +10,7 @@ fi
 
 parm_name="/firehawk/resourcetier/${TF_VAR_resourcetier}/onsite_user_public_cert"
 
-cert_path="/home/ec2-user/.ssh/remote_host/id_rsa-cert.pub"
+cert_path="$HOME/.ssh/remote_host/id_rsa-cert.pub"
 
 if [[ ! -f "$cert_path" ]]; then # Init if not set
     echo "...Failed retrieving: $cert_path}"
