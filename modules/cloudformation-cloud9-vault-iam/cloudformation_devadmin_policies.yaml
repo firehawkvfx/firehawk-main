@@ -61,6 +61,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonECS_FullAccess
         - arn:aws:iam::aws:policy/AmazonRoute53FullAccess
         - arn:aws:iam::aws:policy/AmazonRoute53ResolverFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
   CreateStorageAdminCustomGroup:
     Type: AWS::IAM::Group
     Properties: 
