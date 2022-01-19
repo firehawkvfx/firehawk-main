@@ -5,7 +5,6 @@ data "aws_vpc" "thisvpc" {
 locals {
   name                = "${lookup(local.common_tags, "vpcname", "default")}_openvpn_ec2_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
   permitted_cidr_list = [var.combined_vpcs_cidr, var.vpn_cidr, var.onsite_private_subnet_cidr]
-  remote_ssh_ip_cidr  = var.deployer_ip_cidr
   remote_vpn_ip_cidr  = "${var.onsite_public_ip}/32"
   common_tags         = var.common_tags
   extra_tags = {
@@ -33,7 +32,7 @@ resource "aws_security_group" "openvpn" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
-    cidr_blocks = [var.deployer_ip_cidr]
+    security_groups = [var.deployer_sg_id]
     description = "ssh"
   }
   ingress {
