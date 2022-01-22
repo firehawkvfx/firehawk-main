@@ -36,11 +36,6 @@ variable "vault_consul_ami_id" {
   default     = null
 }
 
-variable "instance_id_main_cloud9" {
-  description = "The instance ID of the cloud9 seed instance in your main account.  This will be used to establish a connection with vault."
-  type = string
-}
-
 variable "vpc_id_main_cloud9" {
   description = "The VPC ID containing the cloud9 seed instance in your main account.  This will be used to establish VPC peering with vault."
   type = string
