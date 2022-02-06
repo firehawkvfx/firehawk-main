@@ -14,7 +14,7 @@ data "terraform_remote_state" "provisioner_profile" { # read the arn with data.t
   backend = "s3"
   config = {
     bucket = "state.terraform.${var.bucket_extension}"
-    key    = "firehawk-main/modules/terraform-aws-iam-profile-provisioner/terraform.tfstate"
+    key    = "init/modules/terraform-aws-iam-profile-provisioner/terraform.tfstate"
     region = data.aws_region.current.name
   }
 }
