@@ -27,7 +27,12 @@ data "aws_iam_policy_document" "provisioner_firehawk" {
       "cloudformation:DescribeStackResources",
       "ec2:TerminateInstances",
       "ec2:DeleteSecurityGroup",
-      "ec2:AuthorizeSecurityGroupIngress"
+      "ec2:AuthorizeSecurityGroupIngress",
+      # Codedeploy Logs
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogStreams"
     ]
     resources = ["*"]
   }
