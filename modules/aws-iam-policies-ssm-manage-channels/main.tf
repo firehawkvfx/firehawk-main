@@ -2,10 +2,10 @@ terraform {
   required_version = ">= 0.13.5"
 }
 
-resource "aws_iam_role_policy" "s3_read_write" {
+resource "aws_iam_role_policy" "ssm_manage_channels" {
   name   = var.name
   role   = var.iam_role_id
-  policy = data.aws_iam_policy_document.s3_read_write.json
+  policy = data.aws_iam_policy_document.ssm_manage_channels.json
 }
 
 data "aws_iam_policy_document" "ssm_manage_channels" {
