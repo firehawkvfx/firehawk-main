@@ -57,28 +57,6 @@ path "main/data/vpn/onsite_private_vpn_ip"
   capabilities = ["create", "read", "update", "delete", "list"]
 }
 
-# provide ability to retrieve mac address
-
-path "dev/data/vpn/onsite_private_vpn_mac" 
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "blue/data/vpn/onsite_private_vpn_mac" 
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "green/data/vpn/onsite_private_vpn_mac" 
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
-path "main/data/vpn/onsite_private_vpn_mac" 
-{
-  capabilities = ["create", "read", "update", "delete", "list"]
-}
-
 path "transit/encrypt/vpn_client" {
    capabilities = [ "update" ]
 }
