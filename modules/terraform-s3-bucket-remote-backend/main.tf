@@ -11,24 +11,34 @@ locals {
 
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "state.terraform.${var.bucket_extension}"
-  acl    = "private"
-  # Enable versioning so we can see the full revision history of our
-  # state files
-  versioning {
-    enabled = true
-  }
-  # Enable server-side encryption by default
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
+
   tags = merge(
     {"description" = "Used for Terraform remote state configuration. DO NOT DELETE this Bucket unless you know what you are doing."},
     local.common_tags,
   )
+}
+
+resource "aws_s3_bucket_acl" "acl_config" {
+  bucket = aws_s3_bucket.terraform_state.id
+  acl    = "private"
+}
+resource "aws_s3_bucket_versioning" "versioning_config" {
+  # Enable versioning so we can see the full revision history of our
+  # state files
+
+  bucket = aws_s3_bucket.terraform_state.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+resource "aws_s3_bucket_server_side_encryption_configuration" "encryption_config" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "backend" { # https://medium.com/dnx-labs/terraform-remote-states-in-s3-d74edd24a2c4
