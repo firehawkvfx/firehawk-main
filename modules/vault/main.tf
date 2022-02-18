@@ -6,6 +6,7 @@ provider "aws" {
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
   version = "~> 3.15.0"
 }
+data "aws_region" "current" {}
 locals {
   common_tags = var.common_tags
 }

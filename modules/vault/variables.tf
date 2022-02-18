@@ -17,6 +17,10 @@ variable "bucket_extension" {
   type = string
   default = null
 }
+variable "bucket_extension_vault" {
+    description = "The bucket extension where the terraform remote state resides for vault related resources"
+    type = string
+}
 
 variable "aws_private_key_path" {
   description = "The private key path for the key used to ssh into the bastion for provisioning"
