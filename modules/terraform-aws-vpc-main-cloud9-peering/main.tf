@@ -29,11 +29,11 @@ data "aws_route_table" "primary_public" {
   tags = merge( var.common_tags_vaultvpc, { "area" : "public" } )
 }
 data "aws_route_table" "secondary_private" {
-  vpc_id = data.aws_vpc.primary.id
+  vpc_id = data.aws_vpc.secondary.id
   tags = merge( var.common_tags_deployervpc, { "area" : "private" } )
 }
 data "aws_route_table" "secondary_public" {
-  vpc_id = data.aws_vpc.primary.id
+  vpc_id = data.aws_vpc.secondary.id
   tags = merge( var.common_tags_deployervpc, { "area" : "public" } )
 }
 resource "aws_route" "primaryprivate2secondary" {
