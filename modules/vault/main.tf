@@ -33,13 +33,17 @@ data "aws_vpc" "primary" { # The primary is the Main VPC containing vault
   default = false
   tags    = local.common_tags
 }
-variable "consul_cloud9_to_vault_security_group_id" {
-  type = string
-  description = "The Security Group ID used by the deployer intended for authorization to vault."
+data "terraform_remote_state" "provisioner_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension_vault}"
+    key    = "init/modules/terraform-aws-sg-provisioner/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
 }
 module "security_group_rules" {
   source                               = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-client-security-group-rules?ref=v0.8.0"
-  security_group_id                    = var.consul_cloud9_to_vault_security_group_id
+  security_group_id                    = data.terraform_remote_state.provisioner_security_group.outputs.security_group_id
   allowed_inbound_security_group_ids   = [module.vault.security_group_id_consul_cluster]
   allowed_inbound_security_group_count = 1
   allowed_inbound_cidr_blocks          = [data.aws_vpc.primary.cidr_block] # TODO test if its possible only inbound sg or cidr block is required.
