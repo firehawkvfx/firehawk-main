@@ -15,7 +15,7 @@ output "security_group_id_consul_cluster" {
 #   Store the initial root token provided in a password manager (encrypted).  Next you will configure vault policies...
 
 #   To connect this current instance to the vault for the first time, and updating the certificate, install vault without sudo:
-#   ./install-consul-vault-client --vault-module-version v0.15.1  --vault-version 1.6.1 --consul-module-version v0.8.0 --consul-version 1.9.2 --build amazonlinux2 --cert-file-path $HOME/.ssh/tls/ca.crt.pem
+#   ./install-consul-vault-client --vault-module-version v0.17.0  --vault-version 1.6.1 --consul-module-version v0.8.0 --consul-version 1.9.2 --build amazonlinux2 --cert-file-path $HOME/.ssh/tls/ca.crt.pem
   
 #   To connnect this instance you are using currently to the consul cluster on subsequent runs, and find the vault by DNS name:
 #   sudo /opt/consul/bin/run-consul --client --cluster-tag-key "$${consul_cluster_tag_key}" --cluster-tag-value "$${consul_cluster_tag_value}"
