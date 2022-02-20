@@ -103,7 +103,7 @@ resource "aws_instance" "vault_client" {
 #   }
 # }
 # module "consul_iam_policies_for_client" { # Adds policies necessary for running consul
-#   source      = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.7.7"
+#   source      = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-iam-policies?ref=v0.8.0"
 #   iam_role_id = aws_iam_role.vault_client_instance_role.id
 # }
 locals {
