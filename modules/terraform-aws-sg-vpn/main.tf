@@ -39,11 +39,11 @@ resource "aws_security_group" "openvpn" {
   # For OpenVPN Client Web Server & Admin Web UI
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
+    protocol        = "tcp"
+    from_port       = 22
+    to_port         = 22
     security_groups = [local.deployer_sg_id]
-    description = "ssh"
+    description     = "ssh"
   }
   ingress {
     protocol    = "tcp"
