@@ -37,7 +37,7 @@ variable "vault_public_key" {
 variable "vault_consul_ami_id" {
   description = "The ID of the AMI to run in the vault cluster. This should be an AMI built from the Packer template under examples/vault-consul-ami/vault-consul.json. If no AMI is specified, the template will 'just work' by using the example public AMIs. WARNING! Do not use the example AMIs in a production setting!"
   type        = string
-  default     = null
+  # default     = null
 }
 
 variable "vpc_id_main_cloud9" {
