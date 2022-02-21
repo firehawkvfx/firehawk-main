@@ -1,6 +1,15 @@
+data "aws_region" "current" {}
 data "aws_vpc" "thisvpc" {
   default = false
   tags    = var.common_tags
+}
+data "terraform_remote_state" "provisioner_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "init/modules/terraform-aws-sg-provisioner/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
 }
 locals {
   name                = "${lookup(local.common_tags, "vpcname", "default")}_openvpn_ec2_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
@@ -11,6 +20,7 @@ locals {
     role  = "vpn"
     route = "public"
   }
+  deployer_sg_id = data.terraform_remote_state.provisioner_security_group.outputs.security_group_id
 }
 resource "aws_security_group" "openvpn" {
   name        = local.name
@@ -32,7 +42,7 @@ resource "aws_security_group" "openvpn" {
     protocol    = "tcp"
     from_port   = 22
     to_port     = 22
-    security_groups = [var.deployer_sg_id]
+    security_groups = [local.deployer_sg_id]
     description = "ssh"
   }
   ingress {
