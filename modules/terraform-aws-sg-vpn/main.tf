@@ -42,7 +42,7 @@ resource "aws_security_group" "openvpn" {
     protocol        = "tcp"
     from_port       = 22
     to_port         = 22
-    security_groups = [var.remote_cloud_private_ip_cidr]
+    security_groups = [local.deployer_sg_id]
     description     = "ssh"
   }
   ingress {
