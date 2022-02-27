@@ -131,7 +131,14 @@ else
       echo "Added to known hosts: $known_hosts_fragment"
   fi
 
-  result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")
+  result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh") && exit_status=0 || exit_status=$?
+
+  if [[ ! $exit_status -eq 0 ]]; then
+    echo ""
+    echo "Error: Did not initialize vault:"
+    echo "initialize-ssh returned: $result"
+    exit 1
+  fi
 
   recovery_key=$(echo "$result" | awk '/^Recovery Key 1:/ { print $4 ; exit }')
   initial_root_token=$(echo "$result" | awk '/^Initial Root Token:/ { print $4 ; exit }')
@@ -143,9 +150,7 @@ else
 
   if [[ -z "$initial_root_token" ]] || [[ -z "$recovery_key" ]]; then
     echo ""
-    echo "Warning: Did not initialize vault:"
-    echo "$result"
-    exit 1
+    echo "Vault appears to already be initialised."
   fi
 fi
 
