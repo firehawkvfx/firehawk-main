@@ -21,6 +21,10 @@ variable "vpn_cidr" {
   description = "The CIDR range that the vpn will assign using DHCP.  These are virtual addresses for routing traffic."
   type        = string
 }
+variable "remote_cloud_private_ip_cidr" {
+  description = "The remote cloud private IP address that will access the bastion (cloud 9)"
+  type = string
+}
 variable "onsite_private_subnet_cidr" {
   description = "The subnet CIDR Range of your onsite private subnet. This is also the subnet where your VPN client resides in. eg: 192.168.1.0/24"
   type        = string
