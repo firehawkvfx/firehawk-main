@@ -7,49 +7,29 @@ provider "aws" {
   version = "~> 3.15.0"
 }
 data "aws_region" "current" {}
+data "terraform_remote_state" "vaultvpc" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "firehawk-main/modules/vpc/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
 data "aws_vpc" "primary" { # this vpc
+  count = length(data.terraform_remote_state.vaultvpc.outputs.vpc_id) > 0 ? 1 : 0
   default = false
-  tags    = local.common_tags
+  id = data.terraform_remote_state.vaultvpc.outputs.vpc_id
+  # tags    = local.common_tags
 }
-data "aws_vpc" "vaultvpc" { # vault vpc
-  default = false
-  tags    = local.vaultvpc_tags
-}
-data "aws_subnet_ids" "public" {
-  vpc_id = data.aws_vpc.primary.id
-  tags   = merge(local.common_tags, { "area" : "public" })
-}
-
-data "aws_subnet" "public" {
-  for_each = data.aws_subnet_ids.public.ids
-  id       = each.value
-}
-
 data "aws_subnet_ids" "private" {
-  vpc_id = data.aws_vpc.primary.id
+  count = length(data.terraform_remote_state.vaultvpc.outputs.vpc_id) > 0 ? 1 : 0
+  vpc_id = data.terraform_remote_state.vaultvpc.outputs.vpc_id
   tags   = merge(local.common_tags, { "area" : "private" })
 }
-
 data "aws_subnet" "private" {
-  for_each = data.aws_subnet_ids.private.ids
+  for_each = length(data.aws_subnet_ids.private) > 0 ? data.aws_subnet_ids.private[0].ids : []
   id       = each.value
 }
-
-data "aws_route_tables" "public" {
-  vpc_id = data.aws_vpc.primary.id
-  tags   = merge(local.common_tags, { "area" : "public" })
-}
-
-data "aws_route_tables" "private" {
-  vpc_id = data.aws_vpc.primary.id
-  tags   = merge(local.common_tags, { "area" : "public" })
-}
-
-# data "aws_security_group" "bastion" { # Aquire the security group ID for external bastion hosts, these will require SSH access to this internal host.  Since multiple deployments may exist, the pipelineid allows us to distinguish between unique deployments.
-#   tags = merge( local.common_tags, local.bastion_tags ) # Since we deploy vault alongside this account, pipelineid will probably not be an issue...  At some point we will need to create a dependency of the vault vpc output and what tags we should be using with multi account and CI.
-#   vpc_id = data.aws_vpc.vaultvpc.id
-# }
-
 data "terraform_remote_state" "bastion_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
   backend = "s3"
   config = {
@@ -71,16 +51,14 @@ locals {
   common_tags = var.common_tags
   vpcname     = local.common_tags["vpcname"]
   mount_path  = var.resourcetier
-  vpc_id      = data.aws_vpc.primary.id
-  vpc_cidr    = data.aws_vpc.primary.cidr_block
+  vpc_id      = length(data.aws_vpc.primary) > 0 ? data.aws_vpc.primary[0].id : ""
+  vpc_cidr    = length(data.aws_vpc.primary) > 0 ? data.aws_vpc.primary[0].cidr_block : ""
 
   vpn_cidr                   = var.vpn_cidr
   onsite_private_subnet_cidr = var.onsite_private_subnet_cidr
 
-  private_subnet_ids         = tolist(data.aws_subnet_ids.private.ids)
-  private_subnet_cidr_blocks = [for s in data.aws_subnet.private : s.cidr_block]
+  private_subnet_ids         = length(data.aws_subnet_ids.private) > 0 ? tolist(data.aws_subnet_ids.private[0].ids) : []
   onsite_public_ip           = var.onsite_public_ip
-  private_route_table_ids    = data.aws_route_tables.private.ids
 }
 module "vault_client" {
   source              = "./modules/vault-client"
