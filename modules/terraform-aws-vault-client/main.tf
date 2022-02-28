@@ -16,13 +16,13 @@ data "terraform_remote_state" "vaultvpc" {
   }
 }
 data "aws_vpc" "primary" { # this vpc
-  count = length(data.terraform_remote_state.vaultvpc.outputs.vpc_id) > 0 ? 1 : 0
+  count = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? 1 : 0
   default = false
   id = data.terraform_remote_state.vaultvpc.outputs.vpc_id
   # tags    = local.common_tags
 }
 data "aws_subnet_ids" "private" {
-  count = length(data.terraform_remote_state.vaultvpc.outputs.vpc_id) > 0 ? 1 : 0
+  count = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? 1 : 0
   vpc_id = data.terraform_remote_state.vaultvpc.outputs.vpc_id
   tags   = merge(local.common_tags, { "area" : "private" })
 }
