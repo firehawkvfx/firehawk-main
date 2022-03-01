@@ -31,3 +31,7 @@ variable "common_tags_deployervpc" {
   description = "Common tags for deployer resources in a deployment run."
   type        = map(string)
 }
+variable "bucket_extension_vault" {
+    description = "The bucket extension where the terraform remote state resides"
+    type = string
+}
