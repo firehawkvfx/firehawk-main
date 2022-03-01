@@ -16,7 +16,7 @@ data "terraform_remote_state" "vaultvpc" {
   }
 }
 locals {
-  vpc_id = length(data.terraform_remote_state.vaultvpc.outputs.vpc_id) > 0 ? data.terraform_remote_state.vaultvpc.outputs.vpc_id : ""
+  vpc_id = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? data.terraform_remote_state.vaultvpc.outputs.vpc_id : ""
 }
 data "aws_vpc" "primary" {
   count   = length(local.vpc_id) > 0 ? 1 : 0
