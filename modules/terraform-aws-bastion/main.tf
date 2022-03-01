@@ -35,7 +35,7 @@ data "aws_subnets" "public" {
 locals {
   common_tags      = var.common_tags
   vpc_cidr         = length(data.aws_vpc.primary) > 0 ? data.aws_vpc.primary[0].cidr_block : ""
-  public_subnets   = length(data.aws_subnets.public) > 0 ? tolist(data.aws_subnets.public[0].ids) : []
+  public_subnets   = length(data.aws_subnets.public) > 0 ? tolist(data.aws_subnets.public.ids) : []
   onsite_public_ip = var.onsite_public_ip
   instance_name    = "${lookup(local.common_tags, "vpcname", "default")}_bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
 }
