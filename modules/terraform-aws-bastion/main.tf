@@ -29,12 +29,6 @@ data "aws_subnets" "public" {
   tags   = map("area", "public")
 }
 
-data "aws_subnet" "public" {
-  count    = length(data.aws_subnets.public) > 0 ? 1 : 0
-  for_each = length(data.aws_subnets.public) > 0 ? data.aws_subnets.public[0].ids : []
-  id       = each.value
-}
-
 locals {
   common_tags      = var.common_tags
   vpc_cidr         = length(data.aws_vpc.primary) > 0 ? data.aws_vpc.primary[0].cidr_block : ""
