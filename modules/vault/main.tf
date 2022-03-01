@@ -60,7 +60,7 @@ module "security_group_rules" {
   count = length( try(data.terraform_remote_state.provisioner_security_group.outputs.security_group_id, "") ) > 0 ? 1 : 0
   source                               = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-client-security-group-rules?ref=v0.8.0"
   security_group_id                    = data.terraform_remote_state.provisioner_security_group.outputs.security_group_id
-  allowed_inbound_security_group_ids   = [module.vault.security_group_id_consul_cluster]
+  allowed_inbound_security_group_ids   = length(module.vault) > 0 ? [module.vault[0].security_group_id_consul_cluster] : []
   allowed_inbound_security_group_count = 1
   allowed_inbound_cidr_blocks          = length(local.vaultvpc_id) > 0 ? [data.aws_vpc.primary[0].cidr_block] : [] # TODO test if its possible only inbound sg or cidr block is required.
   # TODO define var.allowed_inbound_security_group_ids, allowed_inbound_security_group_count and var.allowed_inbound_cidr_blocks
