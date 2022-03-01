@@ -10,24 +10,6 @@ data "aws_region" "current" {}
 locals {
   common_tags = var.common_tags
 }
-module "vault" {
-  source = "./modules/terraform-aws-vault"
-
-  use_default_vpc    = false
-  vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
-  subnet_tags        = tomap({"area": "private"})
-  enable_auto_unseal = true
-  ssh_key_name       = var.aws_key_name
-  # Persist vault data in an S3 bucket when all nodes are shut down.
-  enable_s3_backend      = true
-  use_existing_s3_bucket = true
-  s3_bucket_name         = "vault.${var.bucket_extension}"
-  ami_id                 = var.vault_consul_ami_id
-  consul_cluster_name    = var.consul_cluster_name
-  consul_cluster_tag_key = var.consul_cluster_tag_key
-  resourcetier           = var.resourcetier
-  common_tags            = var.common_tags
-}
 
 data "terraform_remote_state" "vaultvpc" {
   backend = "s3"
@@ -46,6 +28,26 @@ data "aws_vpc" "primary" { # The primary is the Main VPC containing vault
   default = false
   id = local.vaultvpc_id
 }
+module "vault" {
+  count = length(local.vaultvpc_id) > 0 ? 1 : 0
+  source = "./modules/terraform-aws-vault"
+
+  use_default_vpc    = false
+  vpc_tags           = local.common_tags #tags used to find the vpc to deploy into.
+  subnet_tags        = tomap({"area": "private"})
+  enable_auto_unseal = true
+  ssh_key_name       = var.aws_key_name
+  # Persist vault data in an S3 bucket when all nodes are shut down.
+  enable_s3_backend      = true
+  use_existing_s3_bucket = true
+  s3_bucket_name         = "vault.${var.bucket_extension}"
+  ami_id                 = var.vault_consul_ami_id
+  consul_cluster_name    = var.consul_cluster_name
+  consul_cluster_tag_key = var.consul_cluster_tag_key
+  resourcetier           = var.resourcetier
+  common_tags            = var.common_tags
+}
+
 data "terraform_remote_state" "provisioner_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
   backend = "s3"
   config = {
@@ -55,6 +57,7 @@ data "terraform_remote_state" "provisioner_security_group" { # read the arn with
   }
 }
 module "security_group_rules" {
+  count = length( try(data.terraform_remote_state.provisioner_security_group.outputs.security_group_id, "") ) > 0 ? 1 : 0
   source                               = "github.com/hashicorp/terraform-aws-consul.git//modules/consul-client-security-group-rules?ref=v0.8.0"
   security_group_id                    = data.terraform_remote_state.provisioner_security_group.outputs.security_group_id
   allowed_inbound_security_group_ids   = [module.vault.security_group_id_consul_cluster]
