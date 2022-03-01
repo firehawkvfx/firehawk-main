@@ -37,10 +37,11 @@ locals {
   vpc_cidr         = length(data.aws_vpc.primary) > 0 ? data.aws_vpc.primary[0].cidr_block : ""
   public_subnets   = length(data.aws_subnets.public) > 0 ? tolist(data.aws_subnets.public[0].ids) : []
   onsite_public_ip = var.onsite_public_ip
+  instance_name    = "${lookup(local.common_tags, "vpcname", "default")}_bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
 }
 module "bastion" {
   source                 = "./modules/bastion"
-  name                   = "${lookup(local.common_tags, "vpcname", "default")}_bastion_pipeid${lookup(local.common_tags, "pipelineid", "0")}"
+  name                   = local.instance_name
   bastion_ami_id         = var.bastion_ami_id
   consul_cluster_tag_key = var.consul_cluster_tag_key
   consul_cluster_name    = var.consul_cluster_name
