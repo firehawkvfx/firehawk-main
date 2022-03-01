@@ -23,11 +23,14 @@ data "aws_vpc" "primary" {
   default = false
   id      = local.vpc_id
 }
-
 data "aws_subnets" "public" {
-  count  = length(local.vpc_id) > 0 ? 1 : 0
-  vpc_id = local.vpc_id
-  tags   = map("area", "public")
+  filter {
+    name   = "vpc-id"
+    values = length(local.vpc_id) > 0 ? [local.vpc_id] : []
+  }
+  tags = {
+    area = "public"
+  }
 }
 locals {
   common_tags      = var.common_tags
@@ -50,7 +53,7 @@ module "bastion" {
   public_subnet_ids        = local.public_subnets
   route_public_domain_name = var.route_public_domain_name
   route_zone_id            = "none"
-  public_domain_name       = local.public_domain_name
+  public_domain_name       = "none"
   common_tags              = local.common_tags
   bucket_extension_vault   = var.bucket_extension_vault
   resourcetier_vault       = var.resourcetier_vault
