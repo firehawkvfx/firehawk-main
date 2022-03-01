@@ -31,3 +31,8 @@ variable "onsite_public_ip" {
   description = "The public ip address of your onsite location to enable access to security groups and openVPN."
   type = string
 }
+
+variable "bucket_extension_vault" {
+    description = "The bucket extension where the terraform remote state resides"
+    type = string
+}

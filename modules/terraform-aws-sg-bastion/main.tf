@@ -1,11 +1,26 @@
+data "aws_region" "current" {}
+data "terraform_remote_state" "vaultvpc" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension_vault}"
+    key    = "firehawk-main/modules/vpc/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+locals {
+  vpc_id  = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? data.terraform_remote_state.vaultvpc.outputs.vpc_id : ""
+}
+
 data "aws_vpc" "thisvpc" {
+  count = length(local.vpc_id)>0 ? 1 : 0
   default = false
-  tags    = var.common_tags
+  id = local.vpc_id
 }
 
 resource "aws_security_group" "bastion" {
+  count = length(local.vpc_id)>0 ? 1 : 0
   name        = var.name
-  vpc_id      = data.aws_vpc.thisvpc.id
+  vpc_id      = local.vpc_id
   description = "Bastion Security Group"
   tags        = merge(map("Name", var.name), var.common_tags, local.extra_tags)
 
@@ -13,7 +28,7 @@ resource "aws_security_group" "bastion" {
     protocol    = "-1"
     from_port   = 0
     to_port     = 0
-    cidr_blocks = [data.aws_vpc.thisvpc.cidr_block]
+    cidr_blocks = [data.aws_vpc.thisvpc[0].cidr_block]
     description = "All incoming traffic from vpc"
   }
   ingress {
