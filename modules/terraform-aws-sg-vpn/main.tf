@@ -1,5 +1,17 @@
 data "aws_region" "current" {}
+data "terraform_remote_state" "rendervpc" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension}"
+    key    = "firehawk-render-cluster/modules/terraform-aws-render-vpc/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+locals {
+  vpc_id = try(data.terraform_remote_state.rendervpc.outputs.vpc_id, "")
+}
 data "aws_vpc" "thisvpc" {
+  count = length(local.vpc_id) > 0 ? 1 : 0
   default = false
   tags    = var.common_tags
 }
@@ -23,8 +35,9 @@ locals {
   deployer_sg_id = data.terraform_remote_state.provisioner_security_group.outputs.security_group_id
 }
 resource "aws_security_group" "openvpn" {
+  count = length(local.vpc_id) > 0 ? 1 : 0
   name        = local.name
-  vpc_id      = data.aws_vpc.thisvpc.id
+  vpc_id      = local.vpc_id
   description = "OpenVPN security group"
   tags        = merge(map("Name", local.name), var.common_tags, local.extra_tags)
 
