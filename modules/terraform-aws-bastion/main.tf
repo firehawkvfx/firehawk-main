@@ -6,6 +6,7 @@ provider "aws" {
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
   version = "~> 3.15.0"
 }
+data "aws_region" "current" {}
 data "terraform_remote_state" "vaultvpc" {
   backend = "s3"
   config = {
@@ -28,7 +29,6 @@ data "aws_subnets" "public" {
   vpc_id = local.vpc_id
   tags   = map("area", "public")
 }
-
 locals {
   common_tags      = var.common_tags
   vpc_cidr         = length(data.aws_vpc.primary) > 0 ? data.aws_vpc.primary[0].cidr_block : ""
