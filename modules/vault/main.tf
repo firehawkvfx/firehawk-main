@@ -4,7 +4,7 @@ provider "null" {
 provider "aws" {
   #  if you haven't installed and configured the aws cli, you will need to provide your aws access key and secret key.
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
-  version = "~> 3.15.0"
+  version = "~> 4.3.0"
 }
 data "aws_region" "current" {}
 locals {
@@ -29,10 +29,22 @@ module "vault" {
   common_tags            = var.common_tags
 }
 
+data "terraform_remote_state" "vaultvpc" {
+  backend = "s3"
+  config = {
+    bucket = "state.terraform.${var.bucket_extension_vault}"
+    key    = "firehawk-main/modules/vpc/terraform.tfstate"
+    region = data.aws_region.current.name
+  }
+}
+locals {
+  vaultvpc_id  = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? data.terraform_remote_state.vaultvpc.outputs.vpc_id : ""
+}
 ### Configure the current cloud9 instance to connect to vault ###
 data "aws_vpc" "primary" { # The primary is the Main VPC containing vault
+  count = length(local.vaultvpc_id) > 0 ? 1 : 0
   default = false
-  tags    = local.common_tags
+  id = local.vaultvpc_id
 }
 data "terraform_remote_state" "provisioner_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
   backend = "s3"
@@ -47,7 +59,7 @@ module "security_group_rules" {
   security_group_id                    = data.terraform_remote_state.provisioner_security_group.outputs.security_group_id
   allowed_inbound_security_group_ids   = [module.vault.security_group_id_consul_cluster]
   allowed_inbound_security_group_count = 1
-  allowed_inbound_cidr_blocks          = [data.aws_vpc.primary.cidr_block] # TODO test if its possible only inbound sg or cidr block is required.
+  allowed_inbound_cidr_blocks          = length(local.vaultvpc_id) > 0 ? [data.aws_vpc.primary.cidr_block] : [] # TODO test if its possible only inbound sg or cidr block is required.
   # TODO define var.allowed_inbound_security_group_ids, allowed_inbound_security_group_count and var.allowed_inbound_cidr_blocks
 }
 
