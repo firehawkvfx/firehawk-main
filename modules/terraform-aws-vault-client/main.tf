@@ -4,7 +4,7 @@ provider "null" {
 provider "aws" {
   #  if you haven't installed and configured the aws cli, you will need to provide your aws access key and secret key.
   # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
-  version = "~> 3.15.0"
+  version = "~> 4.3.0"
 }
 data "aws_region" "current" {}
 data "terraform_remote_state" "vaultvpc" {
@@ -21,13 +21,17 @@ data "aws_vpc" "primary" { # this vpc
   id = data.terraform_remote_state.vaultvpc.outputs.vpc_id
   # tags    = local.common_tags
 }
-data "aws_subnet_ids" "private" {
-  count = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? 1 : 0
-  vpc_id = data.terraform_remote_state.vaultvpc.outputs.vpc_id
-  tags   = merge(local.common_tags, { "area" : "private" })
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = length( try(data.terraform_remote_state.vaultvpc.outputs.vpc_id, "") ) > 0 ? [data.terraform_remote_state.vaultvpc.outputs.vpc_id] : []
+  }
+  tags = {
+    area = "private"
+  }
 }
 data "aws_subnet" "private" {
-  for_each = length(data.aws_subnet_ids.private) > 0 ? data.aws_subnet_ids.private[0].ids : []
+  for_each = toset(data.aws_subnets.private.ids)
   id       = each.value
 }
 data "terraform_remote_state" "bastion_security_group" { # read the arn with data.terraform_remote_state.packer_profile.outputs.instance_role_arn, or read the profile name with data.terraform_remote_state.packer_profile.outputs.instance_profile_name
@@ -57,7 +61,7 @@ locals {
   vpn_cidr                   = var.vpn_cidr
   onsite_private_subnet_cidr = var.onsite_private_subnet_cidr
 
-  private_subnet_ids         = length(data.aws_subnet_ids.private) > 0 ? tolist(data.aws_subnet_ids.private[0].ids) : []
+  private_subnet_ids         = length(data.aws_subnets.private) > 0 ? tolist(data.aws_subnets.private.ids) : []
   onsite_public_ip           = var.onsite_public_ip
 }
 module "vault_client" {
