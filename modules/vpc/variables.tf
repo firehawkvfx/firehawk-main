@@ -90,23 +90,6 @@ variable "conflictkey" {
   type        = string
 }
 
-variable "vault_vpc_subnet_count" { # If adjusting the max here, consider 2^new_bits = vault_vpc_subnet_count when constructing the subnets.
-  description = "(1-4) The number of private and public subnets to use. eg: 1 will result in one public and 1 private subnet in 1AZ.  3 will result in 3 private and public subnets spread across 3 AZ's. Currently the vault cluster only uses 1 subnet."
-  default     = 1
-  validation {
-    condition = (
-      var.vault_vpc_subnet_count <= 4 &&
-      var.vault_vpc_subnet_count > 0
-    )
-    error_message = "The var vault_vpc_subnet_count must be between 1-4 (inclusive)."
-  }
-}
-
-variable "combined_vpcs_cidr" {
-  description = "Terraform will automatically configure multiple VPCs and subnets within this CIDR range for any resourcetier ( dev / green / blue / main )."
-  type        = string
-}
-
 variable "common_tags" {
   description = "Common tags for all resources in a deployment run."
   type        = map(string)
@@ -116,4 +99,19 @@ variable "enable_nat_gateway" {
   description = "NAT gateway allows outbound internet access for instances in the private subnets."
   type        = bool
   default     = true
+}
+
+variable "vpc_cidr" {
+  description = "The CIDR block that contains all subnets within the VPC."
+  type        = string
+}
+
+variable "public_subnets" {
+  description = "The list of public subnet CIDR blocks to place public facing instances within."
+  type        = list(string)
+}
+
+variable "private_subnets" {
+  description = "The list of private subnet CIDR blocks to place public facing instances within."
+  type        = list(string)
 }
