@@ -15,7 +15,8 @@ output "public_subnets" {
 resource "aws_ssm_parameter" "vaultvpc_public_subnets" {
   name  = "tmp_vaultvpc_public_subnets"
   type  = "String"
-  value = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
+  value = module.vaultvpc_all_public_subnet_cidrs.networks[0].cidr_block
+#   value = tostring([for s in data.aws_subnet.public : s.cidr_block])
 }
 
 output "private_subnets" {
@@ -25,5 +26,5 @@ output "private_subnets" {
 resource "aws_ssm_parameter" "vaultvpc_private_subnets" {
   name  = "tmp_vaultvpc_private_subnets"
   type  = "String"
-  value = module.vaultvpc_all_private_subnet_cidrs.networks[*].cidr_block
+  value = module.vaultvpc_all_private_subnet_cidrs.networks[0].cidr_block
 }
