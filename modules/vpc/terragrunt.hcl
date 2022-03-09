@@ -22,3 +22,9 @@ inputs = merge(
     private_subnets    = dependency.vpc-data.outputs.private_subnets
   }
 )
+
+dependencies {
+  paths = [ # not strictly dependencies, but if they fail, there is no point in continuing to deploy a vpc or anything else.
+    "../vpc-data"
+  ]
+}
