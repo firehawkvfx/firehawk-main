@@ -12,7 +12,7 @@ output "public_subnets" {
   value = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
 }
 
-resource "aws_ssm_parameter" "vaultvpc_vpc_cidr" {
+resource "aws_ssm_parameter" "vaultvpc_public_subnets" {
   name  = "tmp_vaultvpc_public_subnets"
   type  = "String"
   value = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
