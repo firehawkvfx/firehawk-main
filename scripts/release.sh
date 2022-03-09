@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 if [[ -z "$1" ]]; then
     echo "ERROR: arg must be a description of the release in quotes"
     exit 1
@@ -26,10 +24,7 @@ PATCH=$((PATCH+1))
 
 #Get current hash and see if it already has a tag
 GIT_COMMIT=$(git rev-parse HEAD)
-# NEEDS_TAG=$(git describe --contains $GIT_COMMIT)
-
 NEEDS_TAG=$(git describe --contains $GIT_COMMIT 2> /dev/null) && exit_status=0 || exit_status=$?
-# echo "exit_status: $exit_status. NEEDS_TAG: $NEEDS_TAG"
 
 #Only tag if no tag already (would be better if the git describe command above could have a silent option)
 if [[ -z "$NEEDS_TAG" && ! $exit_status -eq 0 ]]; then
@@ -38,8 +33,6 @@ if [[ -z "$NEEDS_TAG" && ! $exit_status -eq 0 ]]; then
     echo "Updating to $NEW_TAG"
     git tag -a $NEW_TAG -m "$DESCRIPTION"
     echo "Tagged with $NEW_TAG"
-    # git checkout master
-    # git merge $NEW_TAG # ensure the tag is on the main branch
     git push origin $NEW_TAG
     git -c advice.detachedHead=false checkout $NEW_TAG
 else
