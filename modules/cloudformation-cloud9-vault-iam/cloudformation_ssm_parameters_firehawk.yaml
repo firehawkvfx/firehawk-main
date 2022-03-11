@@ -12,6 +12,7 @@ Metadata:
           - resourcetier
           - organizationname
           - globalbucketextension
+          - gitrepoid
           - combinedvpcscidr
           - onsitepublicip
       - 
@@ -93,6 +94,8 @@ Metadata:
         default: "The public key for your remote user that will SSH to retrieve VPN credentials and other vault data."
       globalbucketextension:
         default: "Your Global Bucket Extension."
+      gitrepoid:
+        default: "The repo id for your fork in your github account."
       ublurl:
         default: "Your Deadline Usage Based Licensing URL."
       ublactivationcode:
@@ -203,6 +206,10 @@ Parameters:
     Type: String
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
     ConstraintDescription: bucket name can include numbers, lowercase letters, uppercase letters, dots (.) and hyphens (-). It cannot start or end with a dot (.) or hyphen (-).
+  gitrepoid:
+    Description: 'To automate deployment, you must fork the firehawkvfx/firehawk repo to your own account and provide that repo id here.'
+    Type: String
+    AllowedPattern: "[0-9a-zA-Z]+\/[0-9a-zA-Z]+"
   ublurl:
     Description: 'The URL provided by Thinkbox for your Usage Based Licencing credits.  Rendernodes on AWS get deadline free, but if you require UBL software licences for other packages or for your onsite workstations you will need to purchase credits.'
     Type: String
@@ -378,6 +385,19 @@ Resources:
       Value: !Ref globalbucketextension
       Description: 'The suffix used for all S3 cloud storage buckets created by the deployment and for encrypted terraform state.  This must be a globally unique name, like a domain name you own, or derived from an email addess with no special characters. eg1: example.com eg2: myemailatgmaildotcom'
       AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
+  GitRepoID:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: 
+        Fn::Join:
+        - ''
+        - - '/firehawk/resourcetier/'
+          - Ref: resourcetier
+          - /git_repo_id
+      Type: String
+      Value: !Ref gitrepoid
+      Description: 'The id of your gite repo fork of firehawk. eg: mygitusername/firehawk'
+      AllowedPattern: "[0-9a-zA-Z]+\/[0-9a-zA-Z]+"
 # Deadline UBL Licensing
   UsageBasedLicenseURL:
     Type: AWS::SSM::Parameter
