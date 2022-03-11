@@ -56,4 +56,4 @@ error_if_empty "SSM Parameter missing: vault_kms_token_key_id" "$TF_VAR_vault_km
 
 aws secretsmanager put-secret-value \
     --secret-id "/firehawk/resourcetier/${TF_VAR_resourcetier}/vault_root_token" \
-    --secret-string $1
+    --secret-string "$1"
