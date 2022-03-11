@@ -43,6 +43,11 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
+if [[ -z "$TF_VAR_resourcetier" ]]; then
+  export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+  export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value' --raw-output)"
+fi
+
 get_parameters=$( aws ssm get-parameters --names \
     "/firehawk/resourcetier/${TF_VAR_resourcetier}/vault_kms_token_key_id" )
 
