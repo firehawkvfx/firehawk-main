@@ -165,7 +165,7 @@ else
       exit 1
     fi
 
-    $SCRIPTDIR/store_token "$store"
+    $SCRIPTDIR/store-token "$store"
     echo "Finished storing token."
   fi
 fi
