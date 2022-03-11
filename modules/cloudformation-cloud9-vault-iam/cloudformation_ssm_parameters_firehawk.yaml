@@ -207,9 +207,9 @@ Parameters:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-.]*[0-9a-zA-Z])*$"
     ConstraintDescription: bucket name can include numbers, lowercase letters, uppercase letters, dots (.) and hyphens (-). It cannot start or end with a dot (.) or hyphen (-).
   gitrepoid:
-    Description: 'To automate deployment, you must fork the firehawkvfx/firehawk repo to your own account and provide that repo id here.'
+    Description: 'To automate deployment, you must fork the firehawkvfx/firehawk repo to your own account and provide that repo id here. eg: mygitusername/firehawk'
     Type: String
-    AllowedPattern: "[0-9a-zA-Z]+\/[0-9a-zA-Z]+"
+    AllowedPattern: "[0-9a-zA-Z]+[/][0-9a-zA-Z]+"
   ublurl:
     Description: 'The URL provided by Thinkbox for your Usage Based Licencing credits.  Rendernodes on AWS get deadline free, but if you require UBL software licences for other packages or for your onsite workstations you will need to purchase credits.'
     Type: String
@@ -397,7 +397,7 @@ Resources:
       Type: String
       Value: !Ref gitrepoid
       Description: 'The id of your gite repo fork of firehawk. eg: mygitusername/firehawk'
-      AllowedPattern: "[0-9a-zA-Z]+\/[0-9a-zA-Z]+"
+      AllowedPattern: "[0-9a-zA-Z]+[/][0-9a-zA-Z]+"
 # Deadline UBL Licensing
   UsageBasedLicenseURL:
     Type: AWS::SSM::Parameter
