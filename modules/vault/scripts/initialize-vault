@@ -131,7 +131,7 @@ else
       echo "Added to known hosts: $known_hosts_fragment"
   fi
 
-  result=$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh") && exit_status=0 || exit_status=$?
+  result="$(ssh -l ubuntu $hostname "bash -s" < "$SCRIPTDIR/initialize-ssh")" && exit_status=0 || exit_status=$?
 
   if [[ ! $exit_status -eq 0 ]]; then
     echo ""
@@ -151,7 +151,7 @@ else
   if [[ -z "$initial_root_token" ]] || [[ -z "$recovery_key" ]]; then
     echo ""
     echo "Vault appears to already be initialised."
-    echo ""
+    echo "Result Output:"
     echo "$result"
     echo ""
   else
