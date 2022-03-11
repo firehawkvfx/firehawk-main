@@ -20,7 +20,7 @@ if [[ "$initialized" == "false" ]]; then
     # echo "Recovery Key 1: $recovery_key"
     # echo "Initial Root Token: $initial_root_token"
 
-    echo $result
+    echo "$result"
 elif [[ "$initialized" == "true" ]]; then
     echo "Vault is already initialised.  Ensure you can login with a token."
 fi
