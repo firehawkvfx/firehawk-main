@@ -153,8 +153,8 @@ else
     echo "Vault appears to already be initialised."
   else
     echo "Will store root token with SSM Secrets Manager"
-    
-
+    $SCRIPTDIR/store_token "$initial_root_token"
+    echo "Finished storing token."
   fi
 fi
 
