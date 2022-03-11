@@ -151,6 +151,9 @@ else
   if [[ -z "$initial_root_token" ]] || [[ -z "$recovery_key" ]]; then
     echo ""
     echo "Vault appears to already be initialised."
+    echo ""
+    echo "$result"
+    echo ""
   else
     echo "Will store root token with SSM Secrets Manager"
     $SCRIPTDIR/store_token "$initial_root_token"
