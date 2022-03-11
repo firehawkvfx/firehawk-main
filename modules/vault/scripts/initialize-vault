@@ -156,11 +156,11 @@ else
     echo ""
   else
     echo "Will store root token with SSM Secrets Manager"
-    store=$(echo "{ \"recovery_key\" : \"$recovery_key\", \"root_token\" : \"$initial_root_token\" }" | jq -r) && exit_status=0 || exit_status=$?
+    store=$(echo "{ \"recovery_key\" : \"$recovery_key\", \"root_token\" : \"$initial_root_token\" }" | jq -r '.') && exit_status=0 || exit_status=$?
 
     if [[ ! $exit_status -eq 0 ]]; then
       echo ""
-      echo "Error: Did format json to store token:"
+      echo "Error: formatting json to store token with jq:"
       echo "jq returned: $result"
       exit 1
     fi
