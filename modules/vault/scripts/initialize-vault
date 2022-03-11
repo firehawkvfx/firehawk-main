@@ -156,7 +156,16 @@ else
     echo ""
   else
     echo "Will store root token with SSM Secrets Manager"
-    $SCRIPTDIR/store_token "$initial_root_token"
+    store=$(echo "{ \"recovery_key\" : \"$recovery_key\", \"root_token\" : \"$initial_root_token\" }" | jq -r) && exit_status=0 || exit_status=$?
+
+    if [[ ! $exit_status -eq 0 ]]; then
+      echo ""
+      echo "Error: Did format json to store token:"
+      echo "jq returned: $result"
+      exit 1
+    fi
+
+    $SCRIPTDIR/store_token "$store"
     echo "Finished storing token."
   fi
 fi
@@ -198,8 +207,32 @@ else
       echo "errors: $errors"
       echo "exit_status: $exit_status"
       echo ""
-      echo "...Logging in manually. Or exit and use: vault login --no-print"
-      vault login --no-print
+      # get the root token from the secrets manager, this must be an existing vault store from the s3 bucket, but we are on a fresh provisioner instance
+      echo "...Will aquire key from secrets manager"
+      if [[ -z "$TF_VAR_resourcetier" ]]; then
+        export TF_VAR_instance_id_main_cloud9=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+        export TF_VAR_resourcetier="$(aws ec2 describe-tags --filters Name=resource-id,Values=$TF_VAR_instance_id_main_cloud9 --out=json|jq '.Tags[]| select(.Key == "resourcetier")|.Value' --raw-output)"
+      fi
+      secret_result=$(aws secretsmanager get-secret-value --secret-id "/firehawk/resourcetier/${TF_VAR_resourcetier}/vault_root_token" | jq -r '.SecretString') && exit_status=0 || exit_status=$?
+      if [[ ! $exit_status -eq 0 ]]; then
+        echo ""
+        echo "Error: aws secretsmanager get-secret-value failed:"
+        echo "jq returned: $secret_result"
+        exit 1
+      fi
+      # recovery_key=$(echo "$secret_result" | jq -r '.recovery_key')
+      initial_root_token=$(echo "$secret_result" | jq -r '.root_token')
+      echo ""
+      # echo "recovery_key: $recovery_key"
+      echo "initial_root_token: $initial_root_token"
+      echo ""
+      echo "...Logging in with root token from secrets manager. Or exit and use: vault login --no-print"
+      retry \
+        "vault login --no-print $initial_root_token" \
+        "...Logging in with root token" \
+        "Failed to login with root token."
+      # echo "...Logging in manually. Or exit and use: vault login --no-print"
+      # vault login --no-print
   fi
   echo ""
 fi
