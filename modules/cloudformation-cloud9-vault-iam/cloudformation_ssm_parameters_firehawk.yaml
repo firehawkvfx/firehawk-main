@@ -152,7 +152,7 @@ Parameters:
   combinedvpcscidr:
     Description: 'The IP range used for the main and rendering VPCs.  Cloud hosts will reside within this range and it must not intersect with your private network range. eg: 10.4.0.0/16 will not interfere with 192.168.1.0/24. eg: dev=10.1.0.0/16, blue=10.2.0.0/16, green=10.3.0.0/16, main=10.4.0.0/16'
     Type: String
-    Default: "10.1.0.0/16"
+    Default: "10.1.0.0/16" # if this default is changed, ensure the terraform var default is also changed
     AllowedPattern: "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\/([1-2][0-9]|3[0-2]))?$"
   onsitepublicip:
     Description: 'The public IP of your onsite connection used to connect to the cloud infra. Google "what is my ip" for the value. If you do not have a static IP, Terraform may need to update more frequently.'
@@ -396,7 +396,7 @@ Resources:
           - /git_repo_id
       Type: String
       Value: !Ref gitrepoid
-      Description: 'The id of your gite repo fork of firehawk. eg: mygitusername/firehawk'
+      Description: 'The ID of your git repo fork of firehawk. eg: mygitusername/firehawk'
       AllowedPattern: "[0-9a-zA-Z]+[/][0-9a-zA-Z]+"
 # Deadline UBL Licensing
   UsageBasedLicenseURL:
