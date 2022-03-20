@@ -2,7 +2,7 @@
 resource "aws_iam_role" "instance_role" {
   name        = "bastion_instance_role_${var.conflictkey}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
-  tags = merge( var.common_tags, map( "role", "bastion") )
+  tags = merge( var.common_tags, tomap({"role": "bastion"}) )
 }
 resource "aws_iam_instance_profile" "instance_profile" {
   name = aws_iam_role.instance_role.name

@@ -3,7 +3,7 @@ resource "aws_iam_role" "instance_role" {
   # name = "vault_client_instance_role_${var.conflictkey}"
   name        = "vault_client_instance_role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
-  tags = merge( var.common_tags, map( "role", "vault_client") )
+  tags = merge( var.common_tags, tomap({"role":"vault_client"}) )
 }
 resource "aws_iam_instance_profile" "instance_profile" {
   name = aws_iam_role.instance_role.name

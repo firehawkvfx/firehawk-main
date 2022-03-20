@@ -2,7 +2,7 @@
 resource "aws_iam_role" "instance_role" {
   name = "DeadlineSpot_instance_role_${var.conflictkey}" # Role name must start with 'DeadlineSpot' https://docs.thinkboxsoftware.com/products/deadline/10.1/1_User%20Manual/manual/event-spot-permissions.html#event-spot-iam-policies-ref-label
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
-  tags = merge( var.common_tags, map( "role", "rendernode") )
+  tags = merge( var.common_tags, tomap({"role":"rendernode"}) )
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/AWSThinkboxDeadlineSpotEventPluginWorkerPolicy"
   ]

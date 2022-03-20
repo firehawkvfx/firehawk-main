@@ -4,7 +4,7 @@ provider "aws" {
   version = "~> 4.3.0"
 }
 locals {
-  common_tags = merge( var.common_tags, map( "role", "terraform remote state" ) )
+  common_tags = merge( var.common_tags, tomap({"role":"terraform remote state"} ) )
 }
 
 # See https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68fa for the origin of some of this code.
