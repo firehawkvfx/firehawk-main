@@ -39,7 +39,7 @@ resource "aws_security_group" "openvpn" {
   name        = local.name
   vpc_id      = local.vpc_id
   description = "OpenVPN security group"
-  tags        = merge(map("Name", local.name), var.common_tags, local.extra_tags)
+  tags        = merge(tomap({"Name": local.name}), var.common_tags, local.extra_tags)
 
   ingress {
     protocol    = "-1"
