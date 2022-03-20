@@ -6,7 +6,7 @@ resource "aws_security_group" "vault_client" {
   name        = var.name
   vpc_id      = var.vpc_id
   description = "Vault client security group"
-  tags        = merge(map("Name", var.name), var.common_tags, local.extra_tags)
+  tags        = merge(tomap({"Name": var.name}), var.common_tags, local.extra_tags)
 
   # ingress {
   #   protocol    = "-1"
@@ -75,7 +75,7 @@ resource "aws_instance" "vault_client" {
   instance_type = var.instance_type
   key_name      = var.aws_key_name # The PEM key is disabled for use in production, can be used for debugging.  Instead, signed SSH certificates should be used to access the host.
   subnet_id              = tolist(var.private_subnet_ids)[0]
-  tags                   = merge(map("Name", var.name), var.common_tags, local.extra_tags)
+  tags                   = merge(tomap({"Name": var.name}), var.common_tags, local.extra_tags)
   user_data              = data.template_file.user_data_auth_client.rendered
   # iam_instance_profile   = aws_iam_instance_profile.vault_client_instance_profile.name
   iam_instance_profile = data.terraform_remote_state.vault_client_profile.outputs.instance_profile_name
@@ -111,8 +111,8 @@ locals {
     role  = "vault_client"
     route = "private"
   }
-  private_ip                     = element(concat(aws_instance.vault_client.*.private_ip, list("")), 0)
-  id                             = element(concat(aws_instance.vault_client.*.id, list("")), 0)
-  vault_client_security_group_id = element(concat(aws_security_group.vault_client.*.id, list("")), 0)
+  private_ip                     = element(concat(aws_instance.vault_client.*.private_ip, tolist([""])), 0)
+  id                             = element(concat(aws_instance.vault_client.*.id, tolist([""])), 0)
+  vault_client_security_group_id = element(concat(aws_security_group.vault_client.*.id, tolist([""])), 0)
   vpc_security_group_ids         = [local.vault_client_security_group_id]
 }

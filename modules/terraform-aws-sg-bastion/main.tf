@@ -22,7 +22,7 @@ resource "aws_security_group" "bastion" {
   name        = var.name
   vpc_id      = local.vpc_id
   description = "Bastion Security Group"
-  tags        = merge(map("Name", var.name), var.common_tags, local.extra_tags)
+  tags        = merge(tomap({"Name": var.name}), var.common_tags, local.extra_tags)
 
   ingress {
     protocol    = "-1"

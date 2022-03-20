@@ -22,10 +22,10 @@ locals {
     role  = "bastion"
     route = "public"
   })
-  public_ip       = element(concat(aws_instance.bastion.*.public_ip, list("")), 0)
-  private_ip      = element(concat(aws_instance.bastion.*.private_ip, list("")), 0)
-  public_dns      = element(concat(aws_instance.bastion.*.public_dns, list("")), 0)
-  id              = element(concat(aws_instance.bastion.*.id, list("")), 0)
+  public_ip       = element(concat(aws_instance.bastion.*.public_ip, tolist([""])), 0)
+  private_ip      = element(concat(aws_instance.bastion.*.private_ip, tolist([""])), 0)
+  public_dns      = element(concat(aws_instance.bastion.*.public_dns, tolist([""])), 0)
+  id              = element(concat(aws_instance.bastion.*.id, tolist([""])), 0)
   bastion_address = var.route_public_domain_name ? "bastion.${var.public_domain_name}" : local.public_ip
 }
 resource "aws_instance" "bastion" {
@@ -34,7 +34,7 @@ resource "aws_instance" "bastion" {
   instance_type          = var.instance_type
   key_name               = var.aws_key_name # The PEM key is disabled for use in production, can be used for debugging.  Instead, signed SSH certificates should be used to access the host.
   subnet_id              = tolist(var.public_subnet_ids)[0]
-  tags                   = merge(map("Name", var.name), local.bastion_tags)
+  tags                   = merge(tomap({"Name": var.name}), local.bastion_tags)
   user_data              = data.template_file.user_data_auth_client.rendered
   iam_instance_profile   = try(data.terraform_remote_state.bastion_profile.outputs.instance_profile_name, null)
   vpc_security_group_ids = [ try(data.terraform_remote_state.bastion_security_group.outputs.security_group_id, null) ]
@@ -55,8 +55,8 @@ data "template_file" "user_data_auth_client" {
 }
 resource "aws_route53_record" "bastion_record" {
   count   = var.route_public_domain_name && var.create_vpc ? 1 : 0
-  zone_id = element(concat(list(var.route_zone_id), list("")), 0)
-  name    = element(concat(list("bastion.${var.public_domain_name}"), list("")), 0)
+  zone_id = element(concat(tolist([var.route_zone_id]), tolist([""])), 0)
+  name    = element(concat(tolist(["bastion.${var.public_domain_name}"]), tolist([""])), 0)
   type    = "A"
   ttl     = 300
   records = [local.public_ip]
