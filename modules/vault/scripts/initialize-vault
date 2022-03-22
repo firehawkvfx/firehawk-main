@@ -198,7 +198,7 @@ else
 
   if [[ $exit_status -eq 0 && -z "$errors" ]]; then
       echo "...Already logged in"
-      echo "$output"
+      # echo "$output"
       policies="$(echo \"$output\" | awk '/^policies/ { print $2 ; exit }')"
       echo "policies: $policies"
   else
