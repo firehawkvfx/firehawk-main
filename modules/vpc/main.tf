@@ -1,30 +1,23 @@
-provider "null" {
-  version = "~> 3.0"
-}
-
-provider "aws" {
-  # in a dev environment these version locks below can be disabled.  in production, they should be locked based on the suggested versions from terraform init.
-  version = "~> 3.15.0"
-}
 locals {
   common_tags = var.common_tags
 }
 module "vpc" {
-  source                       = "./modules/terraform-aws-vpc"
-  vpc_name                     = local.common_tags["vpcname"]
-  enable_nat_gateway           = var.enable_nat_gateway
-  vpc_cidr                     = module.vaultvpc_all_subnet_cidrs.base_cidr_block
-  public_subnets               = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
-  private_subnets              = module.vaultvpc_all_private_subnet_cidrs.networks[*].cidr_block
-  sleep                        = var.sleep
-  common_tags                  = local.common_tags
+  source = "./modules/terraform-aws-vpc"
+  # source             = "github.com/firehawkvfx/firehawk-main.git//modules/vpc/modules/terraform-aws-vpc?ref=v0.0.32"
+  vpc_name           = local.common_tags["vpcname"]
+  enable_nat_gateway = var.enable_nat_gateway
+  vpc_cidr           = module.vaultvpc_all_subnet_cidrs.base_cidr_block
+  public_subnets     = module.vaultvpc_all_public_subnet_cidrs.networks[*].cidr_block
+  private_subnets    = module.vaultvpc_all_private_subnet_cidrs.networks[*].cidr_block
+  sleep              = var.sleep
+  common_tags        = local.common_tags
 }
 
 module "consul_client_security_group" {
-  source              = "./modules/consul-client-security-group"
-  common_tags         = local.common_tags
-  create_vpc          = true
-  vpc_id              = module.vpc.vpc_id
+  source      = "./modules/consul-client-security-group"
+  common_tags = local.common_tags
+  create_vpc  = true
+  vpc_id      = module.vpc.vpc_id
 }
 
 # Terraform will automatically configure multiple VPCs and subnets within this CIDR range for any resourcetier ( dev / green / blue / main ).
