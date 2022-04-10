@@ -56,7 +56,6 @@ resource "null_resource" "private_key_file_path" {
 }
 
 resource "tls_cert_request" "cert" {
-  key_algorithm   = tls_private_key.cert.algorithm
   private_key_pem = tls_private_key.cert.private_key_pem
 
   dns_names    = var.dns_names
