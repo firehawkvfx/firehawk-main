@@ -10,7 +10,7 @@ DESCRIPTION=$1
 git fetch --tags origin
 
 #get highest tag number
-HIGHESTVERSION=$(git describe --abbrev=0 --tags 2> /dev/null) 
+HIGHESTVERSION=$(git tag -l --sort -version:refname | head -n 1 2> /dev/null) 
 set -e
 VERSION=${HIGHESTVERSION:-'v0.0.0'}
 
