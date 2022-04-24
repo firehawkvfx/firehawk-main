@@ -15,7 +15,7 @@ resource "tls_private_key" "ca" {
 }
 
 resource "tls_self_signed_cert" "ca" {
-  private_key_pem   = tls_private_key.ca.private_key_pem
+  private_key_pem   = sensitive(tls_private_key.ca.private_key_pem)
   is_ca_certificate = true
 
   validity_period_hours = var.validity_period_hours
@@ -70,8 +70,8 @@ resource "tls_cert_request" "cert" {
 resource "tls_locally_signed_cert" "cert" {
   cert_request_pem = tls_cert_request.cert.cert_request_pem
   
-  ca_private_key_pem = tls_private_key.ca.private_key_pem
-  ca_cert_pem        = tls_self_signed_cert.ca.cert_pem
+  ca_private_key_pem = sensitive(tls_private_key.ca.private_key_pem)
+  ca_cert_pem        = sensitive(tls_self_signed_cert.ca.cert_pem)
 
   validity_period_hours = var.validity_period_hours
   allowed_uses          = var.allowed_uses
