@@ -35,6 +35,8 @@ if [[ -z "$NEEDS_TAG" && ! $exit_status -eq 0 ]]; then
     echo "Tagged with $NEW_TAG"
     git push origin $NEW_TAG
     git -c advice.detachedHead=false checkout $NEW_TAG
+    echo "Checkout release"
+    git checkout $NEW_TAG
 else
     echo "Already a tag $HIGHESTVERSION on this commit"
 fi
