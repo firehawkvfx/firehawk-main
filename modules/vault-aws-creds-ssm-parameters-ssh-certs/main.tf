@@ -43,7 +43,6 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     actions = [
       "sqs:SendMessage",
       "sqs:DeleteMessage",
-      "sqs:SendMessageBatch",
       "sqs:GetQueueAttributes"
     ]
     resources = var.sqs_send_arns
