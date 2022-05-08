@@ -10,8 +10,9 @@ function store_file {
   local -r vault_addr="$4"
 
   if sudo test -f "$file_path"; then
-    $file_content="$(sudo cat $file_path | base64 -w 0)"
-    vault kv put -address="$vault_addr" "$target/file" value="$file_content"
+    echo "Get file content at path: $file_path"
+    # $file_content="$(sudo cat $file_path | base64 -w 0)"
+    vault kv put -address="$vault_addr" "$target/file" value="$(sudo cat $file_path | base64 -w 0)"
 
     if [[ "$OSTYPE" == "darwin"* ]]; then # Acquire file permissions.
         octal_permissions=$(sudo stat -f %A $file_path | rev | sed -E 's/^([[:digit:]]{4})([^[:space:]]+)/\1/' | rev ) # clip to 4 zeroes
@@ -33,7 +34,7 @@ function store_file {
 
     # the certificate can be stored with secrets manager for systems that are unable to use ssh certificates (Windows powershell)
     echo "Will store file with SSM Secrets Manager"
-    store=$(echo "{ \"file\" : \"$file_content\", \"permissions\" : \"$parsed_metadata\" }" | jq -r '.') && exit_status=0 || exit_status=$?
+    store=$(echo "{ \"file\" : \"$(sudo cat $file_path | base64 -w 0)\", \"permissions\" : \"$parsed_metadata\" }" | jq -r '.') && exit_status=0 || exit_status=$?
     
     if [[ ! $exit_status -eq 0 ]]; then
       echo ""
