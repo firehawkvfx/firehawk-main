@@ -38,7 +38,7 @@ function store_file {
     echo "Setting string..."
     blob="{ \
       \"file\" : \"$(sudo cat $file_path | base64 -w 0)\", \
-      \"permissions\" : $parsed_metadata, \
+      \"permissions\" : $parsed_metadata \
     }"
     echo "Parsing string with jq..."
     store=$(echo "$blob" | jq -r '.') && exit_status=0 || exit_status=$?
