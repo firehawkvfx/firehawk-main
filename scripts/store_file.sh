@@ -34,7 +34,13 @@ function store_file {
 
     # the certificate can be stored with secrets manager for systems that are unable to use ssh certificates (Windows powershell)
     echo "Will store file with SSM Secrets Manager"
-    store=$(echo "{ \"file\" : \"$(sudo cat $file_path | base64 -w 0)\", \"permissions\" : $parsed_metadata }" | jq -r '.') && exit_status=0 || exit_status=$?
+    echo "Setting string..."
+    blob="{ \
+      \"file\" : \"$(sudo cat $file_path | base64 -w 0)\", \
+      \"permissions\" : $parsed_metadata, \
+    }"
+    echo "Parsing string with jq..."
+    store=$(echo "$blob" | jq -r '.') && exit_status=0 || exit_status=$?
     
     if [[ ! $exit_status -eq 0 ]]; then
       echo ""
