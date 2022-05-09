@@ -15,7 +15,6 @@ data "aws_secretsmanager_secret" "deadline_cert" {
 data "aws_iam_policy_document" "policy_doc" {
   statement { # see https://medium.com/avmconsulting-blog/best-practice-rules-for-aws-secrets-manager-97caaff6cea5
     effect = "Allow"
-    sid = "Allow the use of the CMK"
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
