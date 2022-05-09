@@ -46,7 +46,7 @@ function store_file {
     if [[ ! $exit_status -eq 0 ]]; then
       echo ""
       echo "Error: formatting json to store token with jq:"
-      echo "jq returned: $result"
+      echo "jq returned: $store"
       exit 1
     fi
 
