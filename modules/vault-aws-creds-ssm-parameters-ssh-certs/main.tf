@@ -57,3 +57,18 @@ data "aws_iam_policy_document" "read_ssm_paremeters_cert" {
     resources = var.sqs_recieve_arns
   }
 }
+
+data "aws_kms_alias" "deadline_kms_alias" {
+  name = "alias/firehawk/resourcetier/${var.resourcetier}/deadline_cert_kms_key"
+}
+data "aws_secretsmanager_secret" "deadline_cert" {
+  name = "/firehawk/resourcetier/${var.resourcetier}/file_deadline_cert"
+}
+module "iam_policies_secrets_manager_get" {
+  source       = "github.com/firehawkvfx/firehawk-main.git//modules/aws-iam-policies-secrets-manager-get?ref=main"
+  name         = "SecretsManagerPutDeadlineCert_${var.conflictkey}"
+  iam_role_id  = aws_iam_role.instance_role.id
+  resourcetier = var.resourcetier
+  kms_arn      = data.aws_kms_alias.deadline_kms_alias.target_key_arn
+  secret_arn   = data.aws_secretsmanager_secret.deadline_cert.arn
+}

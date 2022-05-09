@@ -12,17 +12,17 @@ data "aws_iam_policy_document" "policy_doc" {
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
-      "kms:DescribeKey",
-      "kms:ReEncrypt*",
-      "kms:GenerateDataKey*"
+      "kms:DescribeKey"
+      # "kms:ReEncrypt*",
+      # "kms:GenerateDataKey*"
     ]
     resources = [var.kms_arn]
   }
   statement {
     effect = "Allow"
     actions = [
-      "secretsmanager:PutSecretValue",
-      "secretsmanager:UpdateSecret",
+      # "secretsmanager:PutSecretValue",
+      # "secretsmanager:UpdateSecret",
       "secretsmanager:GetResourcePolicy",
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret",
@@ -35,6 +35,6 @@ data "aws_iam_policy_document" "policy_doc" {
     actions = [
       "secretsmanager:ListSecrets"
     ]
-    resources = ["*"]
+    resources = [var.secret_arn]
   }
 }
