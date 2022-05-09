@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 exec > >(tee -a /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 function store_file {
@@ -53,7 +54,7 @@ function store_file {
         --secret-id "/firehawk/resourcetier/$resourcetier/file_deadline_cert_content" \
         --secret-string "$store"
   else
-    print "Error: file not found: $file_path"
+    echo "Error: file not found: $file_path"
     exit 1
   fi
 }
