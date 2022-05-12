@@ -137,6 +137,7 @@ else
     echo ""
     echo "Error: Did not initialize vault:"
     echo "initialize-ssh returned: $result"
+    echo "If you have updated images, you must destroy the autoscaling group first to update the keys with the new deployer key."
     exit 1
   fi
 
