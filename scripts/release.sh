@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "NOTE: Ensure any 'ref=' or 'git clone --branch' in the repo points to tagged releases after a release."
+
 if [[ -z "$1" ]]; then
     echo "ERROR: arg must be a description of the release in quotes"
     exit 1
