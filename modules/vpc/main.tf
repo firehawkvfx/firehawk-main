@@ -3,7 +3,6 @@ locals {
 }
 module "vpc" {
   source = "./modules/terraform-aws-vpc"
-  # source             = "github.com/firehawkvfx/firehawk-main.git//modules/vpc/modules/terraform-aws-vpc?ref=v0.0.32"
   vpc_name           = local.common_tags["vpcname"]
   enable_nat_gateway = var.enable_nat_gateway
   vpc_cidr           = module.vaultvpc_all_subnet_cidrs.base_cidr_block
